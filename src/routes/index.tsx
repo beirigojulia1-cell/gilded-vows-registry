@@ -76,6 +76,58 @@ function Landing() {
           },
         );
       });
+      gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((parent) => {
+        const items = parent.querySelectorAll<HTMLElement>("[data-stagger-item]");
+        if (!items.length) return;
+        gsap.fromTo(
+          items,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            ease: "power2.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: parent, start: "top 75%" },
+          },
+        );
+      });
+      gsap.utils.toArray<HTMLElement>("[data-chapter]").forEach((el) => {
+        const side = (el as HTMLElement).dataset.side === "right" ? "right" : "left";
+        const img = el.querySelector<HTMLElement>("[data-chapter-img]");
+        const numeral = el.querySelector<HTMLElement>("[data-chapter-numeral]");
+        if (img) {
+          const from = side === "left" ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)";
+          gsap.fromTo(
+            img,
+            { clipPath: from, scale: 1.15 },
+            {
+              clipPath: "inset(0 0 0 0)",
+              scale: 1,
+              duration: 1.6,
+              ease: "power3.out",
+              scrollTrigger: { trigger: el, start: "top 75%" },
+            },
+          );
+          gsap.to(img, {
+            yPercent: -6,
+            ease: "none",
+            scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
+          });
+        }
+        if (numeral) {
+          gsap.fromTo(
+            numeral,
+            { opacity: 0, x: side === "left" ? -60 : 60 },
+            {
+              opacity: 1,
+              x: 0,
+              ease: "none",
+              scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
+            },
+          );
+        }
+      });
       gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
         gsap.to(el, {
           y: -60,
