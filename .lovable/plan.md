@@ -1,66 +1,51 @@
 ## Objetivo
 
-Transformar o site em uma única página rolável (sem rota separada de presentes), tocar a música "Ed Sheeran – Photograph" automaticamente, oferecer fallback de play quando o autoplay for bloqueado, otimizar performance e corrigir bugs.
+Tirar o degradê preto sobre as fotos, fazer as fotos dos capítulos encostarem uma na outra (sem espaço/borda no meio) e resolver a lentidão/atraso do carregamento das imagens.
 
-## 1. Música de fundo (autoplay + fallback)
+## 1. Remover degradês das fotos
 
-- Upload do `Ed Sheeran - Photograph.mp3` via `lovable-assets` → `src/assets/photograph.mp3.asset.json` (CDN, não fica no bundle).
-- Novo componente `src/components/MusicPlayer.tsx`:
-  - `<audio>` oculto, `loop`, `preload="auto"`, volume inicial 0.35 (fade-in suave até 0.6 em 2s via Web Audio quando começar a tocar).
-  - Tenta `audio.play()` no mount. Se a Promise rejeitar (Safari/iOS/Chrome com autoplay bloqueado), exibe um botão flutuante discreto no canto **inferior esquerdo** (gold, 44×44, ícone Play da `lucide-react`), com `aria-label="Tocar música"` e tooltip "Tocar música".
-  - Quando estiver tocando, o ícone troca para um par de notas musicais com leve animação pulse; clique pausa/retoma. Ícone visível mas minimalista (não cobre conteúdo, `z-40`).
-  - Persistência da preferência (play/pause) em `localStorage` para não reiniciar a cada navegação interna.
-  - Reage ao primeiro `pointerdown`/`keydown` do usuário tentando dar play novamente caso o autoplay tenha falhado (gesto do usuário desbloqueia em todos os navegadores).
-- Montado uma única vez no `__root.tsx` para não recriar o `<audio>` entre renders.
+- `src/routes/index.tsx` → `LoveStory`: remover o `<div>` com `bg-gradient-to-r/l from-background/80 …` que cria a faixa preta sobre a foto de cada capítulo. A foto fica limpa, encostando no bloco de texto.
+- `Gallery`: remover (ou reduzir a `opacity-0`) o `bg-gradient-to-t from-black/90 …` que escurece as fotos da galeria por padrão; manter só o hover (palavra dourada) com fundo discreto via `bg-black/40` apenas no estado `group-hover`.
+- `Hero` e `Closing`: manter um leve overlay para legibilidade do texto branco (não foi pedido para remover), mas trocar `from-black/40 via-black/60 to-black/95` por algo mais suave (`from-black/30 via-black/40 to-black/80`) para a foto aparecer melhor.
 
-## 2. Página única (remover rota `/gifts`)
+## 2. Fotos dos capítulos encostando uma na outra
 
-- Apagar `src/routes/gifts.tsx` (e referências em `routeTree.gen.ts` são regeneradas).
-- Criar nova seção `Gifts` em `src/routes/index.tsx`, inserida **antes do `RSVP`** e **depois do `InfoCards`** com:
-  - Cabeçalho com `eyebrow`, título "Lista de Presentes / Nosso Ninho de Amor" e parágrafo.
-  - Filtros por categoria (chips) reaproveitando lógica atual.
-  - Grid responsivo dos cards (mesmo visual do `gifts.tsx`).
-  - `PurchaseModal` reaproveitado (já existe).
-- No `InfoCards`, trocar o `<Link to="/gifts">` por um botão que faz `scrollIntoView` na seção `#gifts` (smooth via Lenis já presente).
-- Manter a rota `/admin` intacta (continua acessível diretamente).
+Hoje cada capítulo é uma `section` separada em `min-h-screen` com `grid md:grid-cols-2`. As fotos já encostam no texto ao lado, mas verticalmente entre capítulos não há gap (já está colado). O que falta:
 
-## 3. Otimizações de performance
+- Garantir `gap-0` no grid e remover qualquer `border`/`rounded` nas imagens.
+- Remover o overlay degradê citado acima — essa era a única "borda" visual entre foto e texto.
+- Em mobile (`grid-cols-1`), encostar foto do capítulo atual na foto/seção do próximo: remover `py-20` do bloco de texto que cria respiro e usar `py-12` apenas; manter altura da foto em `h-[60vh]` sem margem.
+- Adicionar `block` nas `<img>` (evita gap inline) e `m-0`.
 
-- **Imagens**: gerar versões `.webp` via `lovable-assets` para hero, chapters, gallery e closing; importar como `.asset.json` para sair do bundle JS e usar CDN com cache agressivo. Adicionar `decoding="async"`, `loading="lazy"` em tudo exceto `hero` (que recebe `fetchpriority="high"` + `loading="eager"`).
-- **GSAP**: refatorar para um único `useEffect` com `gsap.context`, usar `matchMedia` para desabilitar ScrollTrigger em `prefers-reduced-motion` e em telas `< 768px` (mantém só fades simples), reduzindo trabalho em mobile.
-- **Particles**: limitar `ParticleCanvas` a 1 instância visível por vez via `IntersectionObserver` (pausa quando fora da viewport); reduzir densidade em mobile.
-- **Cursor customizado**: desabilitar em touch devices (`matchMedia('(pointer: coarse)')`).
-- **Lenis SmoothScroll**: desativar em `prefers-reduced-motion`.
-- **Code-split**: `PurchaseModal` e `CountdownTimer` via `React.lazy` + `Suspense` para enxugar o bundle inicial.
-- **Fonts**: garantir `font-display: swap` no `@import` do Google Fonts.
+## 3. Otimizar carregamento das imagens (causa do atraso)
 
-## 4. Bugs identificados a corrigir
+Causa do bug "fotos aparecem depois da página carregar":
+- Todas as fotos de capítulo estão com `loading="lazy"`, então só baixam quando entram na viewport, com a animação GSAP de `clip-path` rodando em cima delas → parecem "aparecer atrasadas".
+- Imagens originais são JPEGs grandes (300–650KB cada) servidos em tamanho cheio mesmo em telas pequenas.
+- O `hero.jpg` ainda está no bundle local (`src/assets/hero.jpg`, 137KB) bloqueando.
 
-- `RSVP({ ref })` em `src/routes/index.tsx` usa `ref` como prop comum → não funciona como ref real. Substituir por `forwardRef` (ou expor via `useImperativeHandle`/passar `id="rsvp"` e fazer scroll por seletor). Solução escolhida: dar `id="rsvp"` à seção e remover a prop `ref` totalmente; o botão do `Closing` faz `document.getElementById('rsvp')?.scrollIntoView`.
-- `Loader` desaparece após 700ms mas fica sempre no DOM. Adicionar `display: none` após `done` para liberar GPU.
-- `CustomCursor` provoca jank em alguns devices — esconder em mobile (ver acima).
-- `Link to="/gifts"` deixaria de existir → removido junto com a refatoração.
-- `PurchaseModal` define `document.body.style.overflow = "hidden"` mas o Lenis controla scroll; trocar para `lenis.stop()`/`lenis.start()` quando disponível, caindo no overflow hidden como fallback.
-- `useStoreSubscribe` retorna `void | (() => void)`; o `useEffect` em `gifts` chama `return cleanup` mesmo quando `undefined` (SSR). Garantir retorno sempre função (no-op no SSR).
-- Imports não utilizados (`useRef` em `Landing` após mudar RSVP) removidos para não falhar no lint strict.
+Ações:
 
-## 5. SEO / meta
+- **Preload da primeira foto da história**: adicionar `<link rel="preload" as="image" href={chapter1}>` no `head()` do route `/` para começar o download cedo, junto com `fetchpriority="high"` na primeira `<img>` de capítulo.
+- **Primeira foto eager**: `loading="eager"` e `decoding="async"` para o `Hero` e para o capítulo 1; demais capítulos continuam `loading="lazy"` mas com `decoding="async"` e `fetchpriority="low"`.
+- **Hero local → CDN**: subir `src/assets/hero.jpg` e `src/assets/closing.jpg` para `lovable-assets` (.asset.json) para sair do bundle JS e ganhar cache CDN agressivo.
+- **Servir tamanho menor**: usar a query string de redimensionamento do CDN do Lovable (`?w=1280&q=75`) para fotos de capítulo/galeria — reduz 600KB → ~120KB em telas comuns. `srcSet` com 768w/1280w/1920w + `sizes="(max-width: 768px) 100vw, 50vw"` nos capítulos, `sizes="(max-width: 768px) 50vw, 33vw"` na galeria.
+- **Placeholder enquanto carrega**: usar `background-color: var(--ink)` no `<div>` que contém a `<img>` para evitar "flash" branco quando a foto ainda não chegou.
+- **Reduzir o tempo de loader**: o `Loader` segura a tela por ~1.5s mesmo quando tudo já está pronto. Trocar a barra fake por um listener que avança ao `document.readyState === 'complete'` (com cap de 1.2s para não esperar todas as imagens).
 
-- Atualizar `head()` do `index` para refletir página única (descrição inclui "Lista de presentes e RSVP").
-- Remover `head()` da rota `/gifts` (deletada).
+## 4. Bugs adicionais detectados
+
+- `gifts` chama `useStoreSubscribe(...)` dentro de `useEffect` e usa o retorno como cleanup — `useStoreSubscribe` é um hook, não pode ser chamado dentro de `useEffect`. Substituir por `store.subscribe(cb)` (API do store, retorna `unsubscribe`) ou usar `useSyncExternalStore`. Sintoma: erro silencioso no console e cards de presentes podem não atualizar após compra.
+- `ParticleCanvas` é montado 2x simultaneamente (Hero + Proposal + Closing) → 3 canvases ativos. Adicionar prop `density` baixa nos secundários e desativar completamente o do `Closing` (já está sobre foto escura, contribui pouco e custa CPU).
+- `gsap.context` sem `ScrollTrigger.refresh()` após carregamento das imagens — os triggers calculam offsets antes das fotos terem altura final, causando início de animação no lugar errado. Adicionar `ScrollTrigger.refresh()` em `window.addEventListener('load', …)`.
+- `SmoothScroll` (Lenis) não respeita `prefers-reduced-motion`. Adicionar guarda para pular Lenis nesse caso.
 
 ## Arquivos afetados
 
-- `src/assets/photograph.mp3.asset.json` (novo, via CLI)
-- `src/components/MusicPlayer.tsx` (novo)
-- `src/routes/__root.tsx` (montar `MusicPlayer`)
-- `src/routes/index.tsx` (seção Gifts inline, fix RSVP ref, lazy imports, scroll para gifts)
-- `src/routes/gifts.tsx` (apagado)
-- `src/components/PurchaseModal.tsx` (integração com Lenis)
-- `src/components/CustomCursor.tsx` (skip em touch)
-- `src/components/SmoothScroll.tsx` (respeitar reduced-motion)
-- `src/components/ParticleHero.tsx` (IntersectionObserver + densidade mobile)
-- `src/lib/store.ts` (no-op cleanup em SSR)
-- Possíveis novos `.asset.json` para imagens convertidas a webp (best-effort; se a conversão falhar, manter JPGs originais).
+- `src/routes/index.tsx` — remoção dos overlays, ajustes nos capítulos, preload no `head()`, srcSet + sizes + fetchpriority nas imagens, fix do `useStoreSubscribe` em `Gifts`.
+- `src/components/Loader.tsx` — encurtar duração e reagir ao `readyState`.
+- `src/components/ParticleHero.tsx` — aceitar `density` prop, reduzir nos usos secundários.
+- `src/components/SmoothScroll.tsx` — respeitar `prefers-reduced-motion`.
+- `src/assets/hero.jpg` e `src/assets/closing.jpg` — mover para `lovable-assets` e apagar os binários do repo.
 
-Sem mudanças em rotas além da remoção de `/gifts`. Estilos globais inalterados exceto pequenas classes utilitárias para o botão de música.
+Sem mudanças em rotas, store, autenticação ou estrutura de dados.

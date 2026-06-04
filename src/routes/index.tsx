@@ -241,7 +241,7 @@ function LoveStory() {
                 className="absolute inset-0 w-full h-full object-cover will-change-transform"
                 loading="lazy"
               />
-              <div className={`absolute inset-y-0 ${photoRight ? "left-0 bg-gradient-to-r" : "right-0 bg-gradient-to-l"} from-background/80 via-background/10 to-transparent w-24 pointer-events-none`} />
+              
             </div>
 
             {/* Text half */}
