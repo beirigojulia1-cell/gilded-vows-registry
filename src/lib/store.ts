@@ -9,6 +9,7 @@ export type Gift = {
   description?: string;
   imageUrl?: string;
   gradient?: string;
+  accent?: string;
 };
 
 export type Purchase = {
@@ -50,14 +51,14 @@ const GRADIENTS = [
 ];
 
 const DEFAULT_GIFTS: Gift[] = [
-  { id: "g1", title: "Lua de Mel", category: "Viagem", priceCents: 50000, icon: "✈", description: "Contribua para a nossa viagem dos sonhos.", gradient: GRADIENTS[0] },
-  { id: "g2", title: "Passagens Aéreas", category: "Viagem", priceCents: 30000, icon: "🌍", description: "Ajude-nos a voar para o destino especial.", gradient: GRADIENTS[1] },
-  { id: "g3", title: "Jantar Romântico", category: "Experiências", priceCents: 8000, icon: "🍷", description: "Um jantar à luz de velas só para nós dois.", gradient: GRADIENTS[2] },
-  { id: "g4", title: "Café da Manhã Especial", category: "Experiências", priceCents: 3000, icon: "☕", description: "O primeiro café da manhã como marido e mulher.", gradient: GRADIENTS[3] },
-  { id: "g5", title: "Decoração da Casa", category: "Lar", priceCents: 15000, icon: "🏠", description: "Toques especiais para o nosso novo lar.", gradient: GRADIENTS[4] },
-  { id: "g6", title: "Experiência do Casal", category: "Experiências", priceCents: 12000, icon: "💫", description: "Uma experiência inesquecível para celebrar nossa união.", gradient: GRADIENTS[5] },
-  { id: "g7", title: "Ajuda para a Nova Casa", category: "Lar", priceCents: 10000, icon: "🌸", description: "Contribuição para mobiliar nosso lar.", gradient: GRADIENTS[6] },
-  { id: "g8", title: "Noite de Spa", category: "Experiências", priceCents: 6000, icon: "🌿", description: "Relaxar juntos depois da agitação.", gradient: GRADIENTS[7] },
+  { id:"g01", title:"Lua de Mel", description:"Contribua para a viagem mais especial da nossa vida. Cada detalhe desse sonho foi planejado com amor.", priceCents:50000, category:"Viagem", icon:"✈", gradient:"linear-gradient(135deg,#0d0b08,#1a1008,#0d0b08)", accent:"#c9a96e" },
+  { id:"g02", title:"Passagens Aéreas", description:"Ajude-nos a voar para o destino dos nossos sonhos. A aventura começa com o primeiro voo.", priceCents:30000, category:"Viagem", icon:"🌍", gradient:"linear-gradient(135deg,#080d12,#0d1520,#080d12)", accent:"#8ab4d4" },
+  { id:"g03", title:"Jantar Romântico", description:"Uma noite especial em um restaurante inesquecível, para celebrarmos nossa história de amor.", priceCents:8000, category:"Experiências", icon:"🍷", gradient:"linear-gradient(135deg,#120608,#1e0a0c,#120608)", accent:"#c4647a" },
+  { id:"g04", title:"Café da Manhã Especial", description:"O começo perfeito para os nossos dias juntos — repleto de amor, carinho e bons momentos.", priceCents:3000, category:"Experiências", icon:"☕", gradient:"linear-gradient(135deg,#100d06,#1a1308,#100d06)", accent:"#d4a96e" },
+  { id:"g05", title:"Decoração da Casa", description:"Ajude-nos a transformar um espaço em um verdadeiro lar. Cada peça conta nossa história.", priceCents:15000, category:"Lar", icon:"🏠", gradient:"linear-gradient(135deg,#080c0f,#0c1318,#080c0f)", accent:"#7ab4b8" },
+  { id:"g06", title:"Experiência do Casal", description:"Uma vivência única que sempre sonhamos viver juntos. Uma memória que durará a vida toda.", priceCents:12000, category:"Experiências", icon:"💫", gradient:"linear-gradient(135deg,#0c0810,#150d1e,#0c0810)", accent:"#b48cd4" },
+  { id:"g07", title:"Ajuda para a Nova Casa", description:"Contribua com o valor que estiver no seu coração para realizarmos nosso ninho de amor.", priceCents:10000, category:"Lar", icon:"🌸", gradient:"linear-gradient(135deg,#0f0a08,#1a1210,#0f0a08)", accent:"#d4a8a0" },
+  { id:"g08", title:"Noite de Spa", description:"Uma tarde de puro relaxamento e bem-estar para dois, celebrando o início de uma nova vida.", priceCents:6000, category:"Experiências", icon:"🌿", gradient:"linear-gradient(135deg,#060c0a,#0a1612,#060c0a)", accent:"#8ad4b4" },
 ];
 
 const DEFAULT_SETTINGS: Settings = {
