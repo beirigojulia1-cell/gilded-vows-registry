@@ -152,7 +152,16 @@ function Landing() {
         });
       });
     });
-    return () => ctx.revert();
+    const refresh = () => ScrollTrigger.refresh();
+    const imgs = Array.from(document.querySelectorAll("img"));
+    imgs.forEach((img) => {
+      if (!img.complete) img.addEventListener("load", refresh, { once: true });
+    });
+    window.addEventListener("load", refresh);
+    return () => {
+      window.removeEventListener("load", refresh);
+      ctx.revert();
+    };
   }, []);
 
   return (
