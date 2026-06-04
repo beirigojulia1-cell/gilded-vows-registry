@@ -61,9 +61,11 @@ const GALLERY = [
   { src: g6, word: "Aventura", h: "h-[300px]" },
 ];
 
-function Landing() {
-  const rsvpRef = useRef<HTMLElement>(null);
+function scrollToId(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+}
 
+function Landing() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
@@ -154,8 +156,9 @@ function Landing() {
         <Proposal />
         <CountdownTimer date="2026-11-15T17:00:00-03:00" />
         <InfoCards />
-        <RSVP ref={rsvpRef} />
-        <Closing onScrollToRsvp={() => rsvpRef.current?.scrollIntoView({ behavior: "smooth" })} />
+        <Gifts />
+        <RSVP />
+        <Closing onScrollToRsvp={() => scrollToId("rsvp")} />
       </div>
     </>
   );
@@ -336,9 +339,9 @@ function InfoCards() {
                 <h3 className="font-serif text-3xl md:text-4xl text-ink mb-3">Nosso Ninho de Amor</h3>
                 <p className="text-ink/65 italic max-w-md">"Contribua para realizarmos nossos sonhos juntos."</p>
               </div>
-              <Link to="/gifts" className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition">
+              <button type="button" onClick={() => scrollToId("gifts")} className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition">
                 Ver Lista de Presentes →
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -347,7 +350,7 @@ function InfoCards() {
   );
 }
 
-function RSVP({ ref }: { ref: RefObject<HTMLElement | null> }) {
+function RSVP() {
   const { push } = useToast();
   const [name, setName] = useState("");
   const [guests, setGuests] = useState(1);
@@ -361,10 +364,10 @@ function RSVP({ ref }: { ref: RefObject<HTMLElement | null> }) {
     list.push({ id: crypto.randomUUID(), name: name.trim(), guests, message: message.trim(), at: Date.now() });
     localStorage.setItem("wg_rsvp", JSON.stringify(list));
     setDone(true);
-}
+  };
 
   return (
-    <section ref={ref} className="py-28 md:py-40 px-6">
+    <section id="rsvp" className="py-28 md:py-40 px-6">
       <div className="max-w-2xl mx-auto" data-reveal>
         <div className="text-center mb-12">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— RSVP —</p>
