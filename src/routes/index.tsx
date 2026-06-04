@@ -233,34 +233,33 @@ function InfoCards() {
     { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
   ];
   return (
-    <section className="py-24 md:py-32 px-6">
+    <section className="py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— Cerimônia —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Nosso <em className="text-gradient-gold not-italic">Grande Dia</em></h2>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Detalhes —</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-ink">Nosso <em className="text-gradient-gold not-italic">Grande Dia</em></h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {cards.map((c) => (
-            <div key={c.label} className="bg-card/50 border border-gold/15 rounded-md p-8 hover:border-gold/40 hover:bg-card/80 transition-all" data-reveal>
-              <div className="text-gold mb-5">{c.icon}</div>
-              <p className="text-[10px] tracking-[0.35em] uppercase text-champagne/50 mb-2">{c.label}</p>
-              <h3 className="font-serif text-3xl text-champagne mb-1">{c.value}</h3>
-              <p className="text-champagne/55 text-sm">{c.sub}</p>
+            <div key={c.label} className="bg-white/70 border border-gold/20 rounded-md p-8 hover:border-gold/50 hover:bg-white transition-all shadow-[0_1px_2px_rgba(0,0,0,0.04)]" data-reveal>
+              <div className="text-gold-soft mb-5">{c.icon}</div>
+              <p className="text-[10px] tracking-[0.35em] uppercase text-gold-soft mb-2">{c.label}</p>
+              <h3 className="font-serif text-3xl text-ink mb-1">{c.value}</h3>
+              <p className="text-ink/55 text-sm">{c.sub}</p>
               {c.cta && (
-                <a href={c.cta.href} target="_blank" rel="noopener noreferrer" className="btn-gold inline-block mt-5 px-5 py-2 rounded">{c.cta.label}</a>
+                <a href={c.cta.href} target="_blank" rel="noopener noreferrer" className="inline-block mt-5 px-5 py-2 rounded-full bg-ink text-cream text-xs tracking-[0.18em] uppercase hover:bg-ink/85 transition">{c.cta.label}</a>
               )}
             </div>
           ))}
-          <div className="md:col-span-2 relative bg-gradient-to-br from-card/80 via-[#1a1408] to-card/80 border border-gold/30 rounded-md p-10 md:p-14 overflow-hidden" data-reveal>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,169,110,0.15),transparent_60%)]" />
+          <div className="md:col-span-2 lg:col-span-4 relative bg-white/80 border border-gold/25 rounded-md p-10 md:p-14 overflow-hidden" data-reveal>
             <div className="relative grid md:grid-cols-[1fr_auto] gap-8 items-center">
               <div>
-                <div className="text-gold mb-5"><GiftIcon /></div>
-                <p className="text-[10px] tracking-[0.35em] uppercase text-champagne/50 mb-2">Lista de Presentes</p>
-                <h3 className="font-serif text-3xl md:text-4xl text-champagne mb-3">Nosso Ninho de Amor</h3>
-                <p className="text-champagne/65 italic max-w-md">"Contribua para realizarmos nossos sonhos juntos."</p>
+                <div className="text-gold-soft mb-5"><GiftIcon /></div>
+                <p className="text-[10px] tracking-[0.35em] uppercase text-gold-soft mb-2">Lista de Presentes</p>
+                <h3 className="font-serif text-3xl md:text-4xl text-ink mb-3">Nosso Ninho de Amor</h3>
+                <p className="text-ink/65 italic max-w-md">"Contribua para realizarmos nossos sonhos juntos."</p>
               </div>
-              <Link to="/gifts" className="shimmer px-7 py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs whitespace-nowrap">
+              <Link to="/gifts" className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition">
                 Ver Lista de Presentes →
               </Link>
             </div>
