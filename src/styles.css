@@ -32,6 +32,8 @@
   --color-gold-soft: var(--gold-soft);
   --color-champagne: var(--champagne);
   --color-ink: var(--ink);
+  --color-cream: var(--cream);
+  --color-cream-muted: var(--cream-muted);
   --font-serif: "Cormorant Garamond", serif;
   --font-sans: "Inter", sans-serif;
 }
