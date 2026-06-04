@@ -13,16 +13,27 @@ import { ensureDefaultPassword, formatBRL, store, useStoreSubscribe, type Gift, 
 import { useToast } from "@/components/Toast";
 import heroImg from "@/assets/hero.jpg";
 import closingImg from "@/assets/closing.jpg";
-import chapter1 from "@/assets/chapter1.jpg";
-import chapter2 from "@/assets/chapter2.jpg";
-import chapter3 from "@/assets/chapter3.jpg";
-import chapter4 from "@/assets/chapter4.jpg";
-import g1 from "@/assets/gallery1.jpg";
-import g2 from "@/assets/gallery2.jpg";
-import g3 from "@/assets/gallery3.jpg";
-import g4 from "@/assets/gallery4.jpg";
-import g5 from "@/assets/gallery5.jpg";
-import g6 from "@/assets/gallery6.jpg";
+import chapter1Asset from "@/assets/se-olhando.jpeg.asset.json";
+import chapter2Asset from "@/assets/mao-dada-se-olhando.jpeg.asset.json";
+import chapter3Asset from "@/assets/gi-olhando-sergio.jpeg.asset.json";
+import chapter4Asset from "@/assets/beijando-testa-gigante.jpeg.asset.json";
+import g1Asset from "@/assets/sorriso-gi.jpeg.asset.json";
+import g2Asset from "@/assets/sentados-banco.jpeg.asset.json";
+import g3Asset from "@/assets/maos-gi.jpeg.asset.json";
+import g4Asset from "@/assets/sergio-segurando-gi.jpeg.asset.json";
+import g5Asset from "@/assets/sergio-segurando-gi-sorrindo.jpeg.asset.json";
+import g6Asset from "@/assets/se-olhando.jpeg.asset.json";
+
+const chapter1 = chapter1Asset.url;
+const chapter2 = chapter2Asset.url;
+const chapter3 = chapter3Asset.url;
+const chapter4 = chapter4Asset.url;
+const g1 = g1Asset.url;
+const g2 = g2Asset.url;
+const g3 = g3Asset.url;
+const g4 = g4Asset.url;
+const g5 = g5Asset.url;
+const g6 = g6Asset.url;
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
