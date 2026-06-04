@@ -181,11 +181,11 @@ function LoveStory() {
 
 function Gallery() {
   return (
-    <section className="py-24 md:py-32 px-6 bg-gradient-to-b from-background via-card/30 to-background">
+    <section className="py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— Memórias —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Memórias <em className="text-gradient-gold not-italic">Eternizadas</em></h2>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Galeria —</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-ink">Memórias <em className="text-gradient-gold not-italic">Eternizadas</em></h2>
         </div>
         <div className="columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
           {GALLERY.map((g) => (
