@@ -1,135 +1,368 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Loader } from "@/components/Loader";
+import { CustomCursor } from "@/components/CustomCursor";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import { ParticleCanvas } from "@/components/ParticleHero";
-import { PurchaseModal } from "@/components/PurchaseModal";
-import { ToastProvider } from "@/components/Toast";
-import { ensureDefaultPassword, formatBRL, store, useStoreSubscribe, type Gift } from "@/lib/store";
+import { CountdownTimer } from "@/components/CountdownTimer";
+import { ToastProvider, useToast } from "@/components/Toast";
+import heroImg from "@/assets/hero.jpg";
+import closingImg from "@/assets/closing.jpg";
+import chapter1 from "@/assets/chapter1.jpg";
+import chapter2 from "@/assets/chapter2.jpg";
+import chapter3 from "@/assets/chapter3.jpg";
+import chapter4 from "@/assets/chapter4.jpg";
+import g1 from "@/assets/gallery1.jpg";
+import g2 from "@/assets/gallery2.jpg";
+import g3 from "@/assets/gallery3.jpg";
+import g4 from "@/assets/gallery4.jpg";
+import g5 from "@/assets/gallery5.jpg";
+import g6 from "@/assets/gallery6.jpg";
+
+if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Geovana & Sérgio · Lista de Presentes" },
-      { name: "description", content: "Seu presente é uma forma de fazer parte da nossa história." },
-      { property: "og:title", content: "Geovana & Sérgio · Lista de Presentes" },
-      { property: "og:description", content: "Seu presente é uma forma de fazer parte da nossa história." },
+      { title: "Geovana & Sérgio · Casamento 2026" },
+      { name: "description", content: "Uma história escrita pelo destino. 15 de Novembro de 2026." },
+      { property: "og:title", content: "Geovana & Sérgio · Casamento 2026" },
+      { property: "og:description", content: "Uma história escrita pelo destino. 15 de Novembro de 2026." },
+      { property: "og:image", content: heroImg },
     ],
   }),
   component: () => (
     <ToastProvider>
-      <GiftsPage />
+      <SmoothScroll>
+        <Landing />
+      </SmoothScroll>
     </ToastProvider>
   ),
 });
 
-function GiftsPage() {
-  ensureDefaultPassword();
-  const [, setTick] = useState(0);
-  const [gifts, setGifts] = useState<Gift[]>(() => store.getGifts());
-  const [purchasedIds, setPurchasedIds] = useState<Set<string>>(() => new Set(store.getPurchases().map((p) => p.giftId)));
-  const [activeCat, setActiveCat] = useState("Todos");
-  const [selected, setSelected] = useState<Gift | null>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
+const CHAPTERS = [
+  { n: "01", tag: "Primeiro Capítulo", title: "Primeiro Encontro", year: "2019", text: "Naquele dia, o universo conspirou para que dois caminhos se cruzassem. Um olhar que durou apenas um instante — mas que mudaria tudo para sempre.", img: chapter1 },
+  { n: "02", tag: "Segundo Capítulo", title: "Primeira Viagem", year: "2020", text: "Descobrir o mundo juntos revelou que o melhor destino nunca é um lugar — é a pessoa ao seu lado.", img: chapter2 },
+  { n: "03", tag: "Terceiro Capítulo", title: "Momentos Especiais", year: "2021 — 2023", text: "Cada risada compartilhada, cada silêncio confortável, cada momento ordinário transformado em memória preciosa e eterna.", img: chapter3 },
+  { n: "04", tag: "Quarto Capítulo", title: "Pedido de Casamento", year: "2024", text: "\"Você quer casar comigo?\" — e o tempo parou. O coração respondeu antes mesmo das palavras. Sim. Para sempre. Sim.", img: chapter4 },
+];
+
+const GALLERY = [
+  { src: g1, word: "Amor", h: "h-[420px]" },
+  { src: g2, word: "Cumplicidade", h: "h-[320px]" },
+  { src: g3, word: "Alegria", h: "h-[380px]" },
+  { src: g4, word: "Eternidade", h: "h-[340px]" },
+  { src: g5, word: "Para Sempre", h: "h-[440px]" },
+  { src: g6, word: "Aventura", h: "h-[300px]" },
+];
+
+function Landing() {
+  const rsvpRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const sync = () => {
-      setGifts(store.getGifts());
-      setPurchasedIds(new Set(store.getPurchases().map((p) => p.giftId)));
-      setTick((n) => n + 1);
-    };
-    return useStoreSubscribe(sync);
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: { trigger: el, start: "top 85%" },
+          },
+        );
+      });
+      gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
+        gsap.to(el, {
+          y: -60,
+          ease: "none",
+          scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
+        });
+      });
+    });
+    return () => ctx.revert();
   }, []);
 
-  const categories = useMemo(() => ["Todos", ...Array.from(new Set(gifts.map((g) => g.category)))], [gifts]);
-  const filtered = useMemo(() => (activeCat === "Todos" ? gifts : gifts.filter((g) => g.category === activeCat)), [gifts, activeCat]);
-
-  useEffect(() => {
-    if (!gridRef.current) return;
-    const cards = gridRef.current.querySelectorAll("[data-card]");
-    gsap.fromTo(cards, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.06, ease: "power2.out" });
-  }, [filtered]);
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* HERO */}
-      <header className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,169,110,0.18),transparent_60%)]" />
-        <ParticleCanvas />
-        <div className="relative max-w-5xl mx-auto px-6 py-28 md:py-40 text-center">
-          <p className="text-[0.7rem] md:text-xs tracking-[0.45em] uppercase text-gold/80 mb-8 animate-fade-up">— Geovana &amp; Sérgio · 2026 —</p>
-          <h1 className="font-serif text-5xl md:text-7xl text-champagne animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            Lista de <em className="text-gradient-gold not-italic">Presentes</em>
-          </h1>
-          <div className="gold-rule w-32 mx-auto my-8" />
-          <p className="max-w-xl mx-auto text-champagne/70 leading-relaxed text-sm md:text-base font-light animate-fade-up" style={{ animationDelay: "0.2s" }}>
-            Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo.
-          </p>
-        </div>
-      </header>
+    <>
+      <Loader />
+      <CustomCursor />
+      <div className="bg-background text-foreground">
+        <Hero />
+        <Quote />
+        <LoveStory />
+        <Gallery />
+        <Proposal />
+        <CountdownTimer date="2026-11-15T17:00:00-03:00" />
+        <InfoCards />
+        <RSVP ref={rsvpRef} />
+        <Closing onScrollToRsvp={() => rsvpRef.current?.scrollIntoView({ behavior: "smooth" })} />
+      </div>
+    </>
+  );
+}
 
-      {/* FILTER */}
-      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-y border-border/60">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap gap-2 justify-center">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setActiveCat(c)}
-              className={`px-5 py-2 text-xs tracking-[0.18em] uppercase rounded-full border transition-all ${activeCat === c ? "bg-gold text-ink border-gold" : "border-gold/30 text-champagne/70 hover:border-gold/70 hover:text-gold"}`}
-            >
-              {c}
-            </button>
+function Hero() {
+  return (
+    <section className="relative h-screen min-h-[700px] w-full flex items-center justify-center overflow-hidden">
+      <img src={heroImg} alt="Geovana e Sérgio" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/95" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.85)_100%)]" />
+      <ParticleCanvas />
+      <div className="relative z-10 text-center px-6 max-w-4xl">
+        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold/90 mb-10 animate-fade-up">— Casamento · 2026 —</p>
+        <h1 className="font-serif font-light text-champagne leading-[0.95]">
+          <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.1s" }}>Geovana Stefany</span>
+          <span className="block font-serif italic text-gradient-gold text-4xl md:text-6xl my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
+          <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.3s" }}>Sérgio Vasconcelos</span>
+        </h1>
+        <div className="gold-rule w-24 mx-auto my-10" />
+        <p className="font-serif italic text-champagne/80 text-lg md:text-2xl animate-fade-up" style={{ animationDelay: "0.4s" }}>Uma história escrita pelo destino.</p>
+      </div>
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
+        <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
+        <div className="w-px h-12 bg-gradient-to-b from-gold/80 to-transparent overflow-hidden">
+          <div className="w-px h-4 bg-gold animate-[scrollcue_2s_ease-in-out_infinite]" />
+        </div>
+      </div>
+      <style>{`@keyframes scrollcue{0%{transform:translateY(-100%)}100%{transform:translateY(200%)}}`}</style>
+    </section>
+  );
+}
+
+function Quote() {
+  return (
+    <section className="py-32 md:py-48 px-6">
+      <div className="max-w-3xl mx-auto text-center" data-reveal>
+        <div className="gold-rule w-40 mx-auto mb-12" />
+        <blockquote className="font-serif text-3xl md:text-5xl text-champagne leading-tight font-light">
+          Algumas histórias começam de forma simples…
+          <span className="block italic text-gradient-gold mt-4">mas acabam se tornando eternas.</span>
+        </blockquote>
+        <div className="gold-rule w-40 mx-auto mt-12" />
+      </div>
+    </section>
+  );
+}
+
+function LoveStory() {
+  return (
+    <section className="py-20 md:py-32 px-6 overflow-hidden">
+      <div className="max-w-6xl mx-auto space-y-32 md:space-y-48">
+        {CHAPTERS.map((c, i) => {
+          const reverse = i % 2 === 1;
+          return (
+            <div key={c.n} className={`relative grid md:grid-cols-2 gap-10 md:gap-20 items-center ${reverse ? "md:[&>*:first-child]:order-2" : ""}`} data-reveal>
+              <span className="absolute -top-10 md:-top-20 -z-10 font-serif text-[18rem] md:text-[26rem] leading-none text-gold/[0.06] font-light select-none pointer-events-none" style={{ [reverse ? "right" : "left"]: "-2rem" }}>
+                {c.n}
+              </span>
+              <div className="relative overflow-hidden rounded-sm aspect-[4/5] border border-gold/10">
+                <img src={c.img} alt={c.title} className="w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              </div>
+              <div>
+                <p className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-3">— {c.tag} —</p>
+                <h3 className="font-serif text-4xl md:text-6xl text-champagne mb-2 leading-tight">{c.title}</h3>
+                <p className="font-serif italic text-gold/70 mb-8">{c.year}</p>
+                <div className="gold-rule w-16 mb-8" />
+                <p className="text-champagne/70 leading-relaxed text-base md:text-lg font-light">{c.text}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function Gallery() {
+  return (
+    <section className="py-24 md:py-32 px-6 bg-gradient-to-b from-background via-card/30 to-background">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16" data-reveal>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— Memórias —</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Memórias <em className="text-gradient-gold not-italic">Eternizadas</em></h2>
+        </div>
+        <div className="columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
+          {GALLERY.map((g) => (
+            <div key={g.word} className={`group relative overflow-hidden rounded-sm break-inside-avoid border border-gold/10 ${g.h}`} data-reveal>
+              <img src={g.src} alt={g.word} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" loading="lazy" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-60 group-hover:opacity-95 transition-opacity duration-500" />
+              <div className="absolute inset-0 flex items-end justify-center pb-8 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                <span className="font-serif italic text-3xl md:text-4xl text-gradient-gold">{g.word}</span>
+              </div>
+            </div>
           ))}
         </div>
       </div>
-
-      {/* GRID */}
-      <main ref={gridRef} className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((gift) => {
-          const taken = purchasedIds.has(gift.id);
-          return (
-            <article
-              key={gift.id}
-              data-card
-              className={`group relative rounded-lg border border-gold/15 overflow-hidden flex flex-col transition-all ${taken ? "opacity-50 grayscale" : "hover:border-gold/50 hover:shadow-[0_20px_60px_-20px_rgba(201,169,110,0.35)] hover:-translate-y-1"}`}
-              style={{ background: gift.gradient }}
-            >
-              <div className="relative h-44 flex items-center justify-center">
-                {gift.imageUrl ? (
-                  <img src={gift.imageUrl} alt={gift.title} className="absolute inset-0 w-full h-full object-cover opacity-90" />
-                ) : (
-                  <div className="text-6xl drop-shadow-lg">{gift.icon}</div>
-                )}
-                <span className="absolute top-3 left-3 text-[0.6rem] tracking-[0.25em] uppercase text-gold/90 bg-black/40 backdrop-blur px-2 py-1 rounded">{gift.category}</span>
-                {taken && <span className="absolute top-3 right-3 text-[0.6rem] tracking-wider uppercase text-emerald-300 bg-emerald-900/40 px-2 py-1 rounded">Já presenteado ✓</span>}
-              </div>
-              <div className="p-5 flex-1 flex flex-col bg-black/40">
-                <h3 className="font-serif text-2xl text-champagne mb-2">{gift.title}</h3>
-                <div className="text-gradient-gold font-serif text-xl mb-5">{formatBRL(gift.priceCents)}</div>
-                <button
-                  disabled={taken}
-                  onClick={() => setSelected(gift)}
-                  className="btn-gold mt-auto py-2.5 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {taken ? "Indisponível" : "Presentear"}
-                </button>
-              </div>
-            </article>
-          );
-        })}
-      </main>
-
-      {/* FOOTER */}
-      <footer className="border-t border-border/60 mt-12">
-        <div className="max-w-5xl mx-auto px-6 py-12 text-center">
-          <div className="gold-rule w-24 mx-auto mb-6" />
-          <p className="font-serif text-2xl text-champagne italic">Geovana Stefany &amp; Sérgio Vasconcelos</p>
-          <p className="text-xs tracking-[0.4em] uppercase text-gold/70 mt-3">15 · 11 · 2026</p>
-          <p className="text-champagne/50 text-xs mt-6">Com todo o nosso amor ✦</p>
-          <Link to="/admin" className="inline-block mt-8 opacity-0 hover:opacity-100 text-[10px] text-champagne/40 tracking-widest">admin</Link>
-        </div>
-      </footer>
-
-      {selected && <PurchaseModal gift={selected} onClose={() => setSelected(null)} />}
-    </div>
+    </section>
   );
 }
+
+function Proposal() {
+  return (
+    <section className="relative py-40 md:py-56 px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
+      <ParticleCanvas />
+      <div className="relative max-w-3xl mx-auto text-center" data-reveal>
+        <div className="relative w-32 h-32 mx-auto mb-12">
+          <div className="absolute inset-0 rounded-full border border-gold/40 animate-[spin_20s_linear_infinite]" />
+          <div className="absolute inset-3 rounded-full border border-gold/60 animate-[spin_15s_linear_infinite_reverse]" />
+          <div className="absolute inset-6 rounded-full border border-gold/80" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-4 h-4 rotate-45 bg-gradient-to-br from-[#f5e8c9] to-[#8a6f3d] shadow-[0_0_30px_rgba(201,169,110,0.8)]" />
+          </div>
+        </div>
+        <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight">
+          <em className="text-gradient-gold">E naquele instante…</em>
+          <span className="block mt-4">duas vidas se tornaram uma só.</span>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function InfoCards() {
+  const cards = [
+    { label: "Data", value: "15 de Novembro", sub: "2026 · Domingo", icon: <CalIcon /> },
+    { label: "Horário", value: "17h00", sub: "Entrada a partir das 16h30", icon: <ClockIcon /> },
+    { label: "Local", value: "Quinta das Rosas", sub: "Av. das Flores, 1200 · Brasil", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://maps.google.com" } },
+    { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
+  ];
+  return (
+    <section className="py-24 md:py-32 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16" data-reveal>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— Cerimônia —</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Nosso <em className="text-gradient-gold not-italic">Grande Dia</em></h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {cards.map((c) => (
+            <div key={c.label} className="bg-card/50 border border-gold/15 rounded-md p-8 hover:border-gold/40 hover:bg-card/80 transition-all" data-reveal>
+              <div className="text-gold mb-5">{c.icon}</div>
+              <p className="text-[10px] tracking-[0.35em] uppercase text-champagne/50 mb-2">{c.label}</p>
+              <h3 className="font-serif text-3xl text-champagne mb-1">{c.value}</h3>
+              <p className="text-champagne/55 text-sm">{c.sub}</p>
+              {c.cta && (
+                <a href={c.cta.href} target="_blank" rel="noopener noreferrer" className="btn-gold inline-block mt-5 px-5 py-2 rounded">{c.cta.label}</a>
+              )}
+            </div>
+          ))}
+          <div className="md:col-span-2 relative bg-gradient-to-br from-card/80 via-[#1a1408] to-card/80 border border-gold/30 rounded-md p-10 md:p-14 overflow-hidden" data-reveal>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,169,110,0.15),transparent_60%)]" />
+            <div className="relative grid md:grid-cols-[1fr_auto] gap-8 items-center">
+              <div>
+                <div className="text-gold mb-5"><GiftIcon /></div>
+                <p className="text-[10px] tracking-[0.35em] uppercase text-champagne/50 mb-2">Lista de Presentes</p>
+                <h3 className="font-serif text-3xl md:text-4xl text-champagne mb-3">Nosso Ninho de Amor</h3>
+                <p className="text-champagne/65 italic max-w-md">"Contribua para realizarmos nossos sonhos juntos."</p>
+              </div>
+              <Link to="/gifts" className="shimmer px-7 py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs whitespace-nowrap">
+                Ver Lista de Presentes →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const RSVP = function RSVP_({ ref }: { ref: React.RefObject<HTMLElement | null> }) {
+  const { push } = useToast();
+  const [name, setName] = useState("");
+  const [guests, setGuests] = useState(1);
+  const [message, setMessage] = useState("");
+  const [done, setDone] = useState(false);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) { push("Informe seu nome", "error"); return; }
+    const list = JSON.parse(localStorage.getItem("wg_rsvp") || "[]");
+    list.push({ id: crypto.randomUUID(), name: name.trim(), guests, message: message.trim(), at: Date.now() });
+    localStorage.setItem("wg_rsvp", JSON.stringify(list));
+    setDone(true);
+  };
+
+  return (
+    <section ref={ref} className="py-28 md:py-40 px-6">
+      <div className="max-w-2xl mx-auto" data-reveal>
+        <div className="text-center mb-12">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— RSVP —</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Confirme sua <em className="text-gradient-gold not-italic">Presença</em></h2>
+          <p className="text-champagne/60 mt-5 italic">Sua presença é o maior presente que poderíamos receber.</p>
+        </div>
+        {done ? (
+          <div className="text-center bg-card/60 border border-gold/30 rounded-md p-12">
+            <div className="text-5xl text-gradient-gold mb-4">✦</div>
+            <h3 className="font-serif text-3xl text-champagne mb-2">Presença confirmada!</h3>
+            <p className="text-champagne/60 italic">Mal podemos esperar para celebrar com você.</p>
+          </div>
+        ) : (
+          <form onSubmit={submit} className="bg-card/40 backdrop-blur border border-gold/15 rounded-md p-8 md:p-10 space-y-6">
+            <Field label="Nome Completo">
+              <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="Como você gostaria de ser chamado" />
+            </Field>
+            <Field label="Número de Convidados">
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={() => setGuests(Math.max(1, guests - 1))} className="w-11 h-11 rounded border border-gold/30 text-gold hover:bg-gold/10">−</button>
+                <input type="number" min={1} max={10} value={guests} onChange={(e) => setGuests(Math.min(10, Math.max(1, Number(e.target.value))))} className={`${inputCls} text-center max-w-[100px] tabular-nums`} />
+                <button type="button" onClick={() => setGuests(Math.min(10, guests + 1))} className="w-11 h-11 rounded border border-gold/30 text-gold hover:bg-gold/10">+</button>
+              </div>
+            </Field>
+            <Field label="Mensagem Especial">
+              <textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} className={`${inputCls} resize-none`} placeholder="Deixe uma mensagem para o casal (opcional)" />
+            </Field>
+            <button type="submit" className="shimmer w-full py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs">
+              Confirmar Presença
+            </button>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+};
+
+function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <img src={closingImg} alt="Cerimônia" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
+      <ParticleCanvas />
+      <div className="relative z-10 text-center px-6 max-w-3xl py-20" data-reveal>
+        <div className="text-4xl text-gradient-gold mb-8">✦</div>
+        <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic">
+          Mal podemos esperar para viver esse momento com você.
+        </p>
+        <div className="gold-rule w-24 mx-auto my-10" />
+        <p className="font-serif text-2xl md:text-3xl text-gradient-gold mb-10">Geovana &amp; Sérgio</p>
+        <button onClick={onScrollToRsvp} className="btn-gold px-8 py-4 rounded">Nos vemos no altar ↓</button>
+        <div className="mt-20 border-t border-gold/15 pt-10">
+          <p className="text-champagne/60 text-sm">Com todo o nosso amor,</p>
+          <p className="font-serif italic text-xl text-champagne mt-2">Geovana Stefany &amp; Sérgio Vasconcelos</p>
+          <p className="text-[10px] tracking-[0.5em] uppercase text-gold/80 mt-4">15 · 11 · 2026</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const inputCls = "w-full bg-input/60 border border-border rounded px-4 py-3 text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none";
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-[10px] tracking-[0.3em] uppercase text-champagne/60 block mb-2">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+/* ICONS */
+function CalIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>; }
+function ClockIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>; }
+function PinIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>; }
+function EnvIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 7 9-7"/></svg>; }
+function GiftIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 12h18M12 8v13M8 8a2.5 2.5 0 1 1 4-2 2.5 2.5 0 1 1 4 2"/></svg>; }
