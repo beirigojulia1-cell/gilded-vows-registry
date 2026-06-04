@@ -81,6 +81,21 @@
     font-weight: 300;
   }
   h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.01em; }
+  img { display: block; }
+  @media (pointer: fine) {
+    html.has-custom-cursor,
+    html.has-custom-cursor body,
+    html.has-custom-cursor a,
+    html.has-custom-cursor button { cursor: none; }
+  }
+  .cursor-active {
+    width: 56px !important;
+    height: 56px !important;
+    margin-left: -28px !important;
+    margin-top: -28px !important;
+    border-color: var(--gold) !important;
+    background: color-mix(in oklab, var(--gold) 12%, transparent);
+  }
 }
 
 @utility gold-rule {

@@ -1,51 +1,84 @@
 ## Objetivo
 
-Tirar o degradê preto sobre as fotos, fazer as fotos dos capítulos encostarem uma na outra (sem espaço/borda no meio) e resolver a lentidão/atraso do carregamento das imagens.
+Refazer a home do casamento pensando primeiro na experiência do convidado: informações essenciais aparecem rápido e em ordem útil, as fotos carregam sem delay e ficam encostadas uma na outra, e os bugs visuais (cursor, loader, gifts, partículas) somem.
 
-## 1. Remover degradês das fotos
+## 1. Nova ordem da home (foco no convidado)
 
-- `src/routes/index.tsx` → `LoveStory`: remover o `<div>` com `bg-gradient-to-r/l from-background/80 …` que cria a faixa preta sobre a foto de cada capítulo. A foto fica limpa, encostando no bloco de texto.
-- `Gallery`: remover (ou reduzir a `opacity-0`) o `bg-gradient-to-t from-black/90 …` que escurece as fotos da galeria por padrão; manter só o hover (palavra dourada) com fundo discreto via `bg-black/40` apenas no estado `group-hover`.
-- `Hero` e `Closing`: manter um leve overlay para legibilidade do texto branco (não foi pedido para remover), mas trocar `from-black/40 via-black/60 to-black/95` por algo mais suave (`from-black/30 via-black/40 to-black/80`) para a foto aparecer melhor.
+Hoje a ordem é Hero → Quote → História → Galeria → Frase → Countdown → Info → Presentes → RSVP → Closing. O convidado precisa rolar muito até chegar nos dados práticos.
 
-## 2. Fotos dos capítulos encostando uma na outra
+Nova ordem:
 
-Hoje cada capítulo é uma `section` separada em `min-h-screen` com `grid md:grid-cols-2`. As fotos já encostam no texto ao lado, mas verticalmente entre capítulos não há gap (já está colado). O que falta:
+```text
+1. Hero (nomes + data + 2 CTAs: "Confirmar Presença" e "Ver Detalhes")
+2. Detalhes do evento (data, horário, local, dress code) — logo no início
+3. Countdown
+4. Nossa História (4 capítulos, foto + texto encostando)
+5. Galeria
+6. Lista de Presentes
+7. RSVP (confirmação de presença)
+8. Closing
+```
 
-- Garantir `gap-0` no grid e remover qualquer `border`/`rounded` nas imagens.
-- Remover o overlay degradê citado acima — essa era a única "borda" visual entre foto e texto.
-- Em mobile (`grid-cols-1`), encostar foto do capítulo atual na foto/seção do próximo: remover `py-20` do bloco de texto que cria respiro e usar `py-12` apenas; manter altura da foto em `h-[60vh]` sem margem.
-- Adicionar `block` nas `<img>` (evita gap inline) e `m-0`.
+Hero ganha 2 botões dourados — o principal ("Confirmar Presença") rola direto pro RSVP, o secundário ("Ver Local e Horário") rola pros Detalhes. Sem mexer em rotas, store, admin nem schema.
 
-## 3. Otimizar carregamento das imagens (causa do atraso)
+## 2. Fotos encostando edge-to-edge (capítulos da história)
 
-Causa do bug "fotos aparecem depois da página carregar":
-- Todas as fotos de capítulo estão com `loading="lazy"`, então só baixam quando entram na viewport, com a animação GSAP de `clip-path` rodando em cima delas → parecem "aparecer atrasadas".
-- Imagens originais são JPEGs grandes (300–650KB cada) servidos em tamanho cheio mesmo em telas pequenas.
-- O `hero.jpg` ainda está no bundle local (`src/assets/hero.jpg`, 137KB) bloqueando.
+- Remover qualquer `border`, `rounded`, `gap`, `padding` entre a foto e o bloco de texto.
+- Grid do capítulo vira `grid md:grid-cols-2 gap-0` com a foto ocupando 100% da metade (sem `h-[60vh]` em mobile que cria respiro — usar `aspect-[4/5]` em mobile e `h-screen` em desktop).
+- `<img>` com `block w-full h-full object-cover m-0`.
+- Remover o overlay degradê preto que ainda restar sobre a foto.
+- Em mobile, foto do capítulo N encosta direto no texto do capítulo N, que encosta direto na foto do capítulo N+1 (sem `py-20` extra).
+
+## 3. Fotos sem delay (causa do "aparecem depois")
+
+Causa real: imagens grandes (300–650KB) com `loading="lazy"` e clip-path animado por cima — o GSAP roda antes da imagem decodificar, dando a sensação de "aparecer atrasada".
 
 Ações:
 
-- **Preload da primeira foto da história**: adicionar `<link rel="preload" as="image" href={chapter1}>` no `head()` do route `/` para começar o download cedo, junto com `fetchpriority="high"` na primeira `<img>` de capítulo.
-- **Primeira foto eager**: `loading="eager"` e `decoding="async"` para o `Hero` e para o capítulo 1; demais capítulos continuam `loading="lazy"` mas com `decoding="async"` e `fetchpriority="low"`.
-- **Hero local → CDN**: subir `src/assets/hero.jpg` e `src/assets/closing.jpg` para `lovable-assets` (.asset.json) para sair do bundle JS e ganhar cache CDN agressivo.
-- **Servir tamanho menor**: usar a query string de redimensionamento do CDN do Lovable (`?w=1280&q=75`) para fotos de capítulo/galeria — reduz 600KB → ~120KB em telas comuns. `srcSet` com 768w/1280w/1920w + `sizes="(max-width: 768px) 100vw, 50vw"` nos capítulos, `sizes="(max-width: 768px) 50vw, 33vw"` na galeria.
-- **Placeholder enquanto carrega**: usar `background-color: var(--ink)` no `<div>` que contém a `<img>` para evitar "flash" branco quando a foto ainda não chegou.
-- **Reduzir o tempo de loader**: o `Loader` segura a tela por ~1.5s mesmo quando tudo já está pronto. Trocar a barra fake por um listener que avança ao `document.readyState === 'complete'` (com cap de 1.2s para não esperar todas as imagens).
+- Preload da 1ª foto da história no `head()` do route `/` (`<link rel="preload" as="image" fetchpriority="high">`).
+- `Hero` + capítulo 1: `loading="eager"` `decoding="async"` `fetchpriority="high"`.
+- Capítulos 2–4 e galeria: `loading="lazy"` `decoding="async"`.
+- Servir tamanhos menores via query do CDN do Lovable: `?w=1280&q=75` nos capítulos/hero, `?w=800&q=75` na galeria. `srcSet` 768w/1280w/1920w + `sizes` corretos.
+- `background-color: var(--ink)` no container da foto para evitar flash branco.
+- Mover `src/assets/hero.jpg` e `src/assets/closing.jpg` para `lovable-assets` (sair do bundle JS, ganhar cache CDN). Apagar os binários do repo.
+- Animação clip-path dos capítulos só dispara depois do `img.onload` (ou usar uma animação mais leve: fade + scale curtinho de 0.6s).
 
-## 4. Bugs adicionais detectados
+## 4. Loader mais rápido e honesto
 
-- `gifts` chama `useStoreSubscribe(...)` dentro de `useEffect` e usa o retorno como cleanup — `useStoreSubscribe` é um hook, não pode ser chamado dentro de `useEffect`. Substituir por `store.subscribe(cb)` (API do store, retorna `unsubscribe`) ou usar `useSyncExternalStore`. Sintoma: erro silencioso no console e cards de presentes podem não atualizar após compra.
-- `ParticleCanvas` é montado 2x simultaneamente (Hero + Proposal + Closing) → 3 canvases ativos. Adicionar prop `density` baixa nos secundários e desativar completamente o do `Closing` (já está sobre foto escura, contribui pouco e custa CPU).
-- `gsap.context` sem `ScrollTrigger.refresh()` após carregamento das imagens — os triggers calculam offsets antes das fotos terem altura final, causando início de animação no lugar errado. Adicionar `ScrollTrigger.refresh()` em `window.addEventListener('load', …)`.
-- `SmoothScroll` (Lenis) não respeita `prefers-reduced-motion`. Adicionar guarda para pular Lenis nesse caso.
+Hoje o loader faz contagem fake e segura ~1.5s mesmo com tudo pronto. Vai:
 
-## Arquivos afetados
+- Sumir assim que `document.readyState === 'complete'` E a 1ª foto do hero tiver carregado.
+- Cap máximo de 1.2s pra não esperar todas as imagens da página.
+- Barra reflete progresso real (resources carregados), não random.
 
-- `src/routes/index.tsx` — remoção dos overlays, ajustes nos capítulos, preload no `head()`, srcSet + sizes + fetchpriority nas imagens, fix do `useStoreSubscribe` em `Gifts`.
-- `src/components/Loader.tsx` — encurtar duração e reagir ao `readyState`.
-- `src/components/ParticleHero.tsx` — aceitar `density` prop, reduzir nos usos secundários.
+## 5. Cursor bugado
+
+`CustomCursor` está montado no `__root.tsx`? Verificar — pelo print da preview ele não aparece, mas o componente existe. Vai:
+
+- Garantir que `CustomCursor` é montado no `__root.tsx` e respeita `(pointer: coarse)` (já respeita).
+- Esconder cursor nativo (`html { cursor: none }`) só em desktop via `@media (pointer: fine)`.
+- Adicionar `pointer-events-none` + `will-change: transform` (já tem) e remover o `mix-blend-difference` que some sobre fundo dourado/preto.
+- `scale-150` no hover de links/botões com `transition-transform` mais curta (150ms).
+
+## 6. Bugs adicionais detectados
+
+- `Gifts`: `useStoreSubscribe(...)` chamado dentro de `useEffect` (regra de hooks). A função retorna o `unsubscribe`, mas chamar um hook dentro de `useEffect` quebra HMR e pode duplicar listeners. Substituir por chamada direta `store.subscribe(...)` (não-hook) ou usar `useSyncExternalStore`.
+- `ParticleCanvas` montado 3x (Hero + Proposal + Closing) → 3 canvases. Manter só no Hero, remover do Proposal e Closing (Closing já está sobre foto escura).
+- `gsap.context` sem `ScrollTrigger.refresh()` após `window.load` → triggers calculam offsets antes da foto ter altura final. Adicionar `ScrollTrigger.refresh()` no `load`.
+- `SmoothScroll` (Lenis) não respeita `prefers-reduced-motion`. Adicionar guarda.
+- Remover a seção `Quote` ou movê-la para dentro da história (uma frase isolada entre Hero e Detalhes atrasa a entrega da informação ao convidado).
+- `Proposal` vira parte do último capítulo (capítulo 4 já é o pedido), evita repetição.
+
+## 7. Arquivos afetados
+
+- `src/routes/index.tsx` — reordenar seções, refazer `LoveStory` (edge-to-edge), Hero com CTAs, remover Quote/Proposal, fix `Gifts.useStoreSubscribe`, srcSet/sizes/fetchpriority/preload.
+- `src/components/Loader.tsx` — reagir a `readyState` + cap de 1.2s.
+- `src/components/ParticleHero.tsx` — sem mudanças (só remover usos extras).
 - `src/components/SmoothScroll.tsx` — respeitar `prefers-reduced-motion`.
-- `src/assets/hero.jpg` e `src/assets/closing.jpg` — mover para `lovable-assets` e apagar os binários do repo.
+- `src/components/CustomCursor.tsx` — `mix-blend-difference` removido, montagem garantida no `__root.tsx`.
+- `src/routes/__root.tsx` — montar `CustomCursor`.
+- `src/lib/store.ts` — exportar `store.subscribe` não-hook.
+- `src/styles.css` — `html { cursor: none }` em desktop.
+- `src/assets/hero.jpg` e `src/assets/closing.jpg` — virar `.asset.json` e remover binários.
 
-Sem mudanças em rotas, store, autenticação ou estrutura de dados.
+Sem mudanças em rotas, admin, autenticação, schema ou dados.

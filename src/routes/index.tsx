@@ -9,10 +9,10 @@ import { ParticleCanvas } from "@/components/ParticleHero";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { ToastProvider } from "@/components/Toast";
 import { PurchaseModal } from "@/components/PurchaseModal";
-import { ensureDefaultPassword, formatBRL, store, useStoreSubscribe, type Gift, type Purchase } from "@/lib/store";
+import { ensureDefaultPassword, formatBRL, store, subscribeStore, type Gift, type Purchase } from "@/lib/store";
 import { useToast } from "@/components/Toast";
-import heroImg from "@/assets/hero.jpg";
-import closingImg from "@/assets/closing.jpg";
+import heroAsset from "@/assets/hero.jpg.asset.json";
+import closingAsset from "@/assets/closing.jpg.asset.json";
 import chapter1Asset from "@/assets/se-olhando.jpeg.asset.json";
 import chapter2Asset from "@/assets/mao-dada-se-olhando.jpeg.asset.json";
 import chapter3Asset from "@/assets/gi-olhando-sergio.jpeg.asset.json";
@@ -24,6 +24,8 @@ import g4Asset from "@/assets/sergio-segurando-gi.jpeg.asset.json";
 import g5Asset from "@/assets/sergio-segurando-gi-sorrindo.jpeg.asset.json";
 import g6Asset from "@/assets/se-olhando.jpeg.asset.json";
 
+const heroImg = heroAsset.url;
+const closingImg = closingAsset.url;
 const chapter1 = chapter1Asset.url;
 const chapter2 = chapter2Asset.url;
 const chapter3 = chapter3Asset.url;
@@ -46,6 +48,10 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Uma história escrita pelo destino. 15 de Novembro de 2026." },
       { property: "og:image", content: heroImg },
     ],
+    links: [
+      { rel: "preload", as: "image", href: heroImg, fetchpriority: "high" } as unknown as { rel: string },
+      { rel: "preload", as: "image", href: chapter1, fetchpriority: "high" } as unknown as { rel: string },
+    ],
   }),
   component: () => (
     <ToastProvider>
@@ -60,7 +66,7 @@ const CHAPTERS = [
   { n: "01", tag: "Primeiro Capítulo", title: "Primeiro Encontro", year: "2019", text: "Naquele dia, o universo conspirou para que dois caminhos se cruzassem. Um olhar que durou apenas um instante — mas que mudaria tudo para sempre.", img: chapter1 },
   { n: "02", tag: "Segundo Capítulo", title: "Primeira Viagem", year: "2020", text: "Descobrir o mundo juntos revelou que o melhor destino nunca é um lugar — é a pessoa ao seu lado.", img: chapter2 },
   { n: "03", tag: "Terceiro Capítulo", title: "Momentos Especiais", year: "2021 — 2023", text: "Cada risada compartilhada, cada silêncio confortável, cada momento ordinário transformado em memória preciosa e eterna.", img: chapter3 },
-  { n: "04", tag: "Quarto Capítulo", title: "Pedido de Casamento", year: "2024", text: "\"Você quer casar comigo?\" — e o tempo parou. O coração respondeu antes mesmo das palavras. Sim. Para sempre. Sim.", img: chapter4 },
+  { n: "04", tag: "Pedido", title: "Pedido de Casamento", year: "2024", text: "\"Você quer casar comigo?\" — e o tempo parou. O coração respondeu antes mesmo das palavras. Sim. Para sempre. Sim.", img: chapter4 },
 ];
 
 const GALLERY = [
@@ -109,24 +115,22 @@ function Landing() {
         );
       });
       gsap.utils.toArray<HTMLElement>("[data-chapter]").forEach((el) => {
-        const side = (el as HTMLElement).dataset.side === "right" ? "right" : "left";
         const img = el.querySelector<HTMLElement>("[data-chapter-img]");
         const numeral = el.querySelector<HTMLElement>("[data-chapter-numeral]");
         if (img) {
-          const from = side === "left" ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)";
           gsap.fromTo(
             img,
-            { clipPath: from, scale: 1.15 },
+            { opacity: 0, scale: 1.08 },
             {
-              clipPath: "inset(0 0 0 0)",
+              opacity: 1,
               scale: 1,
-              duration: 1.6,
-              ease: "power3.out",
-              scrollTrigger: { trigger: el, start: "top 75%" },
+              duration: 1.1,
+              ease: "power2.out",
+              scrollTrigger: { trigger: el, start: "top 80%" },
             },
           );
           gsap.to(img, {
-            yPercent: -6,
+            yPercent: -4,
             ease: "none",
             scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
           });
@@ -134,39 +138,34 @@ function Landing() {
         if (numeral) {
           gsap.fromTo(
             numeral,
-            { opacity: 0, x: side === "left" ? -60 : 60 },
+            { opacity: 0 },
             {
               opacity: 1,
-              x: 0,
               ease: "none",
               scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
             },
           );
         }
       });
-      gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
-        gsap.to(el, {
-          y: -60,
-          ease: "none",
-          scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
-        });
-      });
     });
-    return () => ctx.revert();
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener("load", refresh);
+    return () => {
+      window.removeEventListener("load", refresh);
+      ctx.revert();
+    };
   }, []);
 
   return (
     <>
       <Loader />
-      
+
       <div className="bg-background text-foreground">
         <Hero />
-        <Quote />
+        <InfoCards />
+        <CountdownTimer date="2026-11-15T17:00:00-03:00" />
         <LoveStory />
         <Gallery />
-        <Proposal />
-        <CountdownTimer date="2026-11-15T17:00:00-03:00" />
-        <InfoCards />
         <Gifts />
         <RSVP />
         <Closing onScrollToRsvp={() => scrollToId("rsvp")} />
@@ -177,13 +176,20 @@ function Landing() {
 
 function Hero() {
   return (
-    <section className="relative h-screen min-h-[700px] w-full flex items-center justify-center overflow-hidden">
-      <img src={heroImg} alt="Geovana e Sérgio" className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/95" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.85)_100%)]" />
+    <section className="relative h-screen min-h-[700px] w-full flex items-center justify-center overflow-hidden bg-ink">
+      <img
+        src={heroImg}
+        alt="Geovana e Sérgio"
+        className="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/80" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.75)_100%)]" />
       <ParticleCanvas />
       <div className="relative z-10 text-center px-6 max-w-4xl">
-        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold/90 mb-10 animate-fade-up">— Casamento · 2026 —</p>
+        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold/90 mb-10 animate-fade-up">— Casamento · 15 · 11 · 2026 —</p>
         <h1 className="font-serif font-light text-champagne leading-[0.95]">
           <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.1s" }}>Geovana Stefany</span>
           <span className="block font-serif italic text-gradient-gold text-4xl md:text-6xl my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
@@ -191,6 +197,20 @@ function Hero() {
         </h1>
         <div className="gold-rule w-24 mx-auto my-10" />
         <p className="font-serif italic text-champagne/80 text-lg md:text-2xl animate-fade-up" style={{ animationDelay: "0.4s" }}>Uma história escrita pelo destino.</p>
+        <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center items-center animate-fade-up" style={{ animationDelay: "0.6s" }}>
+          <button
+            onClick={() => scrollToId("rsvp")}
+            className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs hover:brightness-110 transition shadow-[0_10px_40px_-10px_rgba(201,169,110,0.7)]"
+          >
+            Confirmar Presença
+          </button>
+          <button
+            onClick={() => scrollToId("detalhes")}
+            className="btn-gold px-8 py-3.5 rounded-full"
+          >
+            Ver Local e Horário
+          </button>
+        </div>
       </div>
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
         <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
@@ -203,70 +223,62 @@ function Hero() {
   );
 }
 
-function Quote() {
-  return (
-    <section className="py-32 md:py-48 px-6">
-      <div className="max-w-3xl mx-auto text-center" data-reveal>
-        <div className="gold-rule w-40 mx-auto mb-12" />
-        <blockquote className="font-serif text-3xl md:text-5xl text-champagne leading-tight font-light">
-          Algumas histórias começam de forma simples…
-          <span className="block italic text-gradient-gold mt-4">mas acabam se tornando eternas.</span>
-        </blockquote>
-        <div className="gold-rule w-40 mx-auto mt-12" />
-      </div>
-    </section>
-  );
-}
-
 function LoveStory() {
   return (
-    <div className="overflow-hidden">
-      {CHAPTERS.map((c, i) => {
-        const photoRight = i % 2 === 1;
-        return (
-          <section
-            key={c.n}
-            data-chapter
-            data-side={photoRight ? "right" : "left"}
-            className="relative grid md:grid-cols-2 min-h-screen"
-          >
-            {/* Photo half */}
-            <div
-              className={`relative overflow-hidden h-[60vh] md:h-screen ${photoRight ? "md:order-2" : ""}`}
+    <section className="bg-background">
+      <div className="text-center pt-24 pb-12 px-6" data-reveal>
+        <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— Nossa História —</p>
+        <h2 className="font-serif text-5xl md:text-6xl text-champagne">Como tudo <em className="text-gradient-gold not-italic">começou</em></h2>
+      </div>
+      <div className="overflow-hidden">
+        {CHAPTERS.map((c, i) => {
+          const photoRight = i % 2 === 1;
+          const isFirst = i === 0;
+          return (
+            <section
+              key={c.n}
+              data-chapter
+              className="relative grid grid-cols-1 md:grid-cols-2 gap-0"
             >
-              <img
-                data-chapter-img
-                src={c.img}
-                alt={c.title}
-                className="absolute inset-0 w-full h-full object-cover will-change-transform"
-                loading="lazy"
-              />
-              
-            </div>
-
-            {/* Text half */}
-            <div
-              data-stagger
-              className={`relative flex items-center bg-background px-8 md:px-20 py-20 md:py-0 ${photoRight ? "md:order-1" : ""}`}
-            >
-              <span
-                data-chapter-numeral
-                className={`pointer-events-none select-none absolute font-serif font-light text-[16rem] md:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-4" : "right-4"}`}
+              {/* Photo half */}
+              <div
+                className={`relative overflow-hidden bg-ink aspect-[4/5] md:aspect-auto md:h-[90vh] ${photoRight ? "md:order-2" : ""}`}
               >
-                {c.n}
-              </span>
-              <div className="relative max-w-md">
-                <p data-stagger-item className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6">{c.tag.toUpperCase()}</p>
-                <h3 data-stagger-item className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light">{c.title}</h3>
-                <p data-stagger-item className="text-[11px] tracking-[0.4em] text-gold/80 mb-8">{c.year}</p>
-                <p data-stagger-item className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8">{c.text}</p>
-                <div data-stagger-item className="gold-rule w-16" />
+                <img
+                  data-chapter-img
+                  src={c.img}
+                  alt={c.title}
+                  className="absolute inset-0 w-full h-full object-cover m-0 will-change-transform"
+                  loading={isFirst ? "eager" : "lazy"}
+                  decoding="async"
+                  fetchPriority={isFirst ? "high" : "low"}
+                />
               </div>
-            </div>
-          </section>
-        );
-      })}
-    </div>
+
+              {/* Text half */}
+              <div
+                data-stagger
+                className={`relative flex items-center bg-background px-8 md:px-16 lg:px-24 py-16 md:py-0 ${photoRight ? "md:order-1" : ""}`}
+              >
+                <span
+                  data-chapter-numeral
+                  className={`pointer-events-none select-none absolute font-serif font-light text-[14rem] md:text-[24rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-2" : "right-2"}`}
+                >
+                  {c.n}
+                </span>
+                <div className="relative max-w-md">
+                  <p data-stagger-item className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6">{c.tag.toUpperCase()}</p>
+                  <h3 data-stagger-item className="font-serif text-5xl md:text-6xl text-champagne mb-6 leading-[1.05] font-light">{c.title}</h3>
+                  <p data-stagger-item className="text-[11px] tracking-[0.4em] text-gold/80 mb-8">{c.year}</p>
+                  <p data-stagger-item className="text-champagne/75 leading-relaxed text-base md:text-lg font-light mb-8">{c.text}</p>
+                  <div data-stagger-item className="gold-rule w-16" />
+                </div>
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -280,37 +292,21 @@ function Gallery() {
         </div>
         <div className="columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
           {GALLERY.map((g) => (
-            <div key={g.word} className={`group relative overflow-hidden rounded-sm break-inside-avoid border border-gold/10 ${g.h}`} data-reveal>
-              <img src={g.src} alt={g.word} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-60 group-hover:opacity-95 transition-opacity duration-500" />
+            <div key={g.word} className={`group relative overflow-hidden bg-ink/10 break-inside-avoid ${g.h}`} data-reveal>
+              <img
+                src={g.src}
+                alt={g.word}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="absolute inset-0 flex items-end justify-center pb-8 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
                 <span className="font-serif italic text-3xl md:text-4xl text-gradient-gold">{g.word}</span>
               </div>
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-function Proposal() {
-  return (
-    <section className="relative py-40 md:py-56 px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
-      <ParticleCanvas />
-      <div className="relative max-w-3xl mx-auto text-center" data-reveal>
-        <div className="relative w-32 h-32 mx-auto mb-12">
-          <div className="absolute inset-0 rounded-full border border-gold/40 animate-[spin_20s_linear_infinite]" />
-          <div className="absolute inset-3 rounded-full border border-gold/60 animate-[spin_15s_linear_infinite_reverse]" />
-          <div className="absolute inset-6 rounded-full border border-gold/80" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-4 h-4 rotate-45 bg-gradient-to-br from-[#f5e8c9] to-[#8a6f3d] shadow-[0_0_30px_rgba(201,169,110,0.8)]" />
-          </div>
-        </div>
-        <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight">
-          <em className="text-gradient-gold">E naquele instante…</em>
-          <span className="block mt-4">duas vidas se tornaram uma só.</span>
-        </p>
       </div>
     </section>
   );
@@ -324,11 +320,12 @@ function InfoCards() {
     { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
   ];
   return (
-    <section className="py-24 md:py-32 px-6 bg-cream text-ink">
+    <section id="detalhes" className="py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16" data-reveal>
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Detalhes —</p>
           <h2 className="font-serif text-5xl md:text-6xl text-ink">Nosso <em className="text-gradient-gold not-italic">Grande Dia</em></h2>
+          <p className="text-ink/60 italic mt-5 max-w-xl mx-auto">Tudo o que você precisa saber para celebrar conosco.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {cards.map((c) => (
@@ -342,19 +339,6 @@ function InfoCards() {
               )}
             </div>
           ))}
-          <div className="md:col-span-2 lg:col-span-4 relative bg-white/80 border border-gold/25 rounded-md p-10 md:p-14 overflow-hidden" data-reveal>
-            <div className="relative grid md:grid-cols-[1fr_auto] gap-8 items-center">
-              <div>
-                <div className="text-gold-soft mb-5"><GiftIcon /></div>
-                <p className="text-[10px] tracking-[0.35em] uppercase text-gold-soft mb-2">Lista de Presentes</p>
-                <h3 className="font-serif text-3xl md:text-4xl text-ink mb-3">Nosso Ninho de Amor</h3>
-                <p className="text-ink/65 italic max-w-md">"Contribua para realizarmos nossos sonhos juntos."</p>
-              </div>
-              <button type="button" onClick={() => scrollToId("gifts")} className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition">
-                Ver Lista de Presentes →
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -418,10 +402,9 @@ function RSVP() {
 
 function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <img src={closingImg} alt="Cerimônia" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
-      <ParticleCanvas />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-ink">
+      <img src={closingImg} alt="Cerimônia" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/75 to-black" />
       <div className="relative z-10 text-center px-6 max-w-3xl py-20" data-reveal>
         <div className="text-4xl text-gradient-gold mb-8">✦</div>
         <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic">
@@ -455,7 +438,6 @@ function CalIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill
 function ClockIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>; }
 function PinIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>; }
 function EnvIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 7 9-7"/></svg>; }
-function GiftIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 12h18M12 8v13M8 8a2.5 2.5 0 1 1 4-2 2.5 2.5 0 1 1 4 2"/></svg>; }
 
 function Gifts() {
   ensureDefaultPassword();
@@ -465,11 +447,11 @@ function Gifts() {
   const [selected, setSelected] = useState<Gift | null>(null);
 
   useEffect(() => {
-    const cleanup = useStoreSubscribe(() => {
+    const unsubscribe = subscribeStore(() => {
       setGifts(store.getGifts());
       setPurchases(store.getPurchases());
     });
-    return cleanup;
+    return unsubscribe;
   }, []);
 
   const purchasedMap = useMemo(() => {

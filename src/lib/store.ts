@@ -141,8 +141,8 @@ export function formatBRL(cents: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
 }
 
-export function useStoreSubscribe(callback: () => void) {
-  if (typeof window === "undefined") return;
+export function subscribeStore(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
   const handler = () => callback();
   window.addEventListener("wg:update", handler);
   window.addEventListener("storage", handler);
@@ -150,4 +150,9 @@ export function useStoreSubscribe(callback: () => void) {
     window.removeEventListener("wg:update", handler);
     window.removeEventListener("storage", handler);
   };
+}
+
+/** @deprecated use subscribeStore — kept for compatibility */
+export function useStoreSubscribe(callback: () => void) {
+  return subscribeStore(callback);
 }
