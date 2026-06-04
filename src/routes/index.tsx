@@ -152,7 +152,16 @@ function Landing() {
         });
       });
     });
-    return () => ctx.revert();
+    const refresh = () => ScrollTrigger.refresh();
+    const imgs = Array.from(document.querySelectorAll("img"));
+    imgs.forEach((img) => {
+      if (!img.complete) img.addEventListener("load", refresh, { once: true });
+    });
+    window.addEventListener("load", refresh);
+    return () => {
+      window.removeEventListener("load", refresh);
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -239,9 +248,10 @@ function LoveStory() {
                 src={c.img}
                 alt={c.title}
                 className="absolute inset-0 w-full h-full object-cover will-change-transform"
-                loading="lazy"
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding="async"
+                fetchPriority={i === 0 ? "high" : "auto"}
               />
-              <div className={`absolute inset-y-0 ${photoRight ? "left-0 bg-gradient-to-r" : "right-0 bg-gradient-to-l"} from-background/80 via-background/10 to-transparent w-24 pointer-events-none`} />
             </div>
 
             {/* Text half */}
