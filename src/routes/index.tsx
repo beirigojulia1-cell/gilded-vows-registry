@@ -76,6 +76,58 @@ function Landing() {
           },
         );
       });
+      gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((parent) => {
+        const items = parent.querySelectorAll<HTMLElement>("[data-stagger-item]");
+        if (!items.length) return;
+        gsap.fromTo(
+          items,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            ease: "power2.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: parent, start: "top 75%" },
+          },
+        );
+      });
+      gsap.utils.toArray<HTMLElement>("[data-chapter]").forEach((el) => {
+        const side = (el as HTMLElement).dataset.side === "right" ? "right" : "left";
+        const img = el.querySelector<HTMLElement>("[data-chapter-img]");
+        const numeral = el.querySelector<HTMLElement>("[data-chapter-numeral]");
+        if (img) {
+          const from = side === "left" ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)";
+          gsap.fromTo(
+            img,
+            { clipPath: from, scale: 1.15 },
+            {
+              clipPath: "inset(0 0 0 0)",
+              scale: 1,
+              duration: 1.6,
+              ease: "power3.out",
+              scrollTrigger: { trigger: el, start: "top 75%" },
+            },
+          );
+          gsap.to(img, {
+            yPercent: -6,
+            ease: "none",
+            scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
+          });
+        }
+        if (numeral) {
+          gsap.fromTo(
+            numeral,
+            { opacity: 0, x: side === "left" ? -60 : 60 },
+            {
+              opacity: 1,
+              x: 0,
+              ease: "none",
+              scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
+            },
+          );
+        }
+      });
       gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
         gsap.to(el, {
           y: -60,
@@ -151,31 +203,53 @@ function Quote() {
 
 function LoveStory() {
   return (
-    <section className="py-20 md:py-32 px-6 overflow-hidden">
-      <div className="max-w-6xl mx-auto space-y-32 md:space-y-48">
-        {CHAPTERS.map((c, i) => {
-          const reverse = i % 2 === 1;
-          return (
-            <div key={c.n} className={`relative grid md:grid-cols-2 gap-10 md:gap-20 items-center ${reverse ? "md:[&>*:first-child]:order-2" : ""}`} data-reveal>
-              <span className="absolute -top-10 md:-top-20 -z-10 font-serif text-[18rem] md:text-[26rem] leading-none text-gold/[0.06] font-light select-none pointer-events-none" style={{ [reverse ? "right" : "left"]: "-2rem" }}>
+    <div className="overflow-hidden">
+      {CHAPTERS.map((c, i) => {
+        const photoRight = i % 2 === 1;
+        return (
+          <section
+            key={c.n}
+            data-chapter
+            data-side={photoRight ? "right" : "left"}
+            className="relative grid md:grid-cols-2 min-h-screen"
+          >
+            {/* Photo half */}
+            <div
+              className={`relative overflow-hidden h-[60vh] md:h-screen ${photoRight ? "md:order-2" : ""}`}
+            >
+              <img
+                data-chapter-img
+                src={c.img}
+                alt={c.title}
+                className="absolute inset-0 w-full h-full object-cover will-change-transform"
+                loading="lazy"
+              />
+              <div className={`absolute inset-y-0 ${photoRight ? "left-0 bg-gradient-to-r" : "right-0 bg-gradient-to-l"} from-background/80 via-background/10 to-transparent w-24 pointer-events-none`} />
+            </div>
+
+            {/* Text half */}
+            <div
+              data-stagger
+              className={`relative flex items-center bg-background px-8 md:px-20 py-20 md:py-0 ${photoRight ? "md:order-1" : ""}`}
+            >
+              <span
+                data-chapter-numeral
+                className={`pointer-events-none select-none absolute font-serif font-light text-[16rem] md:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-4" : "right-4"}`}
+              >
                 {c.n}
               </span>
-              <div className="relative overflow-hidden rounded-sm aspect-[4/5] border border-gold/10">
-                <img src={c.img} alt={c.title} className="w-full h-full object-cover" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              </div>
-              <div>
-                <p className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-3">— {c.tag} —</p>
-                <h3 className="font-serif text-4xl md:text-6xl text-champagne mb-2 leading-tight">{c.title}</h3>
-                <p className="font-serif italic text-gold/70 mb-8">{c.year}</p>
-                <div className="gold-rule w-16 mb-8" />
-                <p className="text-champagne/70 leading-relaxed text-base md:text-lg font-light">{c.text}</p>
+              <div className="relative max-w-md">
+                <p data-stagger-item className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6">{c.tag.toUpperCase()}</p>
+                <h3 data-stagger-item className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light">{c.title}</h3>
+                <p data-stagger-item className="text-[11px] tracking-[0.4em] text-gold/80 mb-8">{c.year}</p>
+                <p data-stagger-item className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8">{c.text}</p>
+                <div data-stagger-item className="gold-rule w-16" />
               </div>
             </div>
-          );
-        })}
-      </div>
-    </section>
+          </section>
+        );
+      })}
+    </div>
   );
 }
 
