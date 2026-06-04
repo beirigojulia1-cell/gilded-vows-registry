@@ -1,34 +1,66 @@
-## Refazer a seção "Nossa História" (LoveStory)
+## Objetivo
 
-Substituir a grade atual com card de imagem aspect-[4/5] por **4 seções full-bleed de altura tela cheia (100vh)**, cada uma dividida 50/50 entre foto e texto, alternando lados conforme as imagens de referência:
+Transformar o site em uma única página rolável (sem rota separada de presentes), tocar a música "Ed Sheeran – Photograph" automaticamente, oferecer fallback de play quando o autoplay for bloqueado, otimizar performance e corrigir bugs.
 
-| Capítulo | Foto | Texto |
-|---|---|---|
-| 01 · Primeiro Encontro | esquerda | direita |
-| 02 · Primeira Viagem | direita | esquerda |
-| 03 · Momentos Especiais | esquerda | direita |
-| 04 · Pedido de Casamento | direita | esquerda |
+## 1. Música de fundo (autoplay + fallback)
 
-Cada seção:
-- `min-h-screen grid md:grid-cols-2` sem padding lateral; foto `w-full h-full object-cover` ocupando a metade inteira até a borda.
-- Lado do texto: fundo `bg-background` (#0d0b08), conteúdo centralizado verticalmente com padding generoso (px-12 md:px-20), mantendo a tipografia atual (eyebrow gold tracking, título serif grande, ano em itálico, régua, parágrafo champagne).
-- Numeral gigante (01–04) marca d'água em `text-gold/[0.05]` atrás do texto, posicionado no canto inferior do lado da foto (como o "3" tênue visível na imagem 3).
-- Mobile: empilhado (foto em cima ocupando 60vh, texto abaixo).
+- Upload do `Ed Sheeran - Photograph.mp3` via `lovable-assets` → `src/assets/photograph.mp3.asset.json` (CDN, não fica no bundle).
+- Novo componente `src/components/MusicPlayer.tsx`:
+  - `<audio>` oculto, `loop`, `preload="auto"`, volume inicial 0.35 (fade-in suave até 0.6 em 2s via Web Audio quando começar a tocar).
+  - Tenta `audio.play()` no mount. Se a Promise rejeitar (Safari/iOS/Chrome com autoplay bloqueado), exibe um botão flutuante discreto no canto **inferior esquerdo** (gold, 44×44, ícone Play da `lucide-react`), com `aria-label="Tocar música"` e tooltip "Tocar música".
+  - Quando estiver tocando, o ícone troca para um par de notas musicais com leve animação pulse; clique pausa/retoma. Ícone visível mas minimalista (não cobre conteúdo, `z-40`).
+  - Persistência da preferência (play/pause) em `localStorage` para não reiniciar a cada navegação interna.
+  - Reage ao primeiro `pointerdown`/`keydown` do usuário tentando dar play novamente caso o autoplay tenha falhado (gesto do usuário desbloqueia em todos os navegadores).
+- Montado uma única vez no `__root.tsx` para não recriar o `<audio>` entre renders.
 
-## Animações ao scroll (GSAP ScrollTrigger)
+## 2. Página única (remover rota `/gifts`)
 
-Estender o efeito reveal existente com animações encadeadas e direcionais por capítulo:
+- Apagar `src/routes/gifts.tsx` (e referências em `routeTree.gen.ts` são regeneradas).
+- Criar nova seção `Gifts` em `src/routes/index.tsx`, inserida **antes do `RSVP`** e **depois do `InfoCards`** com:
+  - Cabeçalho com `eyebrow`, título "Lista de Presentes / Nosso Ninho de Amor" e parágrafo.
+  - Filtros por categoria (chips) reaproveitando lógica atual.
+  - Grid responsivo dos cards (mesmo visual do `gifts.tsx`).
+  - `PurchaseModal` reaproveitado (já existe).
+- No `InfoCards`, trocar o `<Link to="/gifts">` por um botão que faz `scrollIntoView` na seção `#gifts` (smooth via Lenis já presente).
+- Manter a rota `/admin` intacta (continua acessível diretamente).
 
-1. **Foto** — entra com `clipPath` (inset 100% no lado oposto → 0) + leve scale 1.1→1, duration 1.4s, ease "power3.out", scrub-free, dispara em `top 75%`.
-2. **Eyebrow / título / ano / régua / texto** — stagger sequencial (`y: 30, opacity: 0` → 0), delay 0.15 entre elementos, começa quando a seção atinge `top 70%`.
-3. **Parallax na imagem** — `yPercent: -8` com scrub durante a seção visível (sutil, não distrai).
-4. **Numeral gigante** — fade-in lento + drift horizontal pequeno conforme scrub.
-5. **Outras seções já existentes** (Quote, Gallery, Proposal, InfoCards, RSVP, Closing) — adicionar reveal em stagger nos filhos (`data-reveal-stagger`) para que título → régua → corpo apareçam em cascata em vez de bloco único; manter o parallax nas imagens da galeria.
+## 3. Otimizações de performance
 
-Direção das animações respeita o lado da foto (foto da esquerda revela com clipPath da direita para esquerda; foto da direita o inverso), reforçando o ritmo alternado.
+- **Imagens**: gerar versões `.webp` via `lovable-assets` para hero, chapters, gallery e closing; importar como `.asset.json` para sair do bundle JS e usar CDN com cache agressivo. Adicionar `decoding="async"`, `loading="lazy"` em tudo exceto `hero` (que recebe `fetchpriority="high"` + `loading="eager"`).
+- **GSAP**: refatorar para um único `useEffect` com `gsap.context`, usar `matchMedia` para desabilitar ScrollTrigger em `prefers-reduced-motion` e em telas `< 768px` (mantém só fades simples), reduzindo trabalho em mobile.
+- **Particles**: limitar `ParticleCanvas` a 1 instância visível por vez via `IntersectionObserver` (pausa quando fora da viewport); reduzir densidade em mobile.
+- **Cursor customizado**: desabilitar em touch devices (`matchMedia('(pointer: coarse)')`).
+- **Lenis SmoothScroll**: desativar em `prefers-reduced-motion`.
+- **Code-split**: `PurchaseModal` e `CountdownTimer` via `React.lazy` + `Suspense` para enxugar o bundle inicial.
+- **Fonts**: garantir `font-display: swap` no `@import` do Google Fonts.
+
+## 4. Bugs identificados a corrigir
+
+- `RSVP({ ref })` em `src/routes/index.tsx` usa `ref` como prop comum → não funciona como ref real. Substituir por `forwardRef` (ou expor via `useImperativeHandle`/passar `id="rsvp"` e fazer scroll por seletor). Solução escolhida: dar `id="rsvp"` à seção e remover a prop `ref` totalmente; o botão do `Closing` faz `document.getElementById('rsvp')?.scrollIntoView`.
+- `Loader` desaparece após 700ms mas fica sempre no DOM. Adicionar `display: none` após `done` para liberar GPU.
+- `CustomCursor` provoca jank em alguns devices — esconder em mobile (ver acima).
+- `Link to="/gifts"` deixaria de existir → removido junto com a refatoração.
+- `PurchaseModal` define `document.body.style.overflow = "hidden"` mas o Lenis controla scroll; trocar para `lenis.stop()`/`lenis.start()` quando disponível, caindo no overflow hidden como fallback.
+- `useStoreSubscribe` retorna `void | (() => void)`; o `useEffect` em `gifts` chama `return cleanup` mesmo quando `undefined` (SSR). Garantir retorno sempre função (no-op no SSR).
+- Imports não utilizados (`useRef` em `Landing` após mudar RSVP) removidos para não falhar no lint strict.
+
+## 5. SEO / meta
+
+- Atualizar `head()` do `index` para refletir página única (descrição inclui "Lista de presentes e RSVP").
+- Remover `head()` da rota `/gifts` (deletada).
 
 ## Arquivos afetados
 
-- `src/routes/index.tsx` — reescrever o componente `LoveStory` e estender o `useEffect` do GSAP com os novos triggers (clipPath, stagger, parallax direcional). Adicionar marcadores `data-reveal-stagger` nas seções complementares.
+- `src/assets/photograph.mp3.asset.json` (novo, via CLI)
+- `src/components/MusicPlayer.tsx` (novo)
+- `src/routes/__root.tsx` (montar `MusicPlayer`)
+- `src/routes/index.tsx` (seção Gifts inline, fix RSVP ref, lazy imports, scroll para gifts)
+- `src/routes/gifts.tsx` (apagado)
+- `src/components/PurchaseModal.tsx` (integração com Lenis)
+- `src/components/CustomCursor.tsx` (skip em touch)
+- `src/components/SmoothScroll.tsx` (respeitar reduced-motion)
+- `src/components/ParticleHero.tsx` (IntersectionObserver + densidade mobile)
+- `src/lib/store.ts` (no-op cleanup em SSR)
+- Possíveis novos `.asset.json` para imagens convertidas a webp (best-effort; se a conversão falhar, manter JPGs originais).
 
-Sem mudanças em estilos globais, store, rotas ou assets.
+Sem mudanças em rotas além da remoção de `/gifts`. Estilos globais inalterados exceto pequenas classes utilitárias para o botão de música.
