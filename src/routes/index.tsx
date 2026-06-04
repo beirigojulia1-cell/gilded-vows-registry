@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Loader } from "@/components/Loader";
-import { CustomCursor } from "@/components/CustomCursor";
+
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { ParticleCanvas } from "@/components/ParticleHero";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -158,7 +158,7 @@ function Landing() {
   return (
     <>
       <Loader />
-      <CustomCursor />
+      
       <div className="bg-background text-foreground">
         <Hero />
         <Quote />
