@@ -1,84 +1,66 @@
 ## Objetivo
 
-Refazer a home do casamento pensando primeiro na experiência do convidado: informações essenciais aparecem rápido e em ordem útil, as fotos carregam sem delay e ficam encostadas uma na outra, e os bugs visuais (cursor, loader, gifts, partículas) somem.
+Transformar o site em uma única página rolável (sem rota separada de presentes), tocar a música "Ed Sheeran – Photograph" automaticamente, oferecer fallback de play quando o autoplay for bloqueado, otimizar performance e corrigir bugs.
 
-## 1. Nova ordem da home (foco no convidado)
+## 1. Música de fundo (autoplay + fallback)
 
-Hoje a ordem é Hero → Quote → História → Galeria → Frase → Countdown → Info → Presentes → RSVP → Closing. O convidado precisa rolar muito até chegar nos dados práticos.
+- Upload do `Ed Sheeran - Photograph.mp3` via `lovable-assets` → `src/assets/photograph.mp3.asset.json` (CDN, não fica no bundle).
+- Novo componente `src/components/MusicPlayer.tsx`:
+  - `<audio>` oculto, `loop`, `preload="auto"`, volume inicial 0.35 (fade-in suave até 0.6 em 2s via Web Audio quando começar a tocar).
+  - Tenta `audio.play()` no mount. Se a Promise rejeitar (Safari/iOS/Chrome com autoplay bloqueado), exibe um botão flutuante discreto no canto **inferior esquerdo** (gold, 44×44, ícone Play da `lucide-react`), com `aria-label="Tocar música"` e tooltip "Tocar música".
+  - Quando estiver tocando, o ícone troca para um par de notas musicais com leve animação pulse; clique pausa/retoma. Ícone visível mas minimalista (não cobre conteúdo, `z-40`).
+  - Persistência da preferência (play/pause) em `localStorage` para não reiniciar a cada navegação interna.
+  - Reage ao primeiro `pointerdown`/`keydown` do usuário tentando dar play novamente caso o autoplay tenha falhado (gesto do usuário desbloqueia em todos os navegadores).
+- Montado uma única vez no `__root.tsx` para não recriar o `<audio>` entre renders.
 
-Nova ordem:
+## 2. Página única (remover rota `/gifts`)
 
-```text
-1. Hero (nomes + data + 2 CTAs: "Confirmar Presença" e "Ver Detalhes")
-2. Detalhes do evento (data, horário, local, dress code) — logo no início
-3. Countdown
-4. Nossa História (4 capítulos, foto + texto encostando)
-5. Galeria
-6. Lista de Presentes
-7. RSVP (confirmação de presença)
-8. Closing
-```
+- Apagar `src/routes/gifts.tsx` (e referências em `routeTree.gen.ts` são regeneradas).
+- Criar nova seção `Gifts` em `src/routes/index.tsx`, inserida **antes do `RSVP`** e **depois do `InfoCards`** com:
+  - Cabeçalho com `eyebrow`, título "Lista de Presentes / Nosso Ninho de Amor" e parágrafo.
+  - Filtros por categoria (chips) reaproveitando lógica atual.
+  - Grid responsivo dos cards (mesmo visual do `gifts.tsx`).
+  - `PurchaseModal` reaproveitado (já existe).
+- No `InfoCards`, trocar o `<Link to="/gifts">` por um botão que faz `scrollIntoView` na seção `#gifts` (smooth via Lenis já presente).
+- Manter a rota `/admin` intacta (continua acessível diretamente).
 
-Hero ganha 2 botões dourados — o principal ("Confirmar Presença") rola direto pro RSVP, o secundário ("Ver Local e Horário") rola pros Detalhes. Sem mexer em rotas, store, admin nem schema.
+## 3. Otimizações de performance
 
-## 2. Fotos encostando edge-to-edge (capítulos da história)
+- **Imagens**: gerar versões `.webp` via `lovable-assets` para hero, chapters, gallery e closing; importar como `.asset.json` para sair do bundle JS e usar CDN com cache agressivo. Adicionar `decoding="async"`, `loading="lazy"` em tudo exceto `hero` (que recebe `fetchpriority="high"` + `loading="eager"`).
+- **GSAP**: refatorar para um único `useEffect` com `gsap.context`, usar `matchMedia` para desabilitar ScrollTrigger em `prefers-reduced-motion` e em telas `< 768px` (mantém só fades simples), reduzindo trabalho em mobile.
+- **Particles**: limitar `ParticleCanvas` a 1 instância visível por vez via `IntersectionObserver` (pausa quando fora da viewport); reduzir densidade em mobile.
+- **Cursor customizado**: desabilitar em touch devices (`matchMedia('(pointer: coarse)')`).
+- **Lenis SmoothScroll**: desativar em `prefers-reduced-motion`.
+- **Code-split**: `PurchaseModal` e `CountdownTimer` via `React.lazy` + `Suspense` para enxugar o bundle inicial.
+- **Fonts**: garantir `font-display: swap` no `@import` do Google Fonts.
 
-- Remover qualquer `border`, `rounded`, `gap`, `padding` entre a foto e o bloco de texto.
-- Grid do capítulo vira `grid md:grid-cols-2 gap-0` com a foto ocupando 100% da metade (sem `h-[60vh]` em mobile que cria respiro — usar `aspect-[4/5]` em mobile e `h-screen` em desktop).
-- `<img>` com `block w-full h-full object-cover m-0`.
-- Remover o overlay degradê preto que ainda restar sobre a foto.
-- Em mobile, foto do capítulo N encosta direto no texto do capítulo N, que encosta direto na foto do capítulo N+1 (sem `py-20` extra).
+## 4. Bugs identificados a corrigir
 
-## 3. Fotos sem delay (causa do "aparecem depois")
+- `RSVP({ ref })` em `src/routes/index.tsx` usa `ref` como prop comum → não funciona como ref real. Substituir por `forwardRef` (ou expor via `useImperativeHandle`/passar `id="rsvp"` e fazer scroll por seletor). Solução escolhida: dar `id="rsvp"` à seção e remover a prop `ref` totalmente; o botão do `Closing` faz `document.getElementById('rsvp')?.scrollIntoView`.
+- `Loader` desaparece após 700ms mas fica sempre no DOM. Adicionar `display: none` após `done` para liberar GPU.
+- `CustomCursor` provoca jank em alguns devices — esconder em mobile (ver acima).
+- `Link to="/gifts"` deixaria de existir → removido junto com a refatoração.
+- `PurchaseModal` define `document.body.style.overflow = "hidden"` mas o Lenis controla scroll; trocar para `lenis.stop()`/`lenis.start()` quando disponível, caindo no overflow hidden como fallback.
+- `useStoreSubscribe` retorna `void | (() => void)`; o `useEffect` em `gifts` chama `return cleanup` mesmo quando `undefined` (SSR). Garantir retorno sempre função (no-op no SSR).
+- Imports não utilizados (`useRef` em `Landing` após mudar RSVP) removidos para não falhar no lint strict.
 
-Causa real: imagens grandes (300–650KB) com `loading="lazy"` e clip-path animado por cima — o GSAP roda antes da imagem decodificar, dando a sensação de "aparecer atrasada".
+## 5. SEO / meta
 
-Ações:
+- Atualizar `head()` do `index` para refletir página única (descrição inclui "Lista de presentes e RSVP").
+- Remover `head()` da rota `/gifts` (deletada).
 
-- Preload da 1ª foto da história no `head()` do route `/` (`<link rel="preload" as="image" fetchpriority="high">`).
-- `Hero` + capítulo 1: `loading="eager"` `decoding="async"` `fetchpriority="high"`.
-- Capítulos 2–4 e galeria: `loading="lazy"` `decoding="async"`.
-- Servir tamanhos menores via query do CDN do Lovable: `?w=1280&q=75` nos capítulos/hero, `?w=800&q=75` na galeria. `srcSet` 768w/1280w/1920w + `sizes` corretos.
-- `background-color: var(--ink)` no container da foto para evitar flash branco.
-- Mover `src/assets/hero.jpg` e `src/assets/closing.jpg` para `lovable-assets` (sair do bundle JS, ganhar cache CDN). Apagar os binários do repo.
-- Animação clip-path dos capítulos só dispara depois do `img.onload` (ou usar uma animação mais leve: fade + scale curtinho de 0.6s).
+## Arquivos afetados
 
-## 4. Loader mais rápido e honesto
+- `src/assets/photograph.mp3.asset.json` (novo, via CLI)
+- `src/components/MusicPlayer.tsx` (novo)
+- `src/routes/__root.tsx` (montar `MusicPlayer`)
+- `src/routes/index.tsx` (seção Gifts inline, fix RSVP ref, lazy imports, scroll para gifts)
+- `src/routes/gifts.tsx` (apagado)
+- `src/components/PurchaseModal.tsx` (integração com Lenis)
+- `src/components/CustomCursor.tsx` (skip em touch)
+- `src/components/SmoothScroll.tsx` (respeitar reduced-motion)
+- `src/components/ParticleHero.tsx` (IntersectionObserver + densidade mobile)
+- `src/lib/store.ts` (no-op cleanup em SSR)
+- Possíveis novos `.asset.json` para imagens convertidas a webp (best-effort; se a conversão falhar, manter JPGs originais).
 
-Hoje o loader faz contagem fake e segura ~1.5s mesmo com tudo pronto. Vai:
-
-- Sumir assim que `document.readyState === 'complete'` E a 1ª foto do hero tiver carregado.
-- Cap máximo de 1.2s pra não esperar todas as imagens da página.
-- Barra reflete progresso real (resources carregados), não random.
-
-## 5. Cursor bugado
-
-`CustomCursor` está montado no `__root.tsx`? Verificar — pelo print da preview ele não aparece, mas o componente existe. Vai:
-
-- Garantir que `CustomCursor` é montado no `__root.tsx` e respeita `(pointer: coarse)` (já respeita).
-- Esconder cursor nativo (`html { cursor: none }`) só em desktop via `@media (pointer: fine)`.
-- Adicionar `pointer-events-none` + `will-change: transform` (já tem) e remover o `mix-blend-difference` que some sobre fundo dourado/preto.
-- `scale-150` no hover de links/botões com `transition-transform` mais curta (150ms).
-
-## 6. Bugs adicionais detectados
-
-- `Gifts`: `useStoreSubscribe(...)` chamado dentro de `useEffect` (regra de hooks). A função retorna o `unsubscribe`, mas chamar um hook dentro de `useEffect` quebra HMR e pode duplicar listeners. Substituir por chamada direta `store.subscribe(...)` (não-hook) ou usar `useSyncExternalStore`.
-- `ParticleCanvas` montado 3x (Hero + Proposal + Closing) → 3 canvases. Manter só no Hero, remover do Proposal e Closing (Closing já está sobre foto escura).
-- `gsap.context` sem `ScrollTrigger.refresh()` após `window.load` → triggers calculam offsets antes da foto ter altura final. Adicionar `ScrollTrigger.refresh()` no `load`.
-- `SmoothScroll` (Lenis) não respeita `prefers-reduced-motion`. Adicionar guarda.
-- Remover a seção `Quote` ou movê-la para dentro da história (uma frase isolada entre Hero e Detalhes atrasa a entrega da informação ao convidado).
-- `Proposal` vira parte do último capítulo (capítulo 4 já é o pedido), evita repetição.
-
-## 7. Arquivos afetados
-
-- `src/routes/index.tsx` — reordenar seções, refazer `LoveStory` (edge-to-edge), Hero com CTAs, remover Quote/Proposal, fix `Gifts.useStoreSubscribe`, srcSet/sizes/fetchpriority/preload.
-- `src/components/Loader.tsx` — reagir a `readyState` + cap de 1.2s.
-- `src/components/ParticleHero.tsx` — sem mudanças (só remover usos extras).
-- `src/components/SmoothScroll.tsx` — respeitar `prefers-reduced-motion`.
-- `src/components/CustomCursor.tsx` — `mix-blend-difference` removido, montagem garantida no `__root.tsx`.
-- `src/routes/__root.tsx` — montar `CustomCursor`.
-- `src/lib/store.ts` — exportar `store.subscribe` não-hook.
-- `src/styles.css` — `html { cursor: none }` em desktop.
-- `src/assets/hero.jpg` e `src/assets/closing.jpg` — virar `.asset.json` e remover binários.
-
-Sem mudanças em rotas, admin, autenticação, schema ou dados.
+Sem mudanças em rotas além da remoção de `/gifts`. Estilos globais inalterados exceto pequenas classes utilitárias para o botão de música.
