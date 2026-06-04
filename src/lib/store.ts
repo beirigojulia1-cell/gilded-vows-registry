@@ -8,10 +8,8 @@ export type Gift = {
   icon: string;
   description?: string;
   imageUrl?: string;
-  imageUrl?: string;
   gradient?: string;
   accent?: string;
-
 };
 
 export type Purchase = {
