@@ -183,7 +183,7 @@ function Hero() {
         className="absolute inset-0 w-full h-full object-cover"
         loading="eager"
         decoding="async"
-        fetchpriority="high"
+        fetchPriority="high"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/80" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.75)_100%)]" />
@@ -251,7 +251,7 @@ function LoveStory() {
                   className="absolute inset-0 w-full h-full object-cover m-0 will-change-transform"
                   loading={isFirst ? "eager" : "lazy"}
                   decoding="async"
-                  fetchpriority={isFirst ? "high" : "low"}
+                  fetchPriority={isFirst ? "high" : "low"}
                 />
               </div>
 
