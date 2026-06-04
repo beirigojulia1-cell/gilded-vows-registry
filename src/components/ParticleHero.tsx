@@ -7,12 +7,16 @@ export function ParticleCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const count = isMobile ? 24 : 55;
     let raf = 0;
+    let running = false;
     let particles: { x: number; y: number; vx: number; vy: number; r: number; a: number }[] = [];
     const resize = () => {
       canvas.width = canvas.offsetWidth * devicePixelRatio;
       canvas.height = canvas.offsetHeight * devicePixelRatio;
-      particles = Array.from({ length: 60 }, () => ({
+      particles = Array.from({ length: count }, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * 0.25,
@@ -37,11 +41,26 @@ export function ParticleCanvas() {
       }
       raf = requestAnimationFrame(loop);
     };
-    loop();
-    return () => {
+    const start = () => {
+      if (running) return;
+      running = true;
+      loop();
+    };
+    const stop = () => {
+      if (!running) return;
+      running = false;
       cancelAnimationFrame(raf);
+    };
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => (e.isIntersecting ? start() : stop())),
+      { threshold: 0.05 },
+    );
+    io.observe(canvas);
+    return () => {
+      stop();
+      io.disconnect();
       window.removeEventListener("resize", resize);
     };
   }, []);
-  return <canvas ref={ref} className="absolute inset-0 w-full h-full" />;
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full pointer-events-none" />;
 }
