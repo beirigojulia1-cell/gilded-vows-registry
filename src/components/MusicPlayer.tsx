@@ -83,8 +83,7 @@ export function MusicPlayer() {
         onClick={toggle}
         aria-label={playing ? "Pausar música" : "Tocar música"}
         title={playing ? "Pausar música" : "Tocar música"}
-        className={`fixed bottom-5 left-5 z-[150] w-11 h-11 rounded-full flex items-center justify-center border border-gold/50 bg-black/60 backdrop-blur-md text-gold hover:text-champagne hover:border-gold transition-all shadow-lg ${ready ? "opacity-100" : "opacity-0"} ${playing ? "animate-pulse-soft" : ""}`}
-        style={{ animationDuration: "2.4s" }}
+        className={`fixed bottom-5 left-5 z-[150] w-11 h-11 rounded-full flex items-center justify-center border border-gold/50 bg-black/60 backdrop-blur-md text-gold hover:text-champagne hover:border-gold transition-all shadow-lg ${ready ? "opacity-100" : "opacity-0"}`}
       >
         {playing ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
       </button>
