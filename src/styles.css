@@ -32,6 +32,8 @@
   --color-gold-soft: var(--gold-soft);
   --color-champagne: var(--champagne);
   --color-ink: var(--ink);
+  --color-cream: var(--cream);
+  --color-cream-muted: var(--cream-muted);
   --font-serif: "Cormorant Garamond", serif;
   --font-sans: "Inter", sans-serif;
 }
@@ -44,6 +46,8 @@
   --champagne: oklch(0.93 0.04 85);
   --gold: oklch(0.76 0.11 80);
   --gold-soft: oklch(0.65 0.09 80);
+  --cream: oklch(0.96 0.012 85);
+  --cream-muted: oklch(0.88 0.015 80);
   --card: oklch(0.17 0.012 70);
   --card-foreground: oklch(0.93 0.04 85);
   --popover: oklch(0.15 0.012 70);
