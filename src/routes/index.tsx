@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Loader } from "@/components/Loader";
@@ -271,7 +271,7 @@ function InfoCards() {
   );
 }
 
-const RSVP = function RSVP_({ ref }: { ref: React.RefObject<HTMLElement | null> }) {
+function RSVP({ ref }: { ref: RefObject<HTMLElement | null> }) {
   const { push } = useToast();
   const [name, setName] = useState("");
   const [guests, setGuests] = useState(1);
@@ -285,7 +285,7 @@ const RSVP = function RSVP_({ ref }: { ref: React.RefObject<HTMLElement | null> 
     list.push({ id: crypto.randomUUID(), name: name.trim(), guests, message: message.trim(), at: Date.now() });
     localStorage.setItem("wg_rsvp", JSON.stringify(list));
     setDone(true);
-  };
+}
 
   return (
     <section ref={ref} className="py-28 md:py-40 px-6">
