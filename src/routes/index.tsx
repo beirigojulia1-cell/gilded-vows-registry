@@ -189,18 +189,18 @@ function Hero() {
   return (
     <section className="relative h-screen min-h-[700px] w-full flex items-center justify-center overflow-hidden">
       <img src={heroImg} alt="Geovana e Sérgio" className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/95" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.85)_100%)]" />
+      {/* overlay bem mais leve só para garantir contraste dos textos */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/55" />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-4xl">
-        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold/90 mb-10 animate-fade-up">— Casamento · 2026 —</p>
+      <div className="relative z-10 text-center px-6 max-w-4xl" style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}>
+        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold mb-10 animate-fade-up">— Casamento · 2026 —</p>
         <h1 className="font-serif font-light text-champagne leading-[0.95]">
           <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.1s" }}>Geovana Stefany</span>
           <span className="block font-serif italic text-gradient-gold text-4xl md:text-6xl my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
           <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.3s" }}>Sérgio Vasconcelos</span>
         </h1>
         <div className="gold-rule w-24 mx-auto my-10" />
-        <p className="font-serif italic text-champagne/80 text-lg md:text-2xl animate-fade-up" style={{ animationDelay: "0.4s" }}>Uma história escrita pelo destino.</p>
+        <p className="font-serif italic text-champagne text-lg md:text-2xl animate-fade-up" style={{ animationDelay: "0.4s" }}>Uma história escrita pelo destino.</p>
       </div>
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
         <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
