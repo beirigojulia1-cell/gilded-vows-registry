@@ -42,7 +42,7 @@ export function CountdownTimer({ date }: { date: string }) {
             </div>
           ))}
         </div>
-        <p className="font-serif italic text-champagne/70 mt-10 text-lg">15 de Novembro de 2026</p>
+        <p className="font-serif italic text-champagne/70 mt-10 text-lg">28 de Junho de 2026</p>
       </div>
     </div>
   );
