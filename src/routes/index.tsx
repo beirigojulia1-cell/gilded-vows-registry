@@ -42,9 +42,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Geovana & Sérgio · Casamento 2026" },
-      { name: "description", content: "Uma história escrita pelo destino. 15 de Novembro de 2026." },
+      { name: "description", content: "Uma história escrita pelo destino. 28 de Junho de 2026." },
       { property: "og:title", content: "Geovana & Sérgio · Casamento 2026" },
-      { property: "og:description", content: "Uma história escrita pelo destino. 15 de Novembro de 2026." },
+      { property: "og:description", content: "Uma história escrita pelo destino. 28 de Junho de 2026." },
       { property: "og:image", content: heroImg },
     ],
   }),
@@ -175,7 +175,7 @@ function Landing() {
         <LoveStory />
         <Gallery />
         <Proposal />
-        <CountdownTimer date="2026-11-15T17:00:00-03:00" />
+        <CountdownTimer date="2026-06-28T12:00:00-03:00" />
         <InfoCards />
         <Gifts />
         <RSVP />
@@ -329,7 +329,7 @@ function Proposal() {
 
 function InfoCards() {
   const cards = [
-    { label: "Data", value: "15 de Novembro", sub: "2026 · Domingo", icon: <CalIcon /> },
+    { label: "Data", value: "28 de Junho", sub: "2026 · Sábado", icon: <CalIcon /> },
     { label: "Horário", value: "17h00", sub: "Entrada a partir das 16h30", icon: <ClockIcon /> },
     { label: "Local", value: "Quinta das Rosas", sub: "Av. das Flores, 1200 · Brasil", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://maps.google.com" } },
     { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },

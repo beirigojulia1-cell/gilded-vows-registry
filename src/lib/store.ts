@@ -81,7 +81,7 @@ const DEFAULT_GIFTS: Gift[] = [
 
 const DEFAULT_SETTINGS: Settings = {
   coupleNames: "Geovana & Sérgio",
-  weddingDate: "2026-11-15T17:00:00-03:00",
+  weddingDate: "2026-06-28T12:00:00-03:00",
   pixKey: "geovana@email.com",
   pixName: "Geovana Stefany",
   pixCity: "São Paulo",
