@@ -32,6 +32,8 @@ export type Settings = {
 import talheresAsset from "@/assets/talheres-tramontina.jpeg.asset.json";
 import fureAsset from "@/assets/fure-profissional.jpeg.asset.json";
 import panoAsset from "@/assets/pano-de-prato.jpeg.asset.json";
+import mopAsset from "@/assets/mop-flash-limp.png.asset.json";
+import organizadorAsset from "@/assets/organizador-cestos.png.asset.json";
 
 const K = {
   gifts: "wg_gifts_v3",
