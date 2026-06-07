@@ -493,13 +493,13 @@ function Gifts() {
   const filtered = useMemo(() => (activeCat === "Todos" ? gifts : gifts.filter((g) => g.category === activeCat)), [gifts, activeCat]);
 
   return (
-    <section id="gifts" className="relative py-24 md:py-32 px-6 bg-background">
+    <section id="gifts" className="relative py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— Lista de Presentes —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Nosso <em className="text-gradient-gold not-italic">Ninho de Amor</em></h2>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Lista de Presentes —</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-ink">Nosso <em className="text-gradient-gold not-italic">Ninho de Amor</em></h2>
           <div className="gold-rule w-24 mx-auto my-8" />
-          <p className="max-w-xl mx-auto text-champagne/70 leading-relaxed text-sm md:text-base font-light">
+          <p className="max-w-xl mx-auto text-ink/70 leading-relaxed text-sm md:text-base font-light">
             Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo.
           </p>
         </div>
@@ -509,7 +509,7 @@ function Gifts() {
             <button
               key={c}
               onClick={() => setActiveCat(c)}
-              className={`px-5 py-2 text-xs tracking-[0.18em] uppercase rounded-full border transition-all ${activeCat === c ? "bg-gold text-ink border-gold" : "border-gold/30 text-champagne/70 hover:border-gold/70 hover:text-gold"}`}
+              className={`px-5 py-2 text-xs tracking-[0.18em] uppercase rounded-full border transition-all ${activeCat === c ? "bg-gold text-ink border-gold" : "border-gold/40 text-ink/70 hover:border-gold hover:text-gold-soft"}`}
             >
               {c}
             </button>
@@ -524,31 +524,30 @@ function Gifts() {
               <article
                 key={gift.id}
                 data-reveal
-                className={`group relative rounded-lg border overflow-hidden flex flex-col transition-all duration-500 ${taken ? "opacity-60 grayscale border-border/40" : "border-gold/15 hover:border-gold/50 hover:shadow-[0_30px_80px_-30px_rgba(201,169,110,0.45)] hover:-translate-y-1"}`}
-                style={{ background: gift.gradient }}
+                className={`group relative rounded-lg border overflow-hidden flex flex-col transition-all duration-500 bg-white ${taken ? "opacity-60 grayscale border-border/40" : "border-gold/25 hover:border-gold/70 hover:shadow-[0_30px_80px_-30px_rgba(201,169,110,0.45)] hover:-translate-y-1"}`}
               >
-                <div className="relative h-48 overflow-hidden flex items-center justify-center">
+                <div className="relative h-48 overflow-hidden flex items-center justify-center bg-cream-muted">
                   {gift.imageUrl ? (
-                    <img src={gift.imageUrl} alt={gift.title} className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async" />
+                    <img src={gift.imageUrl} alt={gift.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async" />
                   ) : (
                     <div className="text-6xl drop-shadow-[0_8px_24px_rgba(201,169,110,0.4)] transition-transform duration-700 group-hover:scale-110" style={{ color: gift.accent }}>{gift.icon}</div>
                   )}
-                  <span className="absolute top-3 left-3 text-[0.6rem] tracking-[0.3em] uppercase bg-black/50 backdrop-blur px-2.5 py-1 rounded" style={{ color: gift.accent ?? "var(--gold)" }}>{gift.category}</span>
-                  {taken && <span className="absolute top-3 right-3 text-[0.6rem] tracking-[0.2em] uppercase text-gold bg-black/60 px-2.5 py-1 rounded">✦ Presenteado</span>}
+                  <span className="absolute top-3 left-3 text-[0.6rem] tracking-[0.3em] uppercase bg-white/85 backdrop-blur px-2.5 py-1 rounded text-gold-soft">{gift.category}</span>
+                  {taken && <span className="absolute top-3 right-3 text-[0.6rem] tracking-[0.2em] uppercase text-gold-soft bg-white/85 px-2.5 py-1 rounded">✦ Presenteado</span>}
                 </div>
-                <div className="p-6 flex-1 flex flex-col bg-black/45 backdrop-blur-sm">
-                  <h3 className="font-serif text-2xl text-champagne mb-2">{gift.title}</h3>
-                  <p className="text-champagne/55 text-xs leading-relaxed mb-4 line-clamp-2">{gift.description}</p>
-                  {taken && <p className="text-[10px] tracking-wider uppercase text-gold/80 italic mb-3">Presenteado por {purchase!.guestName}</p>}
-                  <div className="mt-auto pt-4 border-t border-gold/10 flex items-end justify-between">
+                <div className="p-6 flex-1 flex flex-col bg-white">
+                  <h3 className="font-serif text-2xl text-ink mb-2">{gift.title}</h3>
+                  <p className="text-ink/60 text-xs leading-relaxed mb-4 line-clamp-2">{gift.description}</p>
+                  {taken && <p className="text-[10px] tracking-wider uppercase text-gold-soft italic mb-3">Presenteado por {purchase!.guestName}</p>}
+                  <div className="mt-auto pt-4 border-t border-gold/20 flex items-end justify-between">
                     <div>
-                      <div className="text-[9px] tracking-[0.3em] uppercase text-champagne/40">Valor sugerido</div>
+                      <div className="text-[9px] tracking-[0.3em] uppercase text-ink/45">Valor sugerido</div>
                       <div className="text-gradient-gold font-serif text-xl">{formatBRL(gift.priceCents)}</div>
                     </div>
                     <button
                       disabled={taken}
                       onClick={() => setSelected(gift)}
-                      className="btn-gold px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 rounded border border-gold text-gold-soft hover:bg-gold hover:text-ink transition-all text-[0.72rem] tracking-[0.12em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {taken ? "Presenteado ✦" : "Presentear"}
                     </button>
