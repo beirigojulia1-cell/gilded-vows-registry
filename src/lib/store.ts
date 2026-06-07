@@ -79,6 +79,28 @@ const DEFAULT_GIFTS: Gift[] = [
     gradient: "linear-gradient(135deg,#0f0a08,#1a1210,#0f0a08)",
     accent: "#d4a8a0",
   },
+  {
+    id: "g04",
+    title: "Mop Flash Limp",
+    description: "Mop spray prático para deixar o piso da nossa casa sempre brilhando.",
+    priceCents: 6999,
+    category: "Lar",
+    icon: "🧽",
+    imageUrl: mopAsset.url,
+    gradient: "linear-gradient(135deg,#080c0f,#0c1820,#080c0f)",
+    accent: "#3fa9a4",
+  },
+  {
+    id: "g05",
+    title: "Kit Organizador com Tampa (3 un.)",
+    description: "Trio de cestos organizadores com tampa de bambu para manter o nosso lar sempre em ordem.",
+    priceCents: 7431,
+    category: "Lar",
+    icon: "🧺",
+    imageUrl: organizadorAsset.url,
+    gradient: "linear-gradient(135deg,#0d0d0f,#1a1a1d,#0d0d0f)",
+    accent: "#a8a59c",
+  },
 ];
 
 const DEFAULT_SETTINGS: Settings = {
