@@ -1,76 +1,36 @@
+## Problema
 
-## Migração para Mercado Pago (PIX + Cartão de Crédito)
+Hoje o nome do convidado é capturado no `PurchaseModal` (campo obrigatório "Seu nome" + mensagem opcional), mas quando o pagamento é aprovado o registro é gravado **apenas no `localStorage` do navegador do convidado** (`store.addPurchase`). Resultado: no `/admin` vocês só veem os presentes comprados no próprio navegador de vocês — nunca os de outras pessoas.
 
-Vou remover o fluxo manual da chave PIX por e-mail e integrar o Mercado Pago oferecendo duas opções de pagamento dentro do `PurchaseModal`: **PIX** (QR Code gerado pela API) e **Cartão de Crédito** (via Checkout Pro / preferência hospedada do MP).
+A função `createPurchase` (que grava no banco `purchases`) existe, mas deixou de ser chamada depois da migração para o Mercado Pago.
 
-A secret `MERCADO_PAGO_ACCESS_TOKEN` já está configurada.
+## Solução
 
----
+Gravar o presente no banco **no servidor**, automaticamente, assim que o Mercado Pago confirmar o pagamento — passando junto o nome do convidado e a mensagem. Assim o `/admin` (que já lê via `listPurchases`) passa a mostrar quem enviou cada presente, vindo de qualquer dispositivo.
 
-### 1. Backend — `src/lib/wedding.functions.ts`
+### Backend (`src/lib/wedding.functions.ts`)
 
-**Novas server functions:**
+1. **`checkMercadoPagoPaymentStatus`** (usado no polling do PIX): aceitar também `giftId`, `guestName`, `message`. Quando `status === "approved"`, inserir em `purchases` (idempotente: só insere se ainda não existir uma compra com aquele `gift_id`).
+2. **`lookupMercadoPagoByGift`** (usado no retorno do cartão): receber também `guestName` e `message`. Se encontrar pagamento aprovado, inserir em `purchases` (mesma idempotência).
+3. Manter `createPurchase` como está (não é mais chamada pelo front).
 
-- `createMercadoPagoPixPayment({ giftId, guestName, message })`
-  - Bloqueia se presente já foi comprado.
-  - `POST https://api.mercadopago.com/v1/payments` com header `Authorization: Bearer ${MERCADO_PAGO_ACCESS_TOKEN}` e `X-Idempotency-Key: uuid`.
-  - Body: `transaction_amount`, `payment_method_id: "pix"`, `description`, `payer.email` (gerado), `external_reference: giftId`, `metadata: { giftId, guestName, message }`.
-  - Retorna `{ paymentId, qrCodeBase64, qrCode (copia-e-cola), ticketUrl, expiresAt }`.
+### Frontend
 
-- `createMercadoPagoCardPreference({ giftId, guestName, message })`
-  - Bloqueia se presente já foi comprado.
-  - `POST https://api.mercadopago.com/checkout/preferences` com `items: [{ title, quantity:1, unit_price, currency_id:"BRL" }]`, `payment_methods: { excluded_payment_types: [{ id: "ticket" }, { id: "atm" }, { id: "bank_transfer" }] }` (deixa só cartão), `external_reference: giftId`, `metadata`, `back_urls` (origem + `?gift=<id>&status=success|failure|pending`), `auto_return: "approved"`.
-  - Retorna `{ preferenceId, initPoint }` — frontend redireciona para `initPoint`.
+1. **`src/components/PurchaseModal.tsx`**: no polling do PIX, passar `giftId`, `guestName`, `message` para `checkMercadoPagoPaymentStatus`. Continuar atualizando o `localStorage` para feedback imediato (sem mudança visual).
+2. **`src/routes/index.tsx`**: no handler de retorno do Mercado Pago (cartão), chamar `lookupMercadoPagoByGift` passando `guestName` e `message` lidos da URL — para gravar no banco caso o pagamento já tenha sido aprovado.
 
-- `checkMercadoPagoPaymentStatus({ paymentId, giftId, guestName, message })`
-  - `GET /v1/payments/:id`. Se `approved`, insere `purchase` (idempotente: verifica se já existe pelo `gift_id`).
-  - Retorna `{ status, approved: boolean }`.
+### Admin
 
-- `confirmMercadoPagoByExternalReference({ giftId, guestName, message })`
-  - Para retorno de cartão via `back_url`: busca pagamentos por `external_reference` (`GET /v1/payments/search?external_reference=<giftId>`), se houver aprovado → cria purchase.
+Nenhuma mudança — `/admin` já mostra `guestName`, `message` e o presente em "Mural de Carinho" e nas notificações.
 
-**Remover/limpar:**
-- `createPurchase` deixa de ser chamado pelo front (mantenho a função, mas só usada internamente após confirmação MP — ou removo).
-- Settings `pixKey/pixName/pixCity` deixam de ser usados no front.
+## Garantias
 
----
+- Nome continua **obrigatório** no formulário (já é hoje).
+- Mensagem continua opcional.
+- Idempotente: mesmo se o polling rodar várias vezes, só grava 1 vez por presente.
+- Sem mudanças no schema do banco e sem novas dependências.
 
-### 2. Frontend — `src/components/PurchaseModal.tsx` (reescrita)
+## Fora do escopo
 
-Layout em 2 abas: **PIX** | **Cartão de Crédito**.
-
-**Aba PIX:**
-1. Form com nome + mensagem opcional.
-2. Botão "Gerar QR Code" → chama `createMercadoPagoPixPayment`.
-3. Mostra QR (img base64) + código copia-e-cola + countdown de expiração.
-4. Polling a cada 4s em `checkMercadoPagoPaymentStatus` até `approved` → tela de sucesso.
-5. Remove uso da lib `qrcode` (QR vem pronto do MP).
-
-**Aba Cartão:**
-1. Form com nome + mensagem opcional.
-2. Botão "Pagar com cartão" → chama `createMercadoPagoCardPreference` → `window.location.href = initPoint` (Checkout Pro hospedado, suporta parcelamento, salva o usuário de digitar dados na nossa página).
-3. Ao voltar via `back_url` (`/?gift=<id>&status=approved`), o `index.tsx` detecta no mount, chama `confirmMercadoPagoByExternalReference` e mostra toast de sucesso + abre modal de agradecimento.
-
----
-
-### 3. Admin — `src/routes/_authenticated/admin.tsx`
-
-Esconder campos `pixKey/pixName/pixCity` do formulário de settings (deixar só `coupleNames` e `weddingDate`). Não removo as colunas do banco agora (sem migration), só deixam de aparecer.
-
----
-
-### 4. Detalhes técnicos
-
-- Sem novas dependências (uso `fetch` nativo).
-- `MERCADO_PAGO_ACCESS_TOKEN` lido via `process.env` dentro do `.handler()`.
-- Webhook do MP fica fora de escopo — polling (PIX) + verificação no retorno (cartão) são suficientes.
-- Email do payer gerado como `convidado+<uuid>@casamento.app` (MP exige email mas não valida).
-- Validação Zod em todos os inputs.
-- Idempotência: `purchases` checa duplicata por `gift_id` antes de inserir.
-
-### Fora do escopo
-
-- Não mudo schema do banco (sem coluna `mp_payment_id`).
-- Não removo a lib `qrcode` do package.json (só paro de usar).
-- Não implemento webhook MP.
-- Não mexo no design/animações já feitas.
+- Webhook do Mercado Pago (polling/retorno são suficientes).
+- Mudanças visuais no admin ou no modal.

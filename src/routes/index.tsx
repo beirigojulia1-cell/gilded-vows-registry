@@ -13,6 +13,7 @@ import { AnimatedText } from "@/components/AnimatedText";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { ensureDefaultPassword, formatBRL, store, useStoreSubscribe, type Gift, type Purchase } from "@/lib/store";
 import { useToast } from "@/components/Toast";
+import { lookupMercadoPagoByGift } from "@/lib/wedding.functions";
 import heroAsset from "@/assets/sentados-banco.jpeg.asset.json";
 const heroImg = heroAsset.url;
 import closingImg from "@/assets/closing.jpg";
@@ -96,6 +97,8 @@ function Landing() {
       const exists = store.getPurchases().some((p) => p.giftId === giftId);
       if (!exists) store.addPurchase({ giftId, guestName: guest, message: msg });
       pushToast("Pagamento aprovado · Obrigado pelo presente!", "success");
+      // Confirma no servidor e grava no banco para aparecer no /admin
+      lookupMercadoPagoByGift({ data: { giftId, guestName: guest, message: msg } }).catch(() => {});
     } else if (status === "pending") {
       pushToast("Pagamento pendente · Confirmaremos em instantes", "success");
     } else if (status === "failure") {
