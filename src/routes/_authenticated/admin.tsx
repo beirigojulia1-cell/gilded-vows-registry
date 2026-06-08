@@ -91,7 +91,7 @@ function AdminApp() {
   ];
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background admin-light">
       <aside className={`fixed md:static z-40 inset-y-0 left-0 w-64 bg-card border-r border-border/60 transform transition-transform ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
         <div className="p-6 border-b border-border/60">
           <div className="font-serif text-2xl text-gradient-gold">G &amp; S Admin</div>
