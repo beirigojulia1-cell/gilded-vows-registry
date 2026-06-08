@@ -71,7 +71,8 @@ async function getAdmin(): Promise<any> {
 }
 
 async function requireAdmin(ctx: { supabase: any; userId: string }) {
-  const { data, error } = await (ctx.supabase as any).rpc("has_role", {
+  const client = ctx.supabase as any;
+  const { data, error } = await client.rpc("has_role", {
     _user_id: ctx.userId,
     _role: "admin",
   });
@@ -98,7 +99,11 @@ export const listPurchasedGiftIds = createServerFn({ method: "GET" }).handler(as
   const supabase = await getAdmin();
   const { data, error } = await supabase.from("purchases").select("gift_id");
   if (error) throw new Error(error.message);
-  return { giftIds: Array.from(new Set((data ?? []).map((r) => r.gift_id as string))) };
+  const rows = (data ?? []) as Array<{ gift_id: string | null }>;
+  const giftIds = Array.from(
+    new Set(rows.map((row) => row.gift_id).filter((giftId): giftId is string => typeof giftId === "string")),
+  );
+  return { giftIds };
 });
 
 export const getSettings = createServerFn({ method: "GET" }).handler(async () => {
@@ -147,7 +152,8 @@ export const createPurchase = createServerFn({ method: "POST" })
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("has_role", {
+    const client = context.supabase as any;
+    const { data, error } = await client.rpc("has_role", {
       _user_id: context.userId,
       _role: "admin",
     });
