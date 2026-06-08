@@ -103,7 +103,9 @@ function Landing() {
     }
   }, [pushToast]);
 
+  useEffect(() => {
     const ctx = gsap.context(() => {
+
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
         gsap.fromTo(
           el,
