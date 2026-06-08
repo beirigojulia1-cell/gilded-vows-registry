@@ -1,102 +1,38 @@
-## Visão geral
+## Animações de texto fluindo + scrolling
 
-Hoje os presentes, compras e configurações ficam só no `localStorage` do seu navegador — por isso, quando você adiciona um presente no `/admin`, ninguém mais vê. Vamos mover tudo pro Supabase pra que seja global.
+Vou turbinar o site mantendo o conteúdo e a estética atual (Lenis já tá ativo), adicionando animações de texto reveladas conforme você rola — estilo editorial/cinemático.
 
----
+### O que vai mudar
 
-## Parte 1 — Banco de dados (Supabase)
+**1. Novo componente `AnimatedText`** (`src/components/AnimatedText.tsx`)
+- Quebra o texto em palavras (e/ou letras) e anima cada uma com `gsap` + `ScrollTrigger`.
+- Variantes: `words` (palavra a palavra), `lines` (linha por linha tipo cortina), `chars` (letra a letra para títulos curtos).
+- Cada palavra entra com `y: 100%`, `opacity: 0`, `filter: blur(8px)` → posição/opacidade/blur zero, com stagger suave.
+- Respeita `prefers-reduced-motion`.
 
-### Tabelas a criar (em uma migration)
+**2. Aplicar nos textos-chave de `src/routes/index.tsx`**
+- Hero: nomes "Geovana Stefany" e "Sérgio Vasconcelos" em `chars` (letras subindo em cascata).
+- Quote ("Algumas histórias começam…"): `words` com blur fluido.
+- Cada capítulo da `LoveStory`: tag, título e parágrafo trocam o `data-stagger-item` por `AnimatedText` (palavras fluindo da esquerda, sincronizado com a entrada da foto).
+- `Proposal` ("E naquele instante…"): `words` com stagger lento e brilho dourado.
+- Galeria, InfoCards, Gifts, RSVP e Closing: títulos de seção viram `AnimatedText` (`lines`).
 
-- **`gifts`** — id, title, category, price_cents, icon, description, image_url, gradient, accent, sort_order, created_at, updated_at
-- **`purchases`** — id, gift_id (FK→gifts), guest_name, message, read, created_at
-- **`settings`** — linha única (singleton) com couple_names, wedding_date, pix_key, pix_name, pix_city
-- **`user_roles`** — id, user_id (FK→auth.users), role (`admin`)
-- **Função `has_role(user_id, role)`** — security definer, usada em todas as RLS policies de admin
+**3. Efeitos extras de scrolling**
+- Parallax sutil já existe — vou adicionar:
+  - Headings grudados (`pin`) curtos nas seções Quote e Proposal para dar pausa cinemática (≈ 60% da viewport).
+  - Linha dourada (`gold-rule`) que cresce de 0 → 100% com `scrub` em cada divisória.
+  - Numeral gigante dos capítulos com leve `scrub` de opacidade/translate para parecer flutuando.
+- Um indicador de progresso fino (1px) dourado no topo, ligado ao scroll total.
 
-### RLS (regras de acesso)
+**4. Lenis / GSAP integração**
+- Conectar Lenis ao `ScrollTrigger.update` (hoje não estão sincronizados, então alguns triggers podem disparar fora de hora). Ajustar em `SmoothScroll.tsx` para emitir `lenis.on('scroll', ScrollTrigger.update)` e `gsap.ticker.add(t => lenis.raf(t*1000))`.
 
-- **`gifts`**: leitura pública (qualquer um vê a lista); insert/update/delete só admin
-- **`purchases`**: insert público (convidado registra o presente); leitura/delete só admin
-- **`settings`**: leitura pública; update só admin
-- **`user_roles`**: leitura própria; gerenciamento só admin
+### Detalhes técnicos
+- Sem libs novas (usa GSAP já instalado). Split manual em JS — sem precisar do plugin pago SplitText.
+- Animações cliente-side dentro de `useEffect`, seguras p/ SSR.
+- Mobile: reduz amplitude (y 40% em vez de 100%) e desliga blur p/ performance.
 
-### Storage
-
-- Bucket público `gift-images` pra novas fotos que você subir pelo `/admin`. As fotos atuais (galeria, capítulos, presentes existentes) continuam na CDN da Lovable.
-
-### Seed inicial
-
-A migration vai popular `gifts` com os 5 presentes atuais (Talheres, Fuê, Pano, Mop, Organizador) e `settings` com seus dados (Geovana & Sérgio, 28/06/2026, PIX).
-
----
-
-## Parte 2 — Login admin
-
-Vou habilitar o Supabase Auth (email/senha, sem confirmação de email pra ser rápido).
-
-**Fluxo (você faz uma vez):**
-1. Eu te envio um link `/auth` pra criar sua conta com seu email + a senha que você escolher.
-2. Depois que você criar, eu rodo um insert na tabela `user_roles` dando role `admin` pra você. (Como ainda não tenho seu email, te peço no chat depois que migration rodar.)
-3. A partir daí: vai em `/admin`, loga com email/senha, e gerencia presentes/mensagens normalmente. Tudo persiste no Supabase.
-
-A rota `/admin` vai virar uma rota protegida (`_authenticated/admin`) — quem não estiver logado e com role admin é redirecionado.
-
-A tela atual "senha única" (`casal2026`) sai de cena.
-
----
-
-## Parte 3 — Código
-
-### Server functions (createServerFn) — backend seguro
-- `listGifts`, `getSettings`, `createPurchase` → públicas
-- `createGift`, `updateGift`, `deleteGift`, `uploadGiftImage`, `listPurchases`, `markPurchaseRead`, `clearPurchases`, `updateSettings` → protegidas por `requireSupabaseAuth` + checagem `has_role('admin')`
-
-### Frontend
-- `src/lib/store.ts` deixa de usar localStorage; vira camada fina chamando server functions via TanStack Query
-- `src/routes/admin.tsx` perde a tela de senha; usa Supabase Auth
-- Cria `src/routes/auth.tsx` (login + cadastro)
-- `src/routes/index.tsx`, `PurchaseModal`, `CountdownTimer` passam a ler de Query em vez de `store.get*` síncrono
-
----
-
-## Parte 4 — Mercado Pago (Checkout Pro) — roteiro
-
-**Por que assim:** o Access Token NUNCA vai pro frontend. Ele fica como secret no Supabase e só uma server function chama a API do Mercado Pago.
-
-### Passo a passo (faremos depois das partes 1-3)
-
-1. **Você cria a aplicação no Mercado Pago**
-   - Vai em https://www.mercadopago.com.br/developers/panel/app → "Criar aplicação"
-   - Tipo: "Pagamentos online" → "Checkout Pro"
-   - Em "Credenciais" copia o **Access Token de TESTE** (começa com `TEST-...`)
-
-2. **Eu te peço o secret pelo cofre seguro da Lovable**
-   - Você cola o `TEST-...` no formulário. Ele vira a variável de ambiente `MERCADOPAGO_ACCESS_TOKEN`, acessível só no backend.
-
-3. **Eu implemento 3 peças:**
-   - Server function `createMercadoPagoPreference({ giftId, guestName, message })`: cria a "preference" via API do MP usando o token do `process.env`, devolve só o `init_point` (URL de checkout).
-   - Rota pública `/api/public/mercadopago/webhook`: recebe notificações do MP, valida, e marca o `purchase` como "pago".
-   - Botão **"Pagar com Mercado Pago"** no `PurchaseModal` que chama a server function e redireciona pro `init_point`. PIX manual continua disponível em paralelo.
-
-4. **Teste em sandbox**
-   - Usa um cartão de teste do MP (ex.: `5031 4332 1540 6351`, CVV 123, qualquer data futura, nome `APRO`) → confirma que o webhook chega e a compra aparece marcada como paga em `/admin`.
-
-5. **Quando quiser ir pra produção**
-   - Cria a aplicação em modo produção no MP, pega o Access Token `APP_USR-...`, e eu atualizo o secret. Zero mudança de código.
-
----
-
-## Ordem de execução
-
-1. Migration (tabelas + RLS + seed)
-2. Bucket `gift-images`
-3. Server functions + frontend novo
-4. Você cria sua conta em `/auth`, me passa o email, eu te promovo a admin
-5. Você adiciona presentes pelo `/admin` (agora globais!)
-6. Mercado Pago (parte 4) num passo separado
-
-## Fora deste plano
-- Migrar imagens antigas pro Supabase (ficam na CDN)
-- Personalização visual da tela `/auth` além do básico
-- Notificações por email/SMS
+### Fora do escopo
+- Não mexer em lógica de presentes/compras/admin/Mercado Pago.
+- Não trocar fontes nem paleta.
+- Não adicionar novas seções.

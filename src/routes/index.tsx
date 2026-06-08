@@ -9,6 +9,8 @@ import { ParticleCanvas } from "@/components/ParticleHero";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { ToastProvider } from "@/components/Toast";
 import { PurchaseModal } from "@/components/PurchaseModal";
+import { AnimatedText } from "@/components/AnimatedText";
+import { ScrollProgress } from "@/components/ScrollProgress";
 import { ensureDefaultPassword, formatBRL, store, useStoreSubscribe, type Gift, type Purchase } from "@/lib/store";
 import { useToast } from "@/components/Toast";
 import heroAsset from "@/assets/sentados-banco.jpeg.asset.json";
@@ -152,6 +154,35 @@ function Landing() {
           scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
         });
       });
+      gsap.utils.toArray<HTMLElement>("[data-rule-grow]").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { scaleX: 0, transformOrigin: "left center" },
+          {
+            scaleX: 1,
+            ease: "power2.out",
+            duration: 1.4,
+            scrollTrigger: { trigger: el, start: "top 90%" },
+          },
+        );
+      });
+      gsap.utils.toArray<HTMLElement>("[data-pin-fade]").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0.4, scale: 0.95 },
+          {
+            opacity: 1,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 80%",
+              end: "center 40%",
+              scrub: true,
+            },
+          },
+        );
+      });
     });
     const refresh = () => ScrollTrigger.refresh();
     const imgs = Array.from(document.querySelectorAll("img"));
@@ -168,7 +199,8 @@ function Landing() {
   return (
     <>
       <Loader />
-      
+      <ScrollProgress />
+
       <div className="bg-background text-foreground">
         <Hero />
         <Quote />
@@ -195,12 +227,12 @@ function Hero() {
       <div className="relative z-10 text-center px-6 max-w-4xl" style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}>
         <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold mb-10 animate-fade-up">— Casamento · 2026 —</p>
         <h1 className="font-serif font-light text-champagne leading-[0.95]">
-          <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.1s" }}>Geovana Stefany</span>
+          <AnimatedText as="span" text="Geovana Stefany" split="chars" stagger={0.03} duration={1.1} className="block text-5xl md:text-8xl" />
           <span className="block font-serif italic text-gradient-gold text-4xl md:text-6xl my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
-          <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.3s" }}>Sérgio Vasconcelos</span>
+          <AnimatedText as="span" text="Sérgio Vasconcelos" split="chars" stagger={0.03} duration={1.1} delay={0.25} className="block text-5xl md:text-8xl" />
         </h1>
-        <div className="gold-rule w-24 mx-auto my-10" />
-        <p className="font-serif italic text-champagne text-lg md:text-2xl animate-fade-up" style={{ animationDelay: "0.4s" }}>Uma história escrita pelo destino.</p>
+        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
+        <AnimatedText as="p" text="Uma história escrita pelo destino." split="words" stagger={0.08} delay={0.5} className="font-serif italic text-champagne text-lg md:text-2xl" />
       </div>
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
         <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
@@ -216,13 +248,13 @@ function Hero() {
 function Quote() {
   return (
     <section className="py-32 md:py-48 px-6">
-      <div className="max-w-3xl mx-auto text-center" data-reveal>
-        <div className="gold-rule w-40 mx-auto mb-12" />
+      <div className="max-w-3xl mx-auto text-center" data-pin-fade>
+        <div className="gold-rule w-40 mx-auto mb-12" data-rule-grow />
         <blockquote className="font-serif text-3xl md:text-5xl text-champagne leading-tight font-light">
-          Algumas histórias começam de forma simples…
-          <span className="block italic text-gradient-gold mt-4">mas acabam se tornando eternas.</span>
+          <AnimatedText as="span" text="Algumas histórias começam de forma simples…" split="words" stagger={0.06} duration={1.1} className="block" />
+          <AnimatedText as="span" text="mas acabam se tornando eternas." split="words" stagger={0.07} duration={1.2} delay={0.3} className="block italic text-gradient-gold mt-4" />
         </blockquote>
-        <div className="gold-rule w-40 mx-auto mt-12" />
+        <div className="gold-rule w-40 mx-auto mt-12" data-rule-grow />
       </div>
     </section>
   );
@@ -267,11 +299,11 @@ function LoveStory() {
                 {c.n}
               </span>
               <div className="relative max-w-md">
-                <p data-stagger-item className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6">{c.tag.toUpperCase()}</p>
-                <h3 data-stagger-item className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light">{c.title}</h3>
-                <p data-stagger-item className="text-[11px] tracking-[0.4em] text-gold/80 mb-8">{c.year}</p>
-                <p data-stagger-item className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8">{c.text}</p>
-                <div data-stagger-item className="gold-rule w-16" />
+                <AnimatedText as="p" text={c.tag.toUpperCase()} split="words" stagger={0.04} className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6" />
+                <AnimatedText as="h3" text={c.title} split="chars" stagger={0.025} duration={1} className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light" />
+                <AnimatedText as="p" text={c.year} split="chars" stagger={0.04} className="text-[11px] tracking-[0.4em] text-gold/80 mb-8" />
+                <AnimatedText as="p" text={c.text} split="words" stagger={0.025} duration={0.9} className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8" />
+                <div className="gold-rule w-16" data-rule-grow />
               </div>
             </div>
           </section>
@@ -285,9 +317,9 @@ function Gallery() {
   return (
     <section className="py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Galeria —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-ink">Memórias <em className="text-gradient-gold not-italic">Eternizadas</em></h2>
+        <div className="text-center mb-16">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Galeria —</p>
+          <AnimatedText as="h2" text="Memórias Eternizadas" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
         </div>
         <div className="columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
           {GALLERY.map((g) => (
@@ -309,7 +341,7 @@ function Proposal() {
   return (
     <section className="relative py-40 md:py-56 px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
       <ParticleCanvas />
-      <div className="relative max-w-3xl mx-auto text-center" data-reveal>
+      <div className="relative max-w-3xl mx-auto text-center" data-pin-fade>
         <div className="relative w-32 h-32 mx-auto mb-12">
           <div className="absolute inset-0 rounded-full border border-gold/40 animate-[spin_20s_linear_infinite]" />
           <div className="absolute inset-3 rounded-full border border-gold/60 animate-[spin_15s_linear_infinite_reverse]" />
@@ -319,8 +351,8 @@ function Proposal() {
           </div>
         </div>
         <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight">
-          <em className="text-gradient-gold">E naquele instante…</em>
-          <span className="block mt-4">duas vidas se tornaram uma só.</span>
+          <AnimatedText as="em" text="E naquele instante…" split="words" stagger={0.08} duration={1.2} className="text-gradient-gold not-italic" />
+          <AnimatedText as="span" text="duas vidas se tornaram uma só." split="words" stagger={0.08} delay={0.4} duration={1.2} className="block mt-4" />
         </p>
       </div>
     </section>
@@ -337,9 +369,9 @@ function InfoCards() {
   return (
     <section className="py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Detalhes —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-ink">Nosso <em className="text-gradient-gold not-italic">Grande Dia</em></h2>
+        <div className="text-center mb-16">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Detalhes —</p>
+          <AnimatedText as="h2" text="Nosso Grande Dia" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {cards.map((c) => (
@@ -392,9 +424,9 @@ function RSVP() {
     <section id="rsvp" className="py-28 md:py-40 px-6">
       <div className="max-w-2xl mx-auto" data-reveal>
         <div className="text-center mb-12">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— RSVP —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Confirme sua <em className="text-gradient-gold not-italic">Presença</em></h2>
-          <p className="text-champagne/60 mt-5 italic">Sua presença é o maior presente que poderíamos receber.</p>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3" data-reveal>— RSVP —</p>
+          <AnimatedText as="h2" text="Confirme sua Presença" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-champagne" />
+          <AnimatedText as="p" text="Sua presença é o maior presente que poderíamos receber." split="words" stagger={0.04} delay={0.3} className="text-champagne/60 mt-5 italic" />
         </div>
         {done ? (
           <div className="text-center bg-card/60 border border-gold/30 rounded-md p-12">
@@ -433,13 +465,11 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
       <img src={closingImg} alt="Cerimônia" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-3xl py-20" data-reveal>
-        <div className="text-4xl text-gradient-gold mb-8">✦</div>
-        <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic">
-          Mal podemos esperar para viver esse momento com você.
-        </p>
-        <div className="gold-rule w-24 mx-auto my-10" />
-        <p className="font-serif text-2xl md:text-3xl text-gradient-gold mb-10">Geovana &amp; Sérgio</p>
+      <div className="relative z-10 text-center px-6 max-w-3xl py-20">
+        <div className="text-4xl text-gradient-gold mb-8" data-reveal>✦</div>
+        <AnimatedText as="p" text="Mal podemos esperar para viver esse momento com você." split="words" stagger={0.05} duration={1.1} className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic" />
+        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
+        <AnimatedText as="p" text="Geovana & Sérgio" split="chars" stagger={0.05} className="font-serif text-2xl md:text-3xl text-gradient-gold mb-10" />
         <button onClick={onScrollToRsvp} className="btn-gold px-8 py-4 rounded">Nos vemos no altar ↓</button>
         <div className="mt-20 border-t border-gold/15 pt-10">
           <p className="text-champagne/60 text-sm">Com todo o nosso amor,</p>
@@ -495,13 +525,11 @@ function Gifts() {
   return (
     <section id="gifts" className="relative py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Lista de Presentes —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-ink">Nosso <em className="text-gradient-gold not-italic">Ninho de Amor</em></h2>
-          <div className="gold-rule w-24 mx-auto my-8" />
-          <p className="max-w-xl mx-auto text-ink/70 leading-relaxed text-sm md:text-base font-light">
-            Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo.
-          </p>
+        <div className="text-center mb-12">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Lista de Presentes —</p>
+          <AnimatedText as="h2" text="Nosso Ninho de Amor" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
+          <div className="gold-rule w-24 mx-auto my-8" data-rule-grow />
+          <AnimatedText as="p" text="Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo." split="words" stagger={0.02} className="max-w-xl mx-auto text-ink/70 leading-relaxed text-sm md:text-base font-light" />
         </div>
 
         <div className="flex flex-wrap gap-2 justify-center mb-10">
