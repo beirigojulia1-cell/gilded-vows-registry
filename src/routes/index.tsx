@@ -341,7 +341,7 @@ function Proposal() {
   return (
     <section className="relative py-40 md:py-56 px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
       <ParticleCanvas />
-      <div className="relative max-w-3xl mx-auto text-center" data-reveal>
+      <div className="relative max-w-3xl mx-auto text-center" data-pin-fade>
         <div className="relative w-32 h-32 mx-auto mb-12">
           <div className="absolute inset-0 rounded-full border border-gold/40 animate-[spin_20s_linear_infinite]" />
           <div className="absolute inset-3 rounded-full border border-gold/60 animate-[spin_15s_linear_infinite_reverse]" />
@@ -351,8 +351,8 @@ function Proposal() {
           </div>
         </div>
         <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight">
-          <em className="text-gradient-gold">E naquele instante…</em>
-          <span className="block mt-4">duas vidas se tornaram uma só.</span>
+          <AnimatedText as="em" text="E naquele instante…" split="words" stagger={0.08} duration={1.2} className="text-gradient-gold not-italic" />
+          <AnimatedText as="span" text="duas vidas se tornaram uma só." split="words" stagger={0.08} delay={0.4} duration={1.2} className="block mt-4" />
         </p>
       </div>
     </section>
