@@ -489,7 +489,20 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
         <AnimatedText as="p" text="Mal podemos esperar para viver esse momento com você." split="words" stagger={0.05} duration={1.1} className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne font-light leading-tight italic" />
         <div className="gold-rule w-20 sm:w-24 mx-auto my-8 sm:my-10" data-rule-grow />
         <AnimatedText as="p" text="Geovana & Sérgio" split="chars" stagger={0.05} className="font-serif text-xl sm:text-2xl md:text-3xl text-gradient-gold mb-8 sm:mb-10" />
-        <button onClick={onScrollToRsvp} className="btn-gold px-7 sm:px-8 py-4 rounded min-h-[48px]">Nos vemos no altar ↓</button>
+        <button
+          onClick={onScrollToRsvp}
+          className="group inline-flex items-center gap-4 sm:gap-6 px-2 py-3 border-b border-gold/40 hover:border-gold transition-colors duration-500"
+        >
+          <span className="font-serif italic text-lg sm:text-xl md:text-2xl text-gradient-gold tracking-wide">
+            Nos vemos no altar
+          </span>
+          <span
+            aria-hidden="true"
+            className="text-gold text-xl sm:text-2xl transition-transform duration-500 group-hover:translate-y-1 animate-bounce-slow"
+          >
+            ↓
+          </span>
+        </button>
         <div className="mt-14 sm:mt-20 border-t border-gold/15 pt-8 sm:pt-10">
           <p className="text-champagne/60 text-sm">Com todo o nosso amor,</p>
           <p className="font-serif italic text-lg sm:text-xl text-champagne mt-2">Geovana Stefany &amp; Sérgio Vasconcelos</p>
