@@ -317,9 +317,9 @@ function Gallery() {
   return (
     <section className="py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Galeria —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-ink">Memórias <em className="text-gradient-gold not-italic">Eternizadas</em></h2>
+        <div className="text-center mb-16">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Galeria —</p>
+          <AnimatedText as="h2" text="Memórias Eternizadas" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
         </div>
         <div className="columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
           {GALLERY.map((g) => (
