@@ -80,6 +80,7 @@ function scrollToId(id: string) {
 }
 
 function Landing() {
+  const { push: pushToast } = useToast();
   // Mercado Pago card return handler
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -89,21 +90,19 @@ function Landing() {
     const giftId = url.searchParams.get("gift") || "";
     const guest = url.searchParams.get("guest") || "Convidado";
     const msg = url.searchParams.get("msg") || "";
-    // Clean URL
     ["mp", "status", "gift", "guest", "msg", "payment_id", "preference_id", "external_reference", "collection_id", "collection_status", "merchant_order_id", "processing_mode", "merchant_account_id", "payment_type", "site_id"].forEach((k) => url.searchParams.delete(k));
     window.history.replaceState({}, "", url.pathname + (url.search ? url.search : "") + "#gifts");
     if (status === "approved" && giftId) {
       const exists = store.getPurchases().some((p) => p.giftId === giftId);
       if (!exists) store.addPurchase({ giftId, guestName: guest, message: msg });
-      // Toast after mount
-      setTimeout(() => {
-        const ev = new CustomEvent("wg:mp-approved", { detail: { giftId } });
-        window.dispatchEvent(ev);
-      }, 300);
+      pushToast("Pagamento aprovado · Obrigado pelo presente!", "success");
+    } else if (status === "pending") {
+      pushToast("Pagamento pendente · Confirmaremos em instantes", "success");
+    } else if (status === "failure") {
+      pushToast("Pagamento não concluído · Tente novamente", "error");
     }
-  }, []);
+  }, [pushToast]);
 
-  useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
         gsap.fromTo(
