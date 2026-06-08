@@ -542,28 +542,28 @@ function Gifts() {
   const filtered = useMemo(() => (activeCat === "Todos" ? gifts : gifts.filter((g) => g.category === activeCat)), [gifts, activeCat]);
 
   return (
-    <section id="gifts" className="relative py-24 md:py-32 px-6 bg-cream text-ink">
+    <section id="gifts" className="relative py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Lista de Presentes —</p>
-          <AnimatedText as="h2" text="Nosso Ninho de Amor" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
-          <div className="gold-rule w-24 mx-auto my-8" data-rule-grow />
+          <AnimatedText as="h2" text="Nosso Ninho de Amor" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-ink" />
+          <div className="gold-rule w-20 sm:w-24 mx-auto my-6 sm:my-8" data-rule-grow />
           <AnimatedText as="p" text="Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo." split="words" stagger={0.02} className="max-w-xl mx-auto text-ink/70 leading-relaxed text-sm md:text-base font-light" />
         </div>
 
-        <div className="flex flex-wrap gap-2 justify-center mb-10">
+        <div className="flex flex-wrap gap-2 justify-center mb-8 sm:mb-10">
           {categories.map((c) => (
             <button
               key={c}
               onClick={() => setActiveCat(c)}
-              className={`px-5 py-2 text-xs tracking-[0.18em] uppercase rounded-full border transition-all ${activeCat === c ? "bg-gold text-ink border-gold" : "border-gold/40 text-ink/70 hover:border-gold hover:text-gold-soft"}`}
+              className={`px-4 sm:px-5 py-2 text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.18em] uppercase rounded-full border transition-all min-h-[40px] ${activeCat === c ? "bg-gold text-ink border-gold" : "border-gold/40 text-ink/70 hover:border-gold hover:text-gold-soft"}`}
             >
               {c}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {filtered.map((gift) => {
             const purchase = purchasedMap.get(gift.id);
             const taken = !!purchase;
@@ -573,7 +573,7 @@ function Gifts() {
                 data-reveal
                 className={`group relative rounded-lg border overflow-hidden flex flex-col transition-all duration-500 bg-white ${taken ? "opacity-60 grayscale border-border/40" : "border-gold/25 hover:border-gold/70 hover:shadow-[0_30px_80px_-30px_rgba(201,169,110,0.45)] hover:-translate-y-1"}`}
               >
-                <div className="relative h-48 overflow-hidden flex items-center justify-center bg-cream-muted">
+                <div className="relative h-52 sm:h-48 overflow-hidden flex items-center justify-center bg-cream-muted">
                   {gift.imageUrl ? (
                     <img src={gift.imageUrl} alt={gift.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async" />
                   ) : (
@@ -582,19 +582,19 @@ function Gifts() {
                   <span className="absolute top-3 left-3 text-[0.6rem] tracking-[0.3em] uppercase bg-white/85 backdrop-blur px-2.5 py-1 rounded text-gold-soft">{gift.category}</span>
                   {taken && <span className="absolute top-3 right-3 text-[0.6rem] tracking-[0.2em] uppercase text-gold-soft bg-white/85 px-2.5 py-1 rounded">✦ Presenteado</span>}
                 </div>
-                <div className="p-6 flex-1 flex flex-col bg-white">
-                  <h3 className="font-serif text-2xl text-ink mb-2">{gift.title}</h3>
+                <div className="p-5 sm:p-6 flex-1 flex flex-col bg-white">
+                  <h3 className="font-serif text-xl sm:text-2xl text-ink mb-2">{gift.title}</h3>
                   <p className="text-ink/60 text-xs leading-relaxed mb-4 line-clamp-2">{gift.description}</p>
                   {taken && <p className="text-[10px] tracking-wider uppercase text-gold-soft italic mb-3">Presenteado por {purchase!.guestName}</p>}
-                  <div className="mt-auto pt-4 border-t border-gold/20 flex items-end justify-between">
-                    <div>
+                  <div className="mt-auto pt-4 border-t border-gold/20 flex items-end justify-between gap-3">
+                    <div className="min-w-0">
                       <div className="text-[9px] tracking-[0.3em] uppercase text-ink/45">Valor sugerido</div>
-                      <div className="text-gradient-gold font-serif text-xl">{formatBRL(gift.priceCents)}</div>
+                      <div className="text-gradient-gold font-serif text-lg sm:text-xl truncate">{formatBRL(gift.priceCents)}</div>
                     </div>
                     <button
                       disabled={taken}
                       onClick={() => setSelected(gift)}
-                      className="px-4 py-2 rounded border border-gold text-gold-soft hover:bg-gold hover:text-ink transition-all text-[0.72rem] tracking-[0.12em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="shrink-0 px-4 py-2.5 rounded border border-gold text-gold-soft hover:bg-gold hover:text-ink transition-all text-[0.7rem] sm:text-[0.72rem] tracking-[0.12em] uppercase disabled:opacity-50 disabled:cursor-not-allowed min-h-[40px]"
                     >
                       {taken ? "Presenteado ✦" : "Presentear"}
                     </button>
