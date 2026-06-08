@@ -342,19 +342,19 @@ function LoveStory() {
 
 function Gallery() {
   return (
-    <section className="py-24 md:py-32 px-6 bg-cream text-ink">
+    <section className="py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Galeria —</p>
-          <AnimatedText as="h2" text="Memórias Eternizadas" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
+          <AnimatedText as="h2" text="Memórias Eternizadas" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-ink" />
         </div>
-        <div className="columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
+        <div className="columns-1 sm:columns-2 md:columns-3 gap-3 sm:gap-4 md:gap-6 space-y-3 sm:space-y-4 md:space-y-6">
           {GALLERY.map((g) => (
             <div key={g.word} className={`group relative overflow-hidden rounded-sm break-inside-avoid border border-gold/10 ${g.h}`} data-reveal>
               <img src={g.src} alt={g.word} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-60 group-hover:opacity-95 transition-opacity duration-500" />
-              <div className="absolute inset-0 flex items-end justify-center pb-8 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-                <span className="font-serif italic text-3xl md:text-4xl text-gradient-gold">{g.word}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-70 sm:opacity-60 group-hover:opacity-95 transition-opacity duration-500" />
+              <div className="absolute inset-0 flex items-end justify-center pb-6 sm:pb-8 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-500 sm:translate-y-4 group-hover:translate-y-0">
+                <span className="font-serif italic text-2xl sm:text-3xl md:text-4xl text-gradient-gold">{g.word}</span>
               </div>
             </div>
           ))}
