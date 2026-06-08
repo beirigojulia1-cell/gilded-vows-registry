@@ -465,13 +465,11 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
       <img src={closingImg} alt="Cerimônia" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-3xl py-20" data-reveal>
-        <div className="text-4xl text-gradient-gold mb-8">✦</div>
-        <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic">
-          Mal podemos esperar para viver esse momento com você.
-        </p>
-        <div className="gold-rule w-24 mx-auto my-10" />
-        <p className="font-serif text-2xl md:text-3xl text-gradient-gold mb-10">Geovana &amp; Sérgio</p>
+      <div className="relative z-10 text-center px-6 max-w-3xl py-20">
+        <div className="text-4xl text-gradient-gold mb-8" data-reveal>✦</div>
+        <AnimatedText as="p" text="Mal podemos esperar para viver esse momento com você." split="words" stagger={0.05} duration={1.1} className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic" />
+        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
+        <AnimatedText as="p" text="Geovana & Sérgio" split="chars" stagger={0.05} className="font-serif text-2xl md:text-3xl text-gradient-gold mb-10" />
         <button onClick={onScrollToRsvp} className="btn-gold px-8 py-4 rounded">Nos vemos no altar ↓</button>
         <div className="mt-20 border-t border-gold/15 pt-10">
           <p className="text-champagne/60 text-sm">Com todo o nosso amor,</p>
