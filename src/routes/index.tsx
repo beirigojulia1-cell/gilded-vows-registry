@@ -389,8 +389,8 @@ function Proposal() {
 function InfoCards() {
   const cards = [
     { label: "Data", value: "28 de Junho", sub: "2026 · Sábado", icon: <CalIcon /> },
-    { label: "Horário", value: "17h00", sub: "Entrada a partir das 16h30", icon: <ClockIcon /> },
-    { label: "Local", value: "Quinta das Rosas", sub: "Av. das Flores, 1200 · Brasil", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://maps.google.com" } },
+    { label: "Horário", value: "12h00", sub: "Cerimônia ao meio-dia", icon: <ClockIcon /> },
+    { label: "Local", value: "Av. Marginal do CSU, 1455", sub: "", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Av. Marginal do CSU, 1455") } },
     { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
   ];
   return (
