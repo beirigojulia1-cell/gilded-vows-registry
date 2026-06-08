@@ -71,7 +71,8 @@ async function getAdmin(): Promise<any> {
 }
 
 async function requireAdmin(ctx: { supabase: any; userId: string }) {
-  const { data, error } = await (ctx.supabase as any).rpc("has_role", {
+  const client = ctx.supabase as any;
+  const { data, error } = await client.rpc("has_role", {
     _user_id: ctx.userId,
     _role: "admin",
   });
@@ -98,7 +99,11 @@ export const listPurchasedGiftIds = createServerFn({ method: "GET" }).handler(as
   const supabase = await getAdmin();
   const { data, error } = await supabase.from("purchases").select("gift_id");
   if (error) throw new Error(error.message);
-  return { giftIds: Array.from(new Set((data ?? []).map((r) => r.gift_id as string))) };
+  const rows = (data ?? []) as Array<{ gift_id: string | null }>;
+  const giftIds = Array.from(
+    new Set(rows.map((row) => row.gift_id).filter((giftId): giftId is string => typeof giftId === "string")),
+  );
+  return { giftIds };
 });
 
 export const getSettings = createServerFn({ method: "GET" }).handler(async () => {
@@ -147,7 +152,8 @@ export const createPurchase = createServerFn({ method: "POST" })
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("has_role", {
+    const client = context.supabase as any;
+    const { data, error } = await client.rpc("has_role", {
       _user_id: context.userId,
       _role: "admin",
     });
@@ -159,7 +165,8 @@ export const listPurchases = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context);
-    const { data, error } = await context.supabase
+    const client = context.supabase as any;
+    const { data, error } = await client
       .from("purchases")
       .select("id,gift_id,guest_name,message,read,created_at")
       .order("created_at", { ascending: false });
@@ -171,7 +178,8 @@ export const markAllPurchasesRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context);
-    const { error } = await context.supabase
+    const client = context.supabase as any;
+    const { error } = await client
       .from("purchases")
       .update({ read: true })
       .eq("read", false);
@@ -183,7 +191,8 @@ export const clearPurchases = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context);
-    const { error } = await context.supabase
+    const client = context.supabase as any;
+    const { error } = await client
       .from("purchases")
       .delete()
       .not("id", "is", null);
@@ -208,7 +217,8 @@ export const createGift = createServerFn({ method: "POST" })
   .inputValidator((d) => giftInputSchema.parse(d))
   .handler(async ({ context, data }) => {
     await requireAdmin(context);
-    const { data: row, error } = await context.supabase
+    const client = context.supabase as any;
+    const { data: row, error } = await client
       .from("gifts")
       .insert({
         title: data.title,
@@ -234,7 +244,8 @@ export const updateGift = createServerFn({ method: "POST" })
   .inputValidator((d) => updateGiftSchema.parse(d))
   .handler(async ({ context, data }) => {
     await requireAdmin(context);
-    const { error } = await context.supabase
+    const client = context.supabase as any;
+    const { error } = await client
       .from("gifts")
       .update({
         title: data.title,
@@ -257,7 +268,8 @@ export const deleteGift = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
     await requireAdmin(context);
-    const { error } = await context.supabase.from("gifts").delete().eq("id", data.id);
+    const client = context.supabase as any;
+    const { error } = await client.from("gifts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -275,7 +287,8 @@ export const updateSettings = createServerFn({ method: "POST" })
   .inputValidator((d) => settingsSchema.parse(d))
   .handler(async ({ context, data }) => {
     await requireAdmin(context);
-    const { error } = await context.supabase
+    const client = context.supabase as any;
+    const { error } = await client
       .from("settings")
       .update({
         couple_names: data.coupleNames,
