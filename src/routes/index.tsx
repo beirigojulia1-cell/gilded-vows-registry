@@ -228,7 +228,7 @@ function Landing() {
       <Loader />
       <ScrollProgress />
 
-      <div className="bg-background text-foreground">
+      <div className="bg-background text-foreground overflow-x-hidden">
         <Hero />
         <Quote />
         <LoveStory />
