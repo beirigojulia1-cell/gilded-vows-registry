@@ -393,8 +393,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Messages() {
   const { push } = useToast();
   const qc = useQueryClient();
-  const gifts = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases = useQuery(purchasesQuery).data?.purchases ?? [];
+  const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
+  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
   const [confirmClear, setConfirmClear] = useState(false);
 
   const markRead = useMutation({
@@ -412,7 +412,7 @@ function Messages() {
     },
   });
 
-  if (purchases.some((p) => !p.read) && !markRead.isPending) {
+  if (purchases.some((p: Purchase) => !p.read) && !markRead.isPending) {
     setTimeout(() => markRead.mutate(), 800);
   }
 
@@ -429,8 +429,8 @@ function Messages() {
         <p className="text-champagne/40 italic text-center py-20">Nenhuma mensagem ainda.</p>
       ) : (
         <div className="space-y-4">
-          {purchases.map((p) => {
-            const g = gifts.find((x) => x.id === p.giftId);
+          {purchases.map((p: Purchase) => {
+            const g = gifts.find((x: Gift) => x.id === p.giftId);
             return (
               <div key={p.id} className="bg-card border border-gold/15 rounded-lg p-6">
                 <div className="flex justify-between items-start mb-2">
