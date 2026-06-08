@@ -366,10 +366,10 @@ function Gallery() {
 
 function Proposal() {
   return (
-    <section className="relative py-40 md:py-56 px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
+    <section className="relative py-24 sm:py-32 md:py-48 lg:py-56 px-5 sm:px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
       <ParticleCanvas />
       <div className="relative max-w-3xl mx-auto text-center" data-pin-fade>
-        <div className="relative w-32 h-32 mx-auto mb-12">
+        <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-8 sm:mb-12">
           <div className="absolute inset-0 rounded-full border border-gold/40 animate-[spin_20s_linear_infinite]" />
           <div className="absolute inset-3 rounded-full border border-gold/60 animate-[spin_15s_linear_infinite_reverse]" />
           <div className="absolute inset-6 rounded-full border border-gold/80" />
@@ -377,9 +377,9 @@ function Proposal() {
             <div className="w-4 h-4 rotate-45 bg-gradient-to-br from-[#f5e8c9] to-[#8a6f3d] shadow-[0_0_30px_rgba(201,169,110,0.8)]" />
           </div>
         </div>
-        <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight">
+        <p className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne font-light leading-tight">
           <AnimatedText as="em" text="E naquele instante…" split="words" stagger={0.08} duration={1.2} className="text-gradient-gold not-italic" />
-          <AnimatedText as="span" text="duas vidas se tornaram uma só." split="words" stagger={0.08} delay={0.4} duration={1.2} className="block mt-4" />
+          <AnimatedText as="span" text="duas vidas se tornaram uma só." split="words" stagger={0.08} delay={0.4} duration={1.2} className="block mt-3 sm:mt-4" />
         </p>
       </div>
     </section>
