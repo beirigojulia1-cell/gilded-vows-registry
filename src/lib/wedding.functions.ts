@@ -398,7 +398,32 @@ export const createMercadoPagoPixPayment = createServerFn({ method: "POST" })
     };
   });
 
-const mpStatusSchema = z.object({ paymentId: z.string().min(1).max(40) });
+async function persistPurchaseIfMissing(opts: { giftId: string; guestName: string; message: string }) {
+  try {
+    const supabase = await getAdmin();
+    const { data: existing } = await supabase
+      .from("purchases")
+      .select("id")
+      .eq("gift_id", opts.giftId)
+      .limit(1)
+      .maybeSingle();
+    if (existing) return;
+    await supabase.from("purchases").insert({
+      gift_id: opts.giftId,
+      guest_name: opts.guestName?.trim() || "Convidado",
+      message: opts.message?.trim() || null,
+    });
+  } catch (e) {
+    console.error("[MP] falha ao persistir purchase", e);
+  }
+}
+
+const mpStatusSchema = z.object({
+  paymentId: z.string().min(1).max(40),
+  giftId: z.string().min(1).max(80).optional(),
+  guestName: z.string().trim().min(1).max(120).optional(),
+  message: z.string().trim().max(1000).optional().default(""),
+});
 
 export const checkMercadoPagoPaymentStatus = createServerFn({ method: "POST" })
   .inputValidator((d) => mpStatusSchema.parse(d))
@@ -409,9 +434,16 @@ export const checkMercadoPagoPaymentStatus = createServerFn({ method: "POST" })
     });
     const json: any = await res.json();
     if (!res.ok) throw new Error(json?.message || "Falha ao consultar pagamento");
+    const approved = json.status === "approved";
+    const giftId = data.giftId ?? json.external_reference ?? null;
+    const guestName = data.guestName ?? json?.metadata?.guest_name ?? null;
+    const message = data.message ?? json?.metadata?.guest_message ?? "";
+    if (approved && giftId && guestName) {
+      await persistPurchaseIfMissing({ giftId, guestName, message: message ?? "" });
+    }
     return {
       status: String(json.status ?? "pending"),
-      approved: json.status === "approved",
+      approved,
       externalReference: json.external_reference ?? null,
       payer: { name: json?.metadata?.guest_name ?? null, message: json?.metadata?.guest_message ?? null },
     };
