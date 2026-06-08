@@ -391,7 +391,7 @@ function InfoCards() {
     { label: "Data", value: "28 de Junho", sub: "2026 · Sábado", icon: <CalIcon /> },
     { label: "Horário", value: "12h00", sub: "Cerimônia ao meio-dia", icon: <ClockIcon /> },
     { label: "Local", value: "Av. Marginal do CSU, 1455", sub: "", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Av. Marginal do CSU, 1455") } },
-    { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
+    { label: "Bebida", value: "Traga sua bebida", sub: "Cerveja, Refrigerante, Suco", icon: <DrinkIcon /> },
   ];
   return (
     <section className="py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
