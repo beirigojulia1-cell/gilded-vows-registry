@@ -389,8 +389,8 @@ function Proposal() {
 function InfoCards() {
   const cards = [
     { label: "Data", value: "28 de Junho", sub: "2026 · Sábado", icon: <CalIcon /> },
-    { label: "Horário", value: "17h00", sub: "Entrada a partir das 16h30", icon: <ClockIcon /> },
-    { label: "Local", value: "Quinta das Rosas", sub: "Av. das Flores, 1200 · Brasil", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://maps.google.com" } },
+    { label: "Horário", value: "12h00", sub: "Cerimônia ao meio-dia", icon: <ClockIcon /> },
+    { label: "Local", value: "Av. Marginal do CSU, 1455", sub: "", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Av. Marginal do CSU, 1455") } },
     { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
   ];
   return (
@@ -434,7 +434,6 @@ function InfoCards() {
 function RSVP() {
   const { push } = useToast();
   const [name, setName] = useState("");
-  const [guests, setGuests] = useState(1);
   const [message, setMessage] = useState("");
   const [done, setDone] = useState(false);
 
@@ -442,7 +441,7 @@ function RSVP() {
     e.preventDefault();
     if (!name.trim()) { push("Informe seu nome", "error"); return; }
     const list = JSON.parse(localStorage.getItem("wg_rsvp") || "[]");
-    list.push({ id: crypto.randomUUID(), name: name.trim(), guests, message: message.trim(), at: Date.now() });
+    list.push({ id: crypto.randomUUID(), name: name.trim(), message: message.trim(), at: Date.now() });
     localStorage.setItem("wg_rsvp", JSON.stringify(list));
     setDone(true);
   };
@@ -465,13 +464,6 @@ function RSVP() {
           <form onSubmit={submit} className="bg-card/40 backdrop-blur border border-gold/15 rounded-md p-8 md:p-10 space-y-6">
             <Field label="Nome Completo">
               <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="Como você gostaria de ser chamado" />
-            </Field>
-            <Field label="Número de Convidados">
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setGuests(Math.max(1, guests - 1))} className="w-11 h-11 rounded border border-gold/30 text-gold hover:bg-gold/10">−</button>
-                <input type="number" min={1} max={10} value={guests} onChange={(e) => setGuests(Math.min(10, Math.max(1, Number(e.target.value))))} className={`${inputCls} text-center max-w-[100px] tabular-nums`} />
-                <button type="button" onClick={() => setGuests(Math.min(10, guests + 1))} className="w-11 h-11 rounded border border-gold/30 text-gold hover:bg-gold/10">+</button>
-              </div>
             </Field>
             <Field label="Mensagem Especial">
               <textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} className={`${inputCls} resize-none`} placeholder="Deixe uma mensagem para o casal (opcional)" />
