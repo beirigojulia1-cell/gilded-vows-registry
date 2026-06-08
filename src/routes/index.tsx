@@ -246,24 +246,24 @@ function Landing() {
 
 function Hero() {
   return (
-    <section className="relative h-screen min-h-[700px] w-full flex items-center justify-center overflow-hidden">
+    <section className="relative h-[100svh] min-h-[600px] w-full flex items-center justify-center overflow-hidden">
       <img src={heroImg} alt="Geovana e Sérgio" className="absolute inset-0 w-full h-full object-cover" />
       {/* overlay bem mais leve só para garantir contraste dos textos */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/55" />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-4xl" style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}>
-        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold mb-10 animate-fade-up">— Casamento · 2026 —</p>
+      <div className="relative z-10 text-center px-5 sm:px-6 max-w-4xl" style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}>
+        <p className="text-[9px] sm:text-[10px] md:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold mb-6 sm:mb-10 animate-fade-up">— Casamento · 2026 —</p>
         <h1 className="font-serif font-light text-champagne leading-[0.95]">
-          <AnimatedText as="span" text="Geovana Stefany" split="chars" stagger={0.03} duration={1.1} className="block text-5xl md:text-8xl" />
-          <span className="block font-serif italic text-gradient-gold text-4xl md:text-6xl my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
-          <AnimatedText as="span" text="Sérgio Vasconcelos" split="chars" stagger={0.03} duration={1.1} delay={0.25} className="block text-5xl md:text-8xl" />
+          <AnimatedText as="span" text="Geovana Stefany" split="chars" stagger={0.03} duration={1.1} className="block text-[2.5rem] sm:text-5xl md:text-7xl lg:text-8xl" />
+          <span className="block font-serif italic text-gradient-gold text-3xl sm:text-4xl md:text-5xl lg:text-6xl my-3 sm:my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
+          <AnimatedText as="span" text="Sérgio Vasconcelos" split="chars" stagger={0.03} duration={1.1} delay={0.25} className="block text-[2.5rem] sm:text-5xl md:text-7xl lg:text-8xl" />
         </h1>
-        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
-        <AnimatedText as="p" text="Uma história escrita pelo destino." split="words" stagger={0.08} delay={0.5} className="font-serif italic text-champagne text-lg md:text-2xl" />
+        <div className="gold-rule w-20 sm:w-24 mx-auto my-7 sm:my-10" data-rule-grow />
+        <AnimatedText as="p" text="Uma história escrita pelo destino." split="words" stagger={0.08} delay={0.5} className="font-serif italic text-champagne text-base sm:text-lg md:text-2xl" />
       </div>
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
+      <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
         <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
-        <div className="w-px h-12 bg-gradient-to-b from-gold/80 to-transparent overflow-hidden">
+        <div className="w-px h-10 sm:h-12 bg-gradient-to-b from-gold/80 to-transparent overflow-hidden">
           <div className="w-px h-4 bg-gold animate-[scrollcue_2s_ease-in-out_infinite]" />
         </div>
       </div>
