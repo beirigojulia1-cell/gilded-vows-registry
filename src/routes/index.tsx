@@ -299,11 +299,11 @@ function LoveStory() {
                 {c.n}
               </span>
               <div className="relative max-w-md">
-                <p data-stagger-item className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6">{c.tag.toUpperCase()}</p>
-                <h3 data-stagger-item className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light">{c.title}</h3>
-                <p data-stagger-item className="text-[11px] tracking-[0.4em] text-gold/80 mb-8">{c.year}</p>
-                <p data-stagger-item className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8">{c.text}</p>
-                <div data-stagger-item className="gold-rule w-16" />
+                <AnimatedText as="p" text={c.tag.toUpperCase()} split="words" stagger={0.04} className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6" />
+                <AnimatedText as="h3" text={c.title} split="chars" stagger={0.025} duration={1} className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light" />
+                <AnimatedText as="p" text={c.year} split="chars" stagger={0.04} className="text-[11px] tracking-[0.4em] text-gold/80 mb-8" />
+                <AnimatedText as="p" text={c.text} split="words" stagger={0.025} duration={0.9} className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8" />
+                <div className="gold-rule w-16" data-rule-grow />
               </div>
             </div>
           </section>
