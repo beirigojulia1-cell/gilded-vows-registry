@@ -52,11 +52,3 @@ jobs:
           dangerous-clean-slate: false
           dry-run: false
           log-level: verbose
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github/**
-            **/node_modules/**
-
-
-
