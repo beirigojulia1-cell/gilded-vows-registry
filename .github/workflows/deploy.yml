@@ -23,6 +23,13 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: List build files
+        run: |
+          echo "ROOT:"
+          ls -la
+          echo "DIST:"
+          ls -la dist || echo "dist não encontrada"
+
       - name: Create SPA .htaccess
         run: |
           cat > dist/.htaccess << 'EOF'
@@ -46,3 +53,7 @@ jobs:
           port: 21
           local-dir: dist/
           server-dir: /
+          timeout: 120000
+          dangerous-clean-slate: false
+          dry-run: false
+          log-level: verbose
