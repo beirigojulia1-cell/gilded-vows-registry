@@ -274,14 +274,14 @@ function Hero() {
 
 function Quote() {
   return (
-    <section className="py-32 md:py-48 px-6">
+    <section className="py-20 sm:py-28 md:py-40 lg:py-48 px-5 sm:px-6">
       <div className="max-w-3xl mx-auto text-center" data-pin-fade>
-        <div className="gold-rule w-40 mx-auto mb-12" data-rule-grow />
-        <blockquote className="font-serif text-3xl md:text-5xl text-champagne leading-tight font-light">
+        <div className="gold-rule w-28 sm:w-40 mx-auto mb-8 sm:mb-12" data-rule-grow />
+        <blockquote className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne leading-tight font-light">
           <AnimatedText as="span" text="Algumas histórias começam de forma simples…" split="words" stagger={0.06} duration={1.1} className="block" />
-          <AnimatedText as="span" text="mas acabam se tornando eternas." split="words" stagger={0.07} duration={1.2} delay={0.3} className="block italic text-gradient-gold mt-4" />
+          <AnimatedText as="span" text="mas acabam se tornando eternas." split="words" stagger={0.07} duration={1.2} delay={0.3} className="block italic text-gradient-gold mt-3 sm:mt-4" />
         </blockquote>
-        <div className="gold-rule w-40 mx-auto mt-12" data-rule-grow />
+        <div className="gold-rule w-28 sm:w-40 mx-auto mt-8 sm:mt-12" data-rule-grow />
       </div>
     </section>
   );
