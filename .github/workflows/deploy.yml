@@ -47,7 +47,7 @@ jobs:
           protocol: ftp
           port: 21
           local-dir: dist/
-          server-dir: /
+          server-dir: /public_html/CasamentoGiovanaEsergio/
           timeout: 120000
           dangerous-clean-slate: false
           dry-run: false
