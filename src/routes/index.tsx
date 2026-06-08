@@ -480,20 +480,20 @@ function RSVP() {
 
 function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       <img src={closingImg} alt="Cerimônia" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-3xl py-20">
-        <div className="text-4xl text-gradient-gold mb-8" data-reveal>✦</div>
-        <AnimatedText as="p" text="Mal podemos esperar para viver esse momento com você." split="words" stagger={0.05} duration={1.1} className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic" />
-        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
-        <AnimatedText as="p" text="Geovana & Sérgio" split="chars" stagger={0.05} className="font-serif text-2xl md:text-3xl text-gradient-gold mb-10" />
-        <button onClick={onScrollToRsvp} className="btn-gold px-8 py-4 rounded">Nos vemos no altar ↓</button>
-        <div className="mt-20 border-t border-gold/15 pt-10">
+      <div className="relative z-10 text-center px-5 sm:px-6 max-w-3xl py-16 sm:py-20">
+        <div className="text-4xl text-gradient-gold mb-6 sm:mb-8" data-reveal>✦</div>
+        <AnimatedText as="p" text="Mal podemos esperar para viver esse momento com você." split="words" stagger={0.05} duration={1.1} className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne font-light leading-tight italic" />
+        <div className="gold-rule w-20 sm:w-24 mx-auto my-8 sm:my-10" data-rule-grow />
+        <AnimatedText as="p" text="Geovana & Sérgio" split="chars" stagger={0.05} className="font-serif text-xl sm:text-2xl md:text-3xl text-gradient-gold mb-8 sm:mb-10" />
+        <button onClick={onScrollToRsvp} className="btn-gold px-7 sm:px-8 py-4 rounded min-h-[48px]">Nos vemos no altar ↓</button>
+        <div className="mt-14 sm:mt-20 border-t border-gold/15 pt-8 sm:pt-10">
           <p className="text-champagne/60 text-sm">Com todo o nosso amor,</p>
-          <p className="font-serif italic text-xl text-champagne mt-2">Geovana Stefany &amp; Sérgio Vasconcelos</p>
-          <p className="text-[10px] tracking-[0.5em] uppercase text-gold/80 mt-4">15 · 11 · 2026</p>
+          <p className="font-serif italic text-lg sm:text-xl text-champagne mt-2">Geovana Stefany &amp; Sérgio Vasconcelos</p>
+          <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold/80 mt-4">15 · 11 · 2026</p>
         </div>
       </div>
     </section>
