@@ -13,6 +13,7 @@ import { AnimatedText } from "@/components/AnimatedText";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { ensureDefaultPassword, formatBRL, store, useStoreSubscribe, type Gift, type Purchase } from "@/lib/store";
 import { useToast } from "@/components/Toast";
+import { lookupMercadoPagoByGift } from "@/lib/wedding.functions";
 import heroAsset from "@/assets/sentados-banco.jpeg.asset.json";
 const heroImg = heroAsset.url;
 import closingImg from "@/assets/closing.jpg";
