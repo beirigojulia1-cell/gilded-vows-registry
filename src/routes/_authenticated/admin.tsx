@@ -34,11 +34,18 @@ type GiftCategory = Gift["category"];
 
 function AdminApp() {
   const navigate = useNavigate();
-  const { data: adminData, isLoading } = useQuery(isAdminQuery);
+  const {
+    data: adminData,
+    isLoading,
+    error: adminError,
+  } = useQuery(isAdminQuery);
   const [section, setSection] = useState<Section>("dashboard");
   const [open, setOpen] = useState(false);
 
-  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchases: Purchase[] = useQuery({
+    ...purchasesQuery,
+    enabled: adminData?.isAdmin === true,
+  }).data?.purchases ?? [];
   const unread = purchases.filter((p: Purchase) => !p.read).length;
 
   const logout = async () => {
@@ -48,6 +55,19 @@ function AdminApp() {
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center text-champagne/60 text-sm">Carregando...</div>;
+  }
+  if (adminError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="max-w-md text-center bg-card border border-destructive/30 rounded-lg p-10">
+          <h1 className="font-serif text-3xl text-destructive mb-3">Erro ao abrir o painel</h1>
+          <p className="text-champagne/70 text-sm mb-6">
+            Não foi possível validar seu acesso agora. Atualize a página ou entre novamente.
+          </p>
+          <button onClick={logout} className="btn-gold px-6 py-2.5 rounded">Sair</button>
+        </div>
+      </div>
+    );
   }
   if (!adminData?.isAdmin) {
     return (
@@ -125,7 +145,8 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
 
 function Dashboard() {
   const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchasesQueryResult = useQuery(purchasesQuery);
+  const purchases: Purchase[] = purchasesQueryResult.data?.purchases ?? [];
   const total = gifts.length;
   const taken = new Set(purchases.map((p: Purchase) => p.giftId)).size;
   const available = total - taken;
@@ -170,7 +191,8 @@ function GiftsAdmin() {
   const { push } = useToast();
   const qc = useQueryClient();
   const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchasesQueryResult = useQuery(purchasesQuery);
+  const purchases: Purchase[] = purchasesQueryResult.data?.purchases ?? [];
   const purchasedIds = new Set(purchases.map((p: Purchase) => p.giftId));
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<GiftCategory | "Todas">("Todas");
@@ -394,7 +416,8 @@ function Messages() {
   const { push } = useToast();
   const qc = useQueryClient();
   const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchasesQueryResult = useQuery(purchasesQuery);
+  const purchases: Purchase[] = purchasesQueryResult.data?.purchases ?? [];
   const [confirmClear, setConfirmClear] = useState(false);
 
   const markRead = useMutation({
