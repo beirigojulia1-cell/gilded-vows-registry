@@ -394,33 +394,33 @@ function InfoCards() {
     { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
   ];
   return (
-    <section className="py-24 md:py-32 px-6 bg-cream text-ink">
+    <section className="py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Detalhes —</p>
-          <AnimatedText as="h2" text="Nosso Grande Dia" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
+          <AnimatedText as="h2" text="Nosso Grande Dia" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-ink" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {cards.map((c) => (
-            <div key={c.label} className="bg-white/70 border border-gold/20 rounded-md p-8 hover:border-gold/50 hover:bg-white transition-all shadow-[0_1px_2px_rgba(0,0,0,0.04)]" data-reveal>
-              <div className="text-gold-soft mb-5">{c.icon}</div>
+            <div key={c.label} className="bg-white/70 border border-gold/20 rounded-md p-6 sm:p-8 hover:border-gold/50 hover:bg-white transition-all shadow-[0_1px_2px_rgba(0,0,0,0.04)]" data-reveal>
+              <div className="text-gold-soft mb-4 sm:mb-5">{c.icon}</div>
               <p className="text-[10px] tracking-[0.35em] uppercase text-gold-soft mb-2">{c.label}</p>
-              <h3 className="font-serif text-3xl text-ink mb-1">{c.value}</h3>
-              <p className="text-ink/55 text-sm">{c.sub}</p>
+              <h3 className="font-serif text-2xl sm:text-3xl text-ink mb-1 break-words">{c.value}</h3>
+              {c.sub && <p className="text-ink/55 text-sm">{c.sub}</p>}
               {c.cta && (
-                <a href={c.cta.href} target="_blank" rel="noopener noreferrer" className="inline-block mt-5 px-5 py-2 rounded-full bg-ink text-cream text-xs tracking-[0.18em] uppercase hover:bg-ink/85 transition">{c.cta.label}</a>
+                <a href={c.cta.href} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 sm:mt-5 px-5 py-2.5 rounded-full bg-ink text-cream text-xs tracking-[0.18em] uppercase hover:bg-ink/85 transition min-h-[44px] leading-tight">{c.cta.label}</a>
               )}
             </div>
           ))}
-          <div className="md:col-span-2 lg:col-span-4 relative bg-white/80 border border-gold/25 rounded-md p-10 md:p-14 overflow-hidden" data-reveal>
-            <div className="relative grid md:grid-cols-[1fr_auto] gap-8 items-center">
+          <div className="sm:col-span-2 lg:col-span-4 relative bg-white/80 border border-gold/25 rounded-md p-8 sm:p-10 md:p-14 overflow-hidden" data-reveal>
+            <div className="relative grid md:grid-cols-[1fr_auto] gap-6 md:gap-8 items-start md:items-center">
               <div>
-                <div className="text-gold-soft mb-5"><GiftIcon /></div>
+                <div className="text-gold-soft mb-4 sm:mb-5"><GiftIcon /></div>
                 <p className="text-[10px] tracking-[0.35em] uppercase text-gold-soft mb-2">Lista de Presentes</p>
-                <h3 className="font-serif text-3xl md:text-4xl text-ink mb-3">Nosso Ninho de Amor</h3>
-                <p className="text-ink/65 italic max-w-md">"Contribua para realizarmos nossos sonhos juntos."</p>
+                <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl text-ink mb-3">Nosso Ninho de Amor</h3>
+                <p className="text-ink/65 italic max-w-md text-sm sm:text-base">"Contribua para realizarmos nossos sonhos juntos."</p>
               </div>
-              <button type="button" onClick={() => scrollToId("gifts")} className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition">
+              <button type="button" onClick={() => scrollToId("gifts")} className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition min-h-[44px] w-full md:w-auto">
                 Ver Lista de Presentes →
               </button>
             </div>
