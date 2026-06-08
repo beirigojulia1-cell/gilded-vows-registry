@@ -65,10 +65,17 @@ const settingsFromRow = (r: SettingsRow): Settings => ({
 });
 
 // --- helpers ---
+// Server-side anon client for public reads/writes (uses RLS).
+// Avoids depending on SERVICE_ROLE_KEY which isn't injected in this environment.
 async function getAdmin(): Promise<any> {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+  const { createClient } = await import("@supabase/supabase-js");
+  const url = process.env.SUPABASE_URL!;
+  const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
+  return createClient(url, key, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
 }
+
 
 async function requireAdmin(ctx: { supabase: any; userId: string }) {
   const client = ctx.supabase as any;
@@ -313,7 +320,7 @@ export const uploadGiftImage = createServerFn({ method: "POST" })
   .inputValidator((d) => uploadSchema.parse(d))
   .handler(async ({ context, data }) => {
     await requireAdmin(context);
-    const admin = await getAdmin();
+    const client = context.supabase as any;
 
     // base64 -> Uint8Array (works in Workers)
     const bin = atob(data.base64);
@@ -324,11 +331,12 @@ export const uploadGiftImage = createServerFn({ method: "POST" })
     const safeName = `${crypto.randomUUID()}.${ext}`;
     const path = `${context.userId}/${safeName}`;
 
-    const { error: upErr } = await admin.storage
+    const { error: upErr } = await client.storage
       .from("gift-images")
       .upload(path, bytes, { contentType: data.contentType, upsert: false });
     if (upErr) throw new Error(upErr.message);
 
-    const { data: pub } = admin.storage.from("gift-images").getPublicUrl(path);
+    const { data: pub } = client.storage.from("gift-images").getPublicUrl(path);
     return { url: pub.publicUrl };
   });
+
