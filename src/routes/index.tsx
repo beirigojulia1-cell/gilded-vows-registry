@@ -199,7 +199,8 @@ function Landing() {
   return (
     <>
       <Loader />
-      
+      <ScrollProgress />
+
       <div className="bg-background text-foreground">
         <Hero />
         <Quote />
