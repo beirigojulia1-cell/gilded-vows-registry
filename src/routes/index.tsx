@@ -500,7 +500,7 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
   );
 }
 
-const inputCls = "w-full bg-input/60 border border-border rounded px-4 py-3 text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none";
+const inputCls = "w-full bg-input/60 border border-border rounded px-4 py-3 text-base sm:text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none min-h-[48px]";
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
