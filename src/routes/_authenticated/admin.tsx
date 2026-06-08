@@ -145,7 +145,8 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
 
 function Dashboard() {
   const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchasesQueryResult = useQuery(purchasesQuery);
+  const purchases: Purchase[] = purchasesQueryResult.data?.purchases ?? [];
   const total = gifts.length;
   const taken = new Set(purchases.map((p: Purchase) => p.giftId)).size;
   const available = total - taken;
@@ -190,7 +191,8 @@ function GiftsAdmin() {
   const { push } = useToast();
   const qc = useQueryClient();
   const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchasesQueryResult = useQuery(purchasesQuery);
+  const purchases: Purchase[] = purchasesQueryResult.data?.purchases ?? [];
   const purchasedIds = new Set(purchases.map((p: Purchase) => p.giftId));
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<GiftCategory | "Todas">("Todas");
@@ -414,7 +416,8 @@ function Messages() {
   const { push } = useToast();
   const qc = useQueryClient();
   const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchasesQueryResult = useQuery(purchasesQuery);
+  const purchases: Purchase[] = purchasesQueryResult.data?.purchases ?? [];
   const [confirmClear, setConfirmClear] = useState(false);
 
   const markRead = useMutation({
