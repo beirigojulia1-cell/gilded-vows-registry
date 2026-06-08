@@ -227,12 +227,12 @@ function Hero() {
       <div className="relative z-10 text-center px-6 max-w-4xl" style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}>
         <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold mb-10 animate-fade-up">— Casamento · 2026 —</p>
         <h1 className="font-serif font-light text-champagne leading-[0.95]">
-          <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.1s" }}>Geovana Stefany</span>
+          <AnimatedText as="span" text="Geovana Stefany" split="chars" stagger={0.03} duration={1.1} className="block text-5xl md:text-8xl" />
           <span className="block font-serif italic text-gradient-gold text-4xl md:text-6xl my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
-          <span className="block text-5xl md:text-8xl animate-fade-up" style={{ animationDelay: "0.3s" }}>Sérgio Vasconcelos</span>
+          <AnimatedText as="span" text="Sérgio Vasconcelos" split="chars" stagger={0.03} duration={1.1} delay={0.25} className="block text-5xl md:text-8xl" />
         </h1>
-        <div className="gold-rule w-24 mx-auto my-10" />
-        <p className="font-serif italic text-champagne text-lg md:text-2xl animate-fade-up" style={{ animationDelay: "0.4s" }}>Uma história escrita pelo destino.</p>
+        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
+        <AnimatedText as="p" text="Uma história escrita pelo destino." split="words" stagger={0.08} delay={0.5} className="font-serif italic text-champagne text-lg md:text-2xl" />
       </div>
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
         <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
