@@ -340,3 +340,151 @@ export const uploadGiftImage = createServerFn({ method: "POST" })
     return { url: pub.publicUrl };
   });
 
+
+// =========== MERCADO PAGO ===========
+
+const MP_BASE = "https://api.mercadopago.com";
+
+function mpToken(): string {
+  const t = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  if (!t) throw new Error("MERCADO_PAGO_ACCESS_TOKEN não configurado");
+  return t;
+}
+
+const mpPixSchema = z.object({
+  giftId: z.string().min(1).max(80),
+  giftTitle: z.string().trim().min(1).max(200),
+  priceCents: z.number().int().min(100).max(100_000_000),
+  guestName: z.string().trim().min(1).max(120),
+  message: z.string().trim().max(1000).optional().default(""),
+});
+
+export const createMercadoPagoPixPayment = createServerFn({ method: "POST" })
+  .inputValidator((d) => mpPixSchema.parse(d))
+  .handler(async ({ data }) => {
+    const token = mpToken();
+    const idempotencyKey = crypto.randomUUID();
+    const payerEmail = `convidado+${crypto.randomUUID().slice(0, 8)}@casamento.app`;
+    const body = {
+      transaction_amount: Number((data.priceCents / 100).toFixed(2)),
+      payment_method_id: "pix",
+      description: `Presente · ${data.giftTitle}`,
+      external_reference: data.giftId,
+      payer: { email: payerEmail, first_name: data.guestName.slice(0, 60) },
+      metadata: { gift_id: data.giftId, guest_name: data.guestName, guest_message: data.message ?? "" },
+    };
+    const res = await fetch(`${MP_BASE}/v1/payments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "X-Idempotency-Key": idempotencyKey,
+      },
+      body: JSON.stringify(body),
+    });
+    const json: any = await res.json();
+    if (!res.ok) {
+      console.error("[MP PIX] erro", json);
+      throw new Error(json?.message || "Falha ao criar pagamento PIX");
+    }
+    const tx = json?.point_of_interaction?.transaction_data ?? {};
+    return {
+      paymentId: String(json.id),
+      qrCodeBase64: tx.qr_code_base64 ?? "",
+      qrCode: tx.qr_code ?? "",
+      ticketUrl: tx.ticket_url ?? "",
+      expiresAt: json.date_of_expiration ?? null,
+      status: json.status ?? "pending",
+    };
+  });
+
+const mpStatusSchema = z.object({ paymentId: z.string().min(1).max(40) });
+
+export const checkMercadoPagoPaymentStatus = createServerFn({ method: "POST" })
+  .inputValidator((d) => mpStatusSchema.parse(d))
+  .handler(async ({ data }) => {
+    const token = mpToken();
+    const res = await fetch(`${MP_BASE}/v1/payments/${encodeURIComponent(data.paymentId)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json: any = await res.json();
+    if (!res.ok) throw new Error(json?.message || "Falha ao consultar pagamento");
+    return {
+      status: String(json.status ?? "pending"),
+      approved: json.status === "approved",
+      externalReference: json.external_reference ?? null,
+      payer: { name: json?.metadata?.guest_name ?? null, message: json?.metadata?.guest_message ?? null },
+    };
+  });
+
+const mpCardSchema = z.object({
+  giftId: z.string().min(1).max(80),
+  giftTitle: z.string().trim().min(1).max(200),
+  priceCents: z.number().int().min(100).max(100_000_000),
+  guestName: z.string().trim().min(1).max(120),
+  message: z.string().trim().max(1000).optional().default(""),
+  origin: z.string().url().max(300),
+});
+
+export const createMercadoPagoCardPreference = createServerFn({ method: "POST" })
+  .inputValidator((d) => mpCardSchema.parse(d))
+  .handler(async ({ data }) => {
+    const token = mpToken();
+    const backBase = `${data.origin.replace(/\/$/, "")}/?mp=1&gift=${encodeURIComponent(data.giftId)}&guest=${encodeURIComponent(data.guestName)}&msg=${encodeURIComponent(data.message ?? "")}`;
+    const body = {
+      items: [
+        {
+          id: data.giftId,
+          title: data.giftTitle,
+          quantity: 1,
+          currency_id: "BRL",
+          unit_price: Number((data.priceCents / 100).toFixed(2)),
+        },
+      ],
+      external_reference: data.giftId,
+      metadata: { gift_id: data.giftId, guest_name: data.guestName, guest_message: data.message ?? "" },
+      payment_methods: {
+        excluded_payment_types: [
+          { id: "ticket" },
+          { id: "atm" },
+          { id: "bank_transfer" },
+        ],
+        installments: 12,
+      },
+      back_urls: {
+        success: `${backBase}&status=approved`,
+        pending: `${backBase}&status=pending`,
+        failure: `${backBase}&status=failure`,
+      },
+      auto_return: "approved",
+    };
+    const res = await fetch(`${MP_BASE}/checkout/preferences`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+    const json: any = await res.json();
+    if (!res.ok) {
+      console.error("[MP Card] erro", json);
+      throw new Error(json?.message || "Falha ao criar preferência de pagamento");
+    }
+    return {
+      preferenceId: String(json.id),
+      initPoint: String(json.init_point ?? json.sandbox_init_point ?? ""),
+    };
+  });
+
+const mpLookupSchema = z.object({ giftId: z.string().min(1).max(80) });
+
+export const lookupMercadoPagoByGift = createServerFn({ method: "POST" })
+  .inputValidator((d) => mpLookupSchema.parse(d))
+  .handler(async ({ data }) => {
+    const token = mpToken();
+    const url = `${MP_BASE}/v1/payments/search?external_reference=${encodeURIComponent(data.giftId)}&sort=date_created&criteria=desc&limit=5`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const json: any = await res.json();
+    if (!res.ok) throw new Error(json?.message || "Falha ao verificar pagamento");
+    const results: any[] = Array.isArray(json?.results) ? json.results : [];
+    const approved = results.find((p) => p?.status === "approved");
+    return { approved: !!approved, status: approved?.status ?? results[0]?.status ?? "not_found" };
+  });
