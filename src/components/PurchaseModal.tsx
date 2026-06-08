@@ -62,7 +62,7 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
       // Polling
       pollRef.current = window.setInterval(async () => {
         try {
-          const st = await checkMercadoPagoPaymentStatus({ data: { paymentId: res.paymentId } });
+          const st = await checkMercadoPagoPaymentStatus({ data: { paymentId: res.paymentId, giftId: gift.id, guestName: name.trim(), message: message.trim() } });
           if (st.approved) {
             if (pollRef.current) window.clearInterval(pollRef.current);
             persistPurchase();
