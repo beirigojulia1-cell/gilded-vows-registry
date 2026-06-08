@@ -297,11 +297,11 @@ function LoveStory() {
             key={c.n}
             data-chapter
             data-side={photoRight ? "right" : "left"}
-            className="relative grid md:grid-cols-2 min-h-screen"
+            className="relative grid md:grid-cols-2 md:min-h-screen"
           >
             {/* Photo half */}
             <div
-              className={`relative overflow-hidden h-[60vh] md:h-screen ${photoRight ? "md:order-2" : ""}`}
+              className={`relative overflow-hidden h-[50vh] sm:h-[60vh] md:h-screen ${photoRight ? "md:order-2" : ""}`}
             >
               <img
                 data-chapter-img
@@ -317,19 +317,19 @@ function LoveStory() {
             {/* Text half */}
             <div
               data-stagger
-              className={`relative flex items-center bg-background px-8 md:px-20 py-20 md:py-0 ${photoRight ? "md:order-1" : ""}`}
+              className={`relative flex items-center bg-background px-6 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 md:py-0 ${photoRight ? "md:order-1" : ""}`}
             >
               <span
                 data-chapter-numeral
-                className={`pointer-events-none select-none absolute font-serif font-light text-[16rem] md:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-4" : "right-4"}`}
+                className={`pointer-events-none select-none absolute font-serif font-light text-[10rem] sm:text-[14rem] md:text-[22rem] lg:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-2 sm:left-4" : "right-2 sm:right-4"}`}
               >
                 {c.n}
               </span>
               <div className="relative max-w-md">
-                <AnimatedText as="p" text={c.tag.toUpperCase()} split="words" stagger={0.04} className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6" />
-                <AnimatedText as="h3" text={c.title} split="chars" stagger={0.025} duration={1} className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light" />
-                <AnimatedText as="p" text={c.year} split="chars" stagger={0.04} className="text-[11px] tracking-[0.4em] text-gold/80 mb-8" />
-                <AnimatedText as="p" text={c.text} split="words" stagger={0.025} duration={0.9} className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8" />
+                <AnimatedText as="p" text={c.tag.toUpperCase()} split="words" stagger={0.04} className="text-[10px] tracking-[0.4em] sm:tracking-[0.45em] uppercase text-gold/80 mb-4 sm:mb-6" />
+                <AnimatedText as="h3" text={c.title} split="chars" stagger={0.025} duration={1} className="font-serif text-[2.25rem] sm:text-5xl md:text-6xl lg:text-7xl text-champagne mb-4 sm:mb-6 leading-[1.05] font-light" />
+                <AnimatedText as="p" text={c.year} split="chars" stagger={0.04} className="text-[10px] sm:text-[11px] tracking-[0.35em] sm:tracking-[0.4em] text-gold/80 mb-6 sm:mb-8" />
+                <AnimatedText as="p" text={c.text} split="words" stagger={0.025} duration={0.9} className="text-champagne/70 leading-relaxed text-sm sm:text-base md:text-lg font-light mb-6 sm:mb-8" />
                 <div className="gold-rule w-16" data-rule-grow />
               </div>
             </div>
