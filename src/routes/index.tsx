@@ -424,9 +424,9 @@ function RSVP() {
     <section id="rsvp" className="py-28 md:py-40 px-6">
       <div className="max-w-2xl mx-auto" data-reveal>
         <div className="text-center mb-12">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3">— RSVP —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-champagne">Confirme sua <em className="text-gradient-gold not-italic">Presença</em></h2>
-          <p className="text-champagne/60 mt-5 italic">Sua presença é o maior presente que poderíamos receber.</p>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3" data-reveal>— RSVP —</p>
+          <AnimatedText as="h2" text="Confirme sua Presença" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-champagne" />
+          <AnimatedText as="p" text="Sua presença é o maior presente que poderíamos receber." split="words" stagger={0.04} delay={0.3} className="text-champagne/60 mt-5 italic" />
         </div>
         {done ? (
           <div className="text-center bg-card/60 border border-gold/30 rounded-md p-12">
