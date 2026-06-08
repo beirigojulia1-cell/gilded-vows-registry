@@ -158,3 +158,9 @@
   --cream-muted: oklch(0.92 0.015 80);
 }
 
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+.animate-bounce-slow { animation: bounce-slow 2.4s ease-in-out infinite; }
