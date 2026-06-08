@@ -154,6 +154,35 @@ function Landing() {
           scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
         });
       });
+      gsap.utils.toArray<HTMLElement>("[data-rule-grow]").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { scaleX: 0, transformOrigin: "left center" },
+          {
+            scaleX: 1,
+            ease: "power2.out",
+            duration: 1.4,
+            scrollTrigger: { trigger: el, start: "top 90%" },
+          },
+        );
+      });
+      gsap.utils.toArray<HTMLElement>("[data-pin-fade]").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0.4, scale: 0.95 },
+          {
+            opacity: 1,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 80%",
+              end: "center 40%",
+              scrub: true,
+            },
+          },
+        );
+      });
     });
     const refresh = () => ScrollTrigger.refresh();
     const imgs = Array.from(document.querySelectorAll("img"));
