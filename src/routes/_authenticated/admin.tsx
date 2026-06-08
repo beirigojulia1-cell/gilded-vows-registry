@@ -498,17 +498,21 @@ function SettingsPanel() {
       <p className="text-champagne/50 text-sm mb-8">Personalize sua lista</p>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <Card title="Pagamento PIX">
-          <Field label="Chave PIX"><input value={draft.pixKey} onChange={(e) => setDraft({ ...draft, pixKey: e.target.value })} className={inputCls} /></Field>
-          <Field label="Nome do destinatário"><input value={draft.pixName} onChange={(e) => setDraft({ ...draft, pixName: e.target.value })} className={inputCls} /></Field>
-          <Field label="Cidade"><input value={draft.pixCity} onChange={(e) => setDraft({ ...draft, pixCity: e.target.value })} className={inputCls} /></Field>
-        </Card>
-
         <Card title="Informações do Casal">
           <Field label="Nomes"><input value={draft.coupleNames} onChange={(e) => setDraft({ ...draft, coupleNames: e.target.value })} className={inputCls} /></Field>
           <Field label="Data do casamento"><input type="datetime-local" value={draft.weddingDate.slice(0, 16)} onChange={(e) => setDraft({ ...draft, weddingDate: e.target.value })} className={inputCls} /></Field>
         </Card>
+
+        <Card title="Pagamento">
+          <p className="text-champagne/60 text-sm leading-relaxed">
+            Os pagamentos agora são processados pelo <strong className="text-gold">Mercado Pago</strong> (PIX e Cartão de Crédito em até 12x).
+          </p>
+          <p className="text-champagne/40 text-xs leading-relaxed">
+            Token configurado via variável de ambiente <code className="text-gold/70">MERCADO_PAGO_ACCESS_TOKEN</code>.
+          </p>
+        </Card>
       </div>
+
 
       <button onClick={() => saveMut.mutate()} disabled={saveMut.isPending} className="btn-gold px-8 py-3 rounded mt-6 disabled:opacity-50">
         {saveMut.isPending ? "..." : "Salvar todas alterações"}
