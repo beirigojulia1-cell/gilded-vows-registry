@@ -369,9 +369,9 @@ function InfoCards() {
   return (
     <section className="py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Detalhes —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-ink">Nosso <em className="text-gradient-gold not-italic">Grande Dia</em></h2>
+        <div className="text-center mb-16">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Detalhes —</p>
+          <AnimatedText as="h2" text="Nosso Grande Dia" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {cards.map((c) => (
