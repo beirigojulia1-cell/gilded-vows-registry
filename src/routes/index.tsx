@@ -391,7 +391,7 @@ function InfoCards() {
     { label: "Data", value: "28 de Junho", sub: "2026 · Sábado", icon: <CalIcon /> },
     { label: "Horário", value: "12h00", sub: "Cerimônia ao meio-dia", icon: <ClockIcon /> },
     { label: "Local", value: "Av. Marginal do CSU, 1455", sub: "", icon: <PinIcon />, cta: { label: "Ver no Mapa →", href: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Av. Marginal do CSU, 1455") } },
-    { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
+    { label: "Bebida", value: "Traga sua bebida", sub: "Cerveja, Refrigerante, Suco", icon: <DrinkIcon /> },
   ];
   return (
     <section className="py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
@@ -531,6 +531,7 @@ function ClockIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fi
 function PinIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>; }
 function EnvIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 7 9-7"/></svg>; }
 function GiftIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 12h18M12 8v13M8 8a2.5 2.5 0 1 1 4-2 2.5 2.5 0 1 1 4 2"/></svg>; }
+function DrinkIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M6 3h12l-1 5a5 5 0 0 1-10 0L6 3z"/><path d="M12 13v6M9 21h6"/></svg>; }
 
 function Gifts() {
   ensureDefaultPassword();
