@@ -11,8 +11,10 @@ function diff(target: number) {
 
 export function CountdownTimer({ date }: { date: string }) {
   const target = new Date(date).getTime();
-  const [t, setT] = useState(() => diff(target));
+  const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
   useEffect(() => {
+    setT(diff(target));
     const id = setInterval(() => setT(diff(target)), 1000);
     return () => clearInterval(id);
   }, [target]);
