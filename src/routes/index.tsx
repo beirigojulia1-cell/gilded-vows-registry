@@ -525,13 +525,11 @@ function Gifts() {
   return (
     <section id="gifts" className="relative py-24 md:py-32 px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3">— Lista de Presentes —</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-ink">Nosso <em className="text-gradient-gold not-italic">Ninho de Amor</em></h2>
-          <div className="gold-rule w-24 mx-auto my-8" />
-          <p className="max-w-xl mx-auto text-ink/70 leading-relaxed text-sm md:text-base font-light">
-            Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo.
-          </p>
+        <div className="text-center mb-12">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Lista de Presentes —</p>
+          <AnimatedText as="h2" text="Nosso Ninho de Amor" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
+          <div className="gold-rule w-24 mx-auto my-8" data-rule-grow />
+          <AnimatedText as="p" text="Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo." split="words" stagger={0.02} className="max-w-xl mx-auto text-ink/70 leading-relaxed text-sm md:text-base font-light" />
         </div>
 
         <div className="flex flex-wrap gap-2 justify-center mb-10">
