@@ -447,28 +447,28 @@ function RSVP() {
   };
 
   return (
-    <section id="rsvp" className="py-28 md:py-40 px-6">
+    <section id="rsvp" className="py-20 sm:py-28 md:py-40 px-5 sm:px-6">
       <div className="max-w-2xl mx-auto" data-reveal>
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3" data-reveal>— RSVP —</p>
-          <AnimatedText as="h2" text="Confirme sua Presença" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-champagne" />
-          <AnimatedText as="p" text="Sua presença é o maior presente que poderíamos receber." split="words" stagger={0.04} delay={0.3} className="text-champagne/60 mt-5 italic" />
+          <AnimatedText as="h2" text="Confirme sua Presença" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-champagne" />
+          <AnimatedText as="p" text="Sua presença é o maior presente que poderíamos receber." split="words" stagger={0.04} delay={0.3} className="text-champagne/60 mt-4 sm:mt-5 italic text-sm sm:text-base" />
         </div>
         {done ? (
-          <div className="text-center bg-card/60 border border-gold/30 rounded-md p-12">
+          <div className="text-center bg-card/60 border border-gold/30 rounded-md p-8 sm:p-12">
             <div className="text-5xl text-gradient-gold mb-4">✦</div>
-            <h3 className="font-serif text-3xl text-champagne mb-2">Presença confirmada!</h3>
-            <p className="text-champagne/60 italic">Mal podemos esperar para celebrar com você.</p>
+            <h3 className="font-serif text-2xl sm:text-3xl text-champagne mb-2">Presença confirmada!</h3>
+            <p className="text-champagne/60 italic text-sm sm:text-base">Mal podemos esperar para celebrar com você.</p>
           </div>
         ) : (
-          <form onSubmit={submit} className="bg-card/40 backdrop-blur border border-gold/15 rounded-md p-8 md:p-10 space-y-6">
+          <form onSubmit={submit} className="bg-card/40 backdrop-blur border border-gold/15 rounded-md p-6 sm:p-8 md:p-10 space-y-5 sm:space-y-6">
             <Field label="Nome Completo">
               <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="Como você gostaria de ser chamado" />
             </Field>
             <Field label="Mensagem Especial">
               <textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} className={`${inputCls} resize-none`} placeholder="Deixe uma mensagem para o casal (opcional)" />
             </Field>
-            <button type="submit" className="shimmer w-full py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs">
+            <button type="submit" className="shimmer w-full py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs min-h-[48px]">
               Confirmar Presença
             </button>
           </form>
