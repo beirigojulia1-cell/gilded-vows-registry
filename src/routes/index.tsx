@@ -450,9 +450,11 @@ function RSVP() {
     <section id="rsvp" className="py-20 sm:py-28 md:py-40 px-5 sm:px-6">
       <div className="max-w-2xl mx-auto" data-reveal>
         <div className="text-center mb-10 sm:mb-12">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3" data-reveal>— RSVP —</p>
-          <AnimatedText as="h2" text="Confirme sua Presença" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-champagne" />
-          <AnimatedText as="p" text="Sua presença é o maior presente que poderíamos receber." split="words" stagger={0.04} delay={0.3} className="text-champagne/60 mt-4 sm:mt-5 italic text-sm sm:text-base" />
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3" data-reveal>— CONFIRMAÇÃO —</p>
+          <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl text-champagne" data-reveal>
+            Confirme sua <span className="italic text-gradient-gold">Presença</span>
+          </h2>
+          <p className="text-champagne/60 mt-4 sm:mt-5 italic text-sm sm:text-base" data-reveal>Sua presença é o maior presente que poderíamos receber.</p>
         </div>
         {done ? (
           <div className="text-center bg-card/60 border border-gold/30 rounded-md p-8 sm:p-12">
