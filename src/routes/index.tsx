@@ -228,7 +228,7 @@ function Landing() {
       <Loader />
       <ScrollProgress />
 
-      <div className="bg-background text-foreground">
+      <div className="bg-background text-foreground overflow-x-hidden">
         <Hero />
         <Quote />
         <LoveStory />
@@ -246,24 +246,24 @@ function Landing() {
 
 function Hero() {
   return (
-    <section className="relative h-screen min-h-[700px] w-full flex items-center justify-center overflow-hidden">
+    <section className="relative h-[100svh] min-h-[600px] w-full flex items-center justify-center overflow-hidden">
       <img src={heroImg} alt="Geovana e Sérgio" className="absolute inset-0 w-full h-full object-cover" />
       {/* overlay bem mais leve só para garantir contraste dos textos */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/55" />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-4xl" style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}>
-        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-gold mb-10 animate-fade-up">— Casamento · 2026 —</p>
+      <div className="relative z-10 text-center px-5 sm:px-6 max-w-4xl" style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}>
+        <p className="text-[9px] sm:text-[10px] md:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold mb-6 sm:mb-10 animate-fade-up">— Casamento · 2026 —</p>
         <h1 className="font-serif font-light text-champagne leading-[0.95]">
-          <AnimatedText as="span" text="Geovana Stefany" split="chars" stagger={0.03} duration={1.1} className="block text-5xl md:text-8xl" />
-          <span className="block font-serif italic text-gradient-gold text-4xl md:text-6xl my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
-          <AnimatedText as="span" text="Sérgio Vasconcelos" split="chars" stagger={0.03} duration={1.1} delay={0.25} className="block text-5xl md:text-8xl" />
+          <AnimatedText as="span" text="Geovana Stefany" split="chars" stagger={0.03} duration={1.1} className="block text-[2.5rem] sm:text-5xl md:text-7xl lg:text-8xl" />
+          <span className="block font-serif italic text-gradient-gold text-3xl sm:text-4xl md:text-5xl lg:text-6xl my-3 sm:my-4 animate-fade-up" style={{ animationDelay: "0.2s" }}>&amp;</span>
+          <AnimatedText as="span" text="Sérgio Vasconcelos" split="chars" stagger={0.03} duration={1.1} delay={0.25} className="block text-[2.5rem] sm:text-5xl md:text-7xl lg:text-8xl" />
         </h1>
-        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
-        <AnimatedText as="p" text="Uma história escrita pelo destino." split="words" stagger={0.08} delay={0.5} className="font-serif italic text-champagne text-lg md:text-2xl" />
+        <div className="gold-rule w-20 sm:w-24 mx-auto my-7 sm:my-10" data-rule-grow />
+        <AnimatedText as="p" text="Uma história escrita pelo destino." split="words" stagger={0.08} delay={0.5} className="font-serif italic text-champagne text-base sm:text-lg md:text-2xl" />
       </div>
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
+      <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up" style={{ animationDelay: "1s" }}>
         <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
-        <div className="w-px h-12 bg-gradient-to-b from-gold/80 to-transparent overflow-hidden">
+        <div className="w-px h-10 sm:h-12 bg-gradient-to-b from-gold/80 to-transparent overflow-hidden">
           <div className="w-px h-4 bg-gold animate-[scrollcue_2s_ease-in-out_infinite]" />
         </div>
       </div>
@@ -274,14 +274,14 @@ function Hero() {
 
 function Quote() {
   return (
-    <section className="py-32 md:py-48 px-6">
+    <section className="py-20 sm:py-28 md:py-40 lg:py-48 px-5 sm:px-6">
       <div className="max-w-3xl mx-auto text-center" data-pin-fade>
-        <div className="gold-rule w-40 mx-auto mb-12" data-rule-grow />
-        <blockquote className="font-serif text-3xl md:text-5xl text-champagne leading-tight font-light">
+        <div className="gold-rule w-28 sm:w-40 mx-auto mb-8 sm:mb-12" data-rule-grow />
+        <blockquote className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne leading-tight font-light">
           <AnimatedText as="span" text="Algumas histórias começam de forma simples…" split="words" stagger={0.06} duration={1.1} className="block" />
-          <AnimatedText as="span" text="mas acabam se tornando eternas." split="words" stagger={0.07} duration={1.2} delay={0.3} className="block italic text-gradient-gold mt-4" />
+          <AnimatedText as="span" text="mas acabam se tornando eternas." split="words" stagger={0.07} duration={1.2} delay={0.3} className="block italic text-gradient-gold mt-3 sm:mt-4" />
         </blockquote>
-        <div className="gold-rule w-40 mx-auto mt-12" data-rule-grow />
+        <div className="gold-rule w-28 sm:w-40 mx-auto mt-8 sm:mt-12" data-rule-grow />
       </div>
     </section>
   );
@@ -297,11 +297,11 @@ function LoveStory() {
             key={c.n}
             data-chapter
             data-side={photoRight ? "right" : "left"}
-            className="relative grid md:grid-cols-2 min-h-screen"
+            className="relative grid md:grid-cols-2 md:min-h-screen"
           >
             {/* Photo half */}
             <div
-              className={`relative overflow-hidden h-[60vh] md:h-screen ${photoRight ? "md:order-2" : ""}`}
+              className={`relative overflow-hidden h-[50vh] sm:h-[60vh] md:h-screen ${photoRight ? "md:order-2" : ""}`}
             >
               <img
                 data-chapter-img
@@ -317,19 +317,19 @@ function LoveStory() {
             {/* Text half */}
             <div
               data-stagger
-              className={`relative flex items-center bg-background px-8 md:px-20 py-20 md:py-0 ${photoRight ? "md:order-1" : ""}`}
+              className={`relative flex items-center bg-background px-6 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 md:py-0 ${photoRight ? "md:order-1" : ""}`}
             >
               <span
                 data-chapter-numeral
-                className={`pointer-events-none select-none absolute font-serif font-light text-[16rem] md:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-4" : "right-4"}`}
+                className={`pointer-events-none select-none absolute font-serif font-light text-[10rem] sm:text-[14rem] md:text-[22rem] lg:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-2 sm:left-4" : "right-2 sm:right-4"}`}
               >
                 {c.n}
               </span>
               <div className="relative max-w-md">
-                <AnimatedText as="p" text={c.tag.toUpperCase()} split="words" stagger={0.04} className="text-[10px] tracking-[0.45em] uppercase text-gold/80 mb-6" />
-                <AnimatedText as="h3" text={c.title} split="chars" stagger={0.025} duration={1} className="font-serif text-5xl md:text-7xl text-champagne mb-6 leading-[1.05] font-light" />
-                <AnimatedText as="p" text={c.year} split="chars" stagger={0.04} className="text-[11px] tracking-[0.4em] text-gold/80 mb-8" />
-                <AnimatedText as="p" text={c.text} split="words" stagger={0.025} duration={0.9} className="text-champagne/70 leading-relaxed text-base md:text-lg font-light mb-8" />
+                <AnimatedText as="p" text={c.tag.toUpperCase()} split="words" stagger={0.04} className="text-[10px] tracking-[0.4em] sm:tracking-[0.45em] uppercase text-gold/80 mb-4 sm:mb-6" />
+                <AnimatedText as="h3" text={c.title} split="chars" stagger={0.025} duration={1} className="font-serif text-[2.25rem] sm:text-5xl md:text-6xl lg:text-7xl text-champagne mb-4 sm:mb-6 leading-[1.05] font-light" />
+                <AnimatedText as="p" text={c.year} split="chars" stagger={0.04} className="text-[10px] sm:text-[11px] tracking-[0.35em] sm:tracking-[0.4em] text-gold/80 mb-6 sm:mb-8" />
+                <AnimatedText as="p" text={c.text} split="words" stagger={0.025} duration={0.9} className="text-champagne/70 leading-relaxed text-sm sm:text-base md:text-lg font-light mb-6 sm:mb-8" />
                 <div className="gold-rule w-16" data-rule-grow />
               </div>
             </div>
@@ -342,19 +342,19 @@ function LoveStory() {
 
 function Gallery() {
   return (
-    <section className="py-24 md:py-32 px-6 bg-cream text-ink">
+    <section className="py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Galeria —</p>
-          <AnimatedText as="h2" text="Memórias Eternizadas" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
+          <AnimatedText as="h2" text="Memórias Eternizadas" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-ink" />
         </div>
-        <div className="columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
+        <div className="columns-1 sm:columns-2 md:columns-3 gap-3 sm:gap-4 md:gap-6 space-y-3 sm:space-y-4 md:space-y-6">
           {GALLERY.map((g) => (
             <div key={g.word} className={`group relative overflow-hidden rounded-sm break-inside-avoid border border-gold/10 ${g.h}`} data-reveal>
               <img src={g.src} alt={g.word} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-60 group-hover:opacity-95 transition-opacity duration-500" />
-              <div className="absolute inset-0 flex items-end justify-center pb-8 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-                <span className="font-serif italic text-3xl md:text-4xl text-gradient-gold">{g.word}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-70 sm:opacity-60 group-hover:opacity-95 transition-opacity duration-500" />
+              <div className="absolute inset-0 flex items-end justify-center pb-6 sm:pb-8 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-500 sm:translate-y-4 group-hover:translate-y-0">
+                <span className="font-serif italic text-2xl sm:text-3xl md:text-4xl text-gradient-gold">{g.word}</span>
               </div>
             </div>
           ))}
@@ -366,10 +366,10 @@ function Gallery() {
 
 function Proposal() {
   return (
-    <section className="relative py-40 md:py-56 px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
+    <section className="relative py-24 sm:py-32 md:py-48 lg:py-56 px-5 sm:px-6 overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.08),transparent_60%)]">
       <ParticleCanvas />
       <div className="relative max-w-3xl mx-auto text-center" data-pin-fade>
-        <div className="relative w-32 h-32 mx-auto mb-12">
+        <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-8 sm:mb-12">
           <div className="absolute inset-0 rounded-full border border-gold/40 animate-[spin_20s_linear_infinite]" />
           <div className="absolute inset-3 rounded-full border border-gold/60 animate-[spin_15s_linear_infinite_reverse]" />
           <div className="absolute inset-6 rounded-full border border-gold/80" />
@@ -377,9 +377,9 @@ function Proposal() {
             <div className="w-4 h-4 rotate-45 bg-gradient-to-br from-[#f5e8c9] to-[#8a6f3d] shadow-[0_0_30px_rgba(201,169,110,0.8)]" />
           </div>
         </div>
-        <p className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight">
+        <p className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne font-light leading-tight">
           <AnimatedText as="em" text="E naquele instante…" split="words" stagger={0.08} duration={1.2} className="text-gradient-gold not-italic" />
-          <AnimatedText as="span" text="duas vidas se tornaram uma só." split="words" stagger={0.08} delay={0.4} duration={1.2} className="block mt-4" />
+          <AnimatedText as="span" text="duas vidas se tornaram uma só." split="words" stagger={0.08} delay={0.4} duration={1.2} className="block mt-3 sm:mt-4" />
         </p>
       </div>
     </section>
@@ -394,33 +394,33 @@ function InfoCards() {
     { label: "Dress Code", value: "Esporte Fino", sub: "Tons claros e elegantes", icon: <EnvIcon /> },
   ];
   return (
-    <section className="py-24 md:py-32 px-6 bg-cream text-ink">
+    <section className="py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Detalhes —</p>
-          <AnimatedText as="h2" text="Nosso Grande Dia" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
+          <AnimatedText as="h2" text="Nosso Grande Dia" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-ink" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {cards.map((c) => (
-            <div key={c.label} className="bg-white/70 border border-gold/20 rounded-md p-8 hover:border-gold/50 hover:bg-white transition-all shadow-[0_1px_2px_rgba(0,0,0,0.04)]" data-reveal>
-              <div className="text-gold-soft mb-5">{c.icon}</div>
+            <div key={c.label} className="bg-white/70 border border-gold/20 rounded-md p-6 sm:p-8 hover:border-gold/50 hover:bg-white transition-all shadow-[0_1px_2px_rgba(0,0,0,0.04)]" data-reveal>
+              <div className="text-gold-soft mb-4 sm:mb-5">{c.icon}</div>
               <p className="text-[10px] tracking-[0.35em] uppercase text-gold-soft mb-2">{c.label}</p>
-              <h3 className="font-serif text-3xl text-ink mb-1">{c.value}</h3>
-              <p className="text-ink/55 text-sm">{c.sub}</p>
+              <h3 className="font-serif text-2xl sm:text-3xl text-ink mb-1 break-words">{c.value}</h3>
+              {c.sub && <p className="text-ink/55 text-sm">{c.sub}</p>}
               {c.cta && (
-                <a href={c.cta.href} target="_blank" rel="noopener noreferrer" className="inline-block mt-5 px-5 py-2 rounded-full bg-ink text-cream text-xs tracking-[0.18em] uppercase hover:bg-ink/85 transition">{c.cta.label}</a>
+                <a href={c.cta.href} target="_blank" rel="noopener noreferrer" className="inline-block mt-4 sm:mt-5 px-5 py-2.5 rounded-full bg-ink text-cream text-xs tracking-[0.18em] uppercase hover:bg-ink/85 transition min-h-[44px] leading-tight">{c.cta.label}</a>
               )}
             </div>
           ))}
-          <div className="md:col-span-2 lg:col-span-4 relative bg-white/80 border border-gold/25 rounded-md p-10 md:p-14 overflow-hidden" data-reveal>
-            <div className="relative grid md:grid-cols-[1fr_auto] gap-8 items-center">
+          <div className="sm:col-span-2 lg:col-span-4 relative bg-white/80 border border-gold/25 rounded-md p-8 sm:p-10 md:p-14 overflow-hidden" data-reveal>
+            <div className="relative grid md:grid-cols-[1fr_auto] gap-6 md:gap-8 items-start md:items-center">
               <div>
-                <div className="text-gold-soft mb-5"><GiftIcon /></div>
+                <div className="text-gold-soft mb-4 sm:mb-5"><GiftIcon /></div>
                 <p className="text-[10px] tracking-[0.35em] uppercase text-gold-soft mb-2">Lista de Presentes</p>
-                <h3 className="font-serif text-3xl md:text-4xl text-ink mb-3">Nosso Ninho de Amor</h3>
-                <p className="text-ink/65 italic max-w-md">"Contribua para realizarmos nossos sonhos juntos."</p>
+                <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl text-ink mb-3">Nosso Ninho de Amor</h3>
+                <p className="text-ink/65 italic max-w-md text-sm sm:text-base">"Contribua para realizarmos nossos sonhos juntos."</p>
               </div>
-              <button type="button" onClick={() => scrollToId("gifts")} className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition">
+              <button type="button" onClick={() => scrollToId("gifts")} className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 rounded-full bg-gold text-ink font-medium tracking-[0.18em] uppercase text-xs whitespace-nowrap hover:bg-gold-soft transition min-h-[44px] w-full md:w-auto">
                 Ver Lista de Presentes →
               </button>
             </div>
@@ -447,28 +447,28 @@ function RSVP() {
   };
 
   return (
-    <section id="rsvp" className="py-28 md:py-40 px-6">
+    <section id="rsvp" className="py-20 sm:py-28 md:py-40 px-5 sm:px-6">
       <div className="max-w-2xl mx-auto" data-reveal>
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3" data-reveal>— RSVP —</p>
-          <AnimatedText as="h2" text="Confirme sua Presença" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-champagne" />
-          <AnimatedText as="p" text="Sua presença é o maior presente que poderíamos receber." split="words" stagger={0.04} delay={0.3} className="text-champagne/60 mt-5 italic" />
+          <AnimatedText as="h2" text="Confirme sua Presença" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-champagne" />
+          <AnimatedText as="p" text="Sua presença é o maior presente que poderíamos receber." split="words" stagger={0.04} delay={0.3} className="text-champagne/60 mt-4 sm:mt-5 italic text-sm sm:text-base" />
         </div>
         {done ? (
-          <div className="text-center bg-card/60 border border-gold/30 rounded-md p-12">
+          <div className="text-center bg-card/60 border border-gold/30 rounded-md p-8 sm:p-12">
             <div className="text-5xl text-gradient-gold mb-4">✦</div>
-            <h3 className="font-serif text-3xl text-champagne mb-2">Presença confirmada!</h3>
-            <p className="text-champagne/60 italic">Mal podemos esperar para celebrar com você.</p>
+            <h3 className="font-serif text-2xl sm:text-3xl text-champagne mb-2">Presença confirmada!</h3>
+            <p className="text-champagne/60 italic text-sm sm:text-base">Mal podemos esperar para celebrar com você.</p>
           </div>
         ) : (
-          <form onSubmit={submit} className="bg-card/40 backdrop-blur border border-gold/15 rounded-md p-8 md:p-10 space-y-6">
+          <form onSubmit={submit} className="bg-card/40 backdrop-blur border border-gold/15 rounded-md p-6 sm:p-8 md:p-10 space-y-5 sm:space-y-6">
             <Field label="Nome Completo">
               <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="Como você gostaria de ser chamado" />
             </Field>
             <Field label="Mensagem Especial">
               <textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} className={`${inputCls} resize-none`} placeholder="Deixe uma mensagem para o casal (opcional)" />
             </Field>
-            <button type="submit" className="shimmer w-full py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs">
+            <button type="submit" className="shimmer w-full py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs min-h-[48px]">
               Confirmar Presença
             </button>
           </form>
@@ -480,27 +480,27 @@ function RSVP() {
 
 function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       <img src={closingImg} alt="Cerimônia" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
       <ParticleCanvas />
-      <div className="relative z-10 text-center px-6 max-w-3xl py-20">
-        <div className="text-4xl text-gradient-gold mb-8" data-reveal>✦</div>
-        <AnimatedText as="p" text="Mal podemos esperar para viver esse momento com você." split="words" stagger={0.05} duration={1.1} className="font-serif text-3xl md:text-5xl text-champagne font-light leading-tight italic" />
-        <div className="gold-rule w-24 mx-auto my-10" data-rule-grow />
-        <AnimatedText as="p" text="Geovana & Sérgio" split="chars" stagger={0.05} className="font-serif text-2xl md:text-3xl text-gradient-gold mb-10" />
-        <button onClick={onScrollToRsvp} className="btn-gold px-8 py-4 rounded">Nos vemos no altar ↓</button>
-        <div className="mt-20 border-t border-gold/15 pt-10">
+      <div className="relative z-10 text-center px-5 sm:px-6 max-w-3xl py-16 sm:py-20">
+        <div className="text-4xl text-gradient-gold mb-6 sm:mb-8" data-reveal>✦</div>
+        <AnimatedText as="p" text="Mal podemos esperar para viver esse momento com você." split="words" stagger={0.05} duration={1.1} className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne font-light leading-tight italic" />
+        <div className="gold-rule w-20 sm:w-24 mx-auto my-8 sm:my-10" data-rule-grow />
+        <AnimatedText as="p" text="Geovana & Sérgio" split="chars" stagger={0.05} className="font-serif text-xl sm:text-2xl md:text-3xl text-gradient-gold mb-8 sm:mb-10" />
+        <button onClick={onScrollToRsvp} className="btn-gold px-7 sm:px-8 py-4 rounded min-h-[48px]">Nos vemos no altar ↓</button>
+        <div className="mt-14 sm:mt-20 border-t border-gold/15 pt-8 sm:pt-10">
           <p className="text-champagne/60 text-sm">Com todo o nosso amor,</p>
-          <p className="font-serif italic text-xl text-champagne mt-2">Geovana Stefany &amp; Sérgio Vasconcelos</p>
-          <p className="text-[10px] tracking-[0.5em] uppercase text-gold/80 mt-4">15 · 11 · 2026</p>
+          <p className="font-serif italic text-lg sm:text-xl text-champagne mt-2">Geovana Stefany &amp; Sérgio Vasconcelos</p>
+          <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold/80 mt-4">15 · 11 · 2026</p>
         </div>
       </div>
     </section>
   );
 }
 
-const inputCls = "w-full bg-input/60 border border-border rounded px-4 py-3 text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none";
+const inputCls = "w-full bg-input/60 border border-border rounded px-4 py-3 text-base sm:text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none min-h-[48px]";
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
@@ -542,28 +542,28 @@ function Gifts() {
   const filtered = useMemo(() => (activeCat === "Todos" ? gifts : gifts.filter((g) => g.category === activeCat)), [gifts, activeCat]);
 
   return (
-    <section id="gifts" className="relative py-24 md:py-32 px-6 bg-cream text-ink">
+    <section id="gifts" className="relative py-16 sm:py-24 md:py-32 px-5 sm:px-6 bg-cream text-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <p className="text-[10px] tracking-[0.4em] uppercase text-gold-soft mb-3" data-reveal>— Lista de Presentes —</p>
-          <AnimatedText as="h2" text="Nosso Ninho de Amor" split="chars" stagger={0.03} className="font-serif text-5xl md:text-6xl text-ink" />
-          <div className="gold-rule w-24 mx-auto my-8" data-rule-grow />
+          <AnimatedText as="h2" text="Nosso Ninho de Amor" split="chars" stagger={0.03} className="font-serif text-4xl sm:text-5xl md:text-6xl text-ink" />
+          <div className="gold-rule w-20 sm:w-24 mx-auto my-6 sm:my-8" data-rule-grow />
           <AnimatedText as="p" text="Seu presente é uma forma de fazer parte da nossa história. Cada gesto de amor transforma o nosso começo." split="words" stagger={0.02} className="max-w-xl mx-auto text-ink/70 leading-relaxed text-sm md:text-base font-light" />
         </div>
 
-        <div className="flex flex-wrap gap-2 justify-center mb-10">
+        <div className="flex flex-wrap gap-2 justify-center mb-8 sm:mb-10">
           {categories.map((c) => (
             <button
               key={c}
               onClick={() => setActiveCat(c)}
-              className={`px-5 py-2 text-xs tracking-[0.18em] uppercase rounded-full border transition-all ${activeCat === c ? "bg-gold text-ink border-gold" : "border-gold/40 text-ink/70 hover:border-gold hover:text-gold-soft"}`}
+              className={`px-4 sm:px-5 py-2 text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.18em] uppercase rounded-full border transition-all min-h-[40px] ${activeCat === c ? "bg-gold text-ink border-gold" : "border-gold/40 text-ink/70 hover:border-gold hover:text-gold-soft"}`}
             >
               {c}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {filtered.map((gift) => {
             const purchase = purchasedMap.get(gift.id);
             const taken = !!purchase;
@@ -573,7 +573,7 @@ function Gifts() {
                 data-reveal
                 className={`group relative rounded-lg border overflow-hidden flex flex-col transition-all duration-500 bg-white ${taken ? "opacity-60 grayscale border-border/40" : "border-gold/25 hover:border-gold/70 hover:shadow-[0_30px_80px_-30px_rgba(201,169,110,0.45)] hover:-translate-y-1"}`}
               >
-                <div className="relative h-48 overflow-hidden flex items-center justify-center bg-cream-muted">
+                <div className="relative h-52 sm:h-48 overflow-hidden flex items-center justify-center bg-cream-muted">
                   {gift.imageUrl ? (
                     <img src={gift.imageUrl} alt={gift.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async" />
                   ) : (
@@ -582,19 +582,19 @@ function Gifts() {
                   <span className="absolute top-3 left-3 text-[0.6rem] tracking-[0.3em] uppercase bg-white/85 backdrop-blur px-2.5 py-1 rounded text-gold-soft">{gift.category}</span>
                   {taken && <span className="absolute top-3 right-3 text-[0.6rem] tracking-[0.2em] uppercase text-gold-soft bg-white/85 px-2.5 py-1 rounded">✦ Presenteado</span>}
                 </div>
-                <div className="p-6 flex-1 flex flex-col bg-white">
-                  <h3 className="font-serif text-2xl text-ink mb-2">{gift.title}</h3>
+                <div className="p-5 sm:p-6 flex-1 flex flex-col bg-white">
+                  <h3 className="font-serif text-xl sm:text-2xl text-ink mb-2">{gift.title}</h3>
                   <p className="text-ink/60 text-xs leading-relaxed mb-4 line-clamp-2">{gift.description}</p>
                   {taken && <p className="text-[10px] tracking-wider uppercase text-gold-soft italic mb-3">Presenteado por {purchase!.guestName}</p>}
-                  <div className="mt-auto pt-4 border-t border-gold/20 flex items-end justify-between">
-                    <div>
+                  <div className="mt-auto pt-4 border-t border-gold/20 flex items-end justify-between gap-3">
+                    <div className="min-w-0">
                       <div className="text-[9px] tracking-[0.3em] uppercase text-ink/45">Valor sugerido</div>
-                      <div className="text-gradient-gold font-serif text-xl">{formatBRL(gift.priceCents)}</div>
+                      <div className="text-gradient-gold font-serif text-lg sm:text-xl truncate">{formatBRL(gift.priceCents)}</div>
                     </div>
                     <button
                       disabled={taken}
                       onClick={() => setSelected(gift)}
-                      className="px-4 py-2 rounded border border-gold text-gold-soft hover:bg-gold hover:text-ink transition-all text-[0.72rem] tracking-[0.12em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="shrink-0 px-4 py-2.5 rounded border border-gold text-gold-soft hover:bg-gold hover:text-ink transition-all text-[0.7rem] sm:text-[0.72rem] tracking-[0.12em] uppercase disabled:opacity-50 disabled:cursor-not-allowed min-h-[40px]"
                     >
                       {taken ? "Presenteado ✦" : "Presentear"}
                     </button>
