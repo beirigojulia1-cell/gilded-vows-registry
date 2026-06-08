@@ -65,19 +65,21 @@ const settingsFromRow = (r: SettingsRow): Settings => ({
 });
 
 // --- helpers ---
-async function getAdmin() {
+async function getAdmin(): Promise<any> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
 async function requireAdmin(ctx: { supabase: any; userId: string }) {
-  const { data, error } = await ctx.supabase.rpc("has_role", {
+  const { data, error } = await (ctx.supabase as any).rpc("has_role", {
     _user_id: ctx.userId,
     _role: "admin",
   });
   if (error) throw new Error("Erro ao verificar permissão");
   if (!data) throw new Error("Forbidden: requires admin role");
 }
+
+const sb = (s: any) => s as any;
 
 // =========== PUBLIC ===========
 
