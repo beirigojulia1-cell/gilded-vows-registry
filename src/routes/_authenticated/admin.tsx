@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { supabase } from "@/integrations/supabase/client";
-import { formatBRL, type Gift } from "@/lib/wedding-types";
+import { formatBRL, type Gift, type Purchase, type Settings } from "@/lib/wedding-types";
 import {
   giftsQuery,
   purchasesQuery,
@@ -30,6 +30,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 type Section = "dashboard" | "gifts" | "messages" | "settings";
+type GiftCategory = Gift["category"];
 
 function AdminApp() {
   const navigate = useNavigate();
@@ -37,8 +38,8 @@ function AdminApp() {
   const [section, setSection] = useState<Section>("dashboard");
   const [open, setOpen] = useState(false);
 
-  const purchases = useQuery(purchasesQuery).data?.purchases ?? [];
-  const unread = purchases.filter((p) => !p.read).length;
+  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const unread = purchases.filter((p: Purchase) => !p.read).length;
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -123,13 +124,13 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
 }
 
 function Dashboard() {
-  const gifts = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases = useQuery(purchasesQuery).data?.purchases ?? [];
+  const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
+  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
   const total = gifts.length;
-  const taken = new Set(purchases.map((p) => p.giftId)).size;
+  const taken = new Set(purchases.map((p: Purchase) => p.giftId)).size;
   const available = total - taken;
-  const raised = purchases.reduce((acc, p) => {
-    const g = gifts.find((x) => x.id === p.giftId);
+  const raised = purchases.reduce((acc: number, p: Purchase) => {
+    const g = gifts.find((x: Gift) => x.id === p.giftId);
     return acc + (g?.priceCents ?? 0);
   }, 0);
 
@@ -149,8 +150,8 @@ function Dashboard() {
           <p className="text-champagne/40 text-sm italic">Nenhuma atividade ainda.</p>
         ) : (
           <ul className="divide-y divide-border/60">
-            {purchases.slice(0, 8).map((p) => {
-              const g = gifts.find((x) => x.id === p.giftId);
+            {purchases.slice(0, 8).map((p: Purchase) => {
+              const g = gifts.find((x: Gift) => x.id === p.giftId);
               return (
                 <li key={p.id} className="py-3 flex justify-between text-sm">
                   <span className="text-champagne"><b className="text-gold">{p.guestName}</b> presenteou <i>{g?.title ?? "—"}</i></span>
@@ -168,18 +169,18 @@ function Dashboard() {
 function GiftsAdmin() {
   const { push } = useToast();
   const qc = useQueryClient();
-  const gifts = useQuery(giftsQuery).data?.gifts ?? [];
-  const purchases = useQuery(purchasesQuery).data?.purchases ?? [];
-  const purchasedIds = new Set(purchases.map((p) => p.giftId));
+  const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
+  const purchases: Purchase[] = useQuery(purchasesQuery).data?.purchases ?? [];
+  const purchasedIds = new Set(purchases.map((p: Purchase) => p.giftId));
   const [q, setQ] = useState("");
-  const [cat, setCat] = useState("Todas");
+  const [cat, setCat] = useState<GiftCategory | "Todas">("Todas");
   const [status, setStatus] = useState<"all" | "available" | "purchased">("all");
   const [editing, setEditing] = useState<Gift | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [confirmDel, setConfirmDel] = useState<Gift | null>(null);
 
-  const cats = ["Todas", ...Array.from(new Set(gifts.map((g) => g.category)))];
-  const filtered = gifts.filter((g) => {
+  const cats: Array<GiftCategory | "Todas"> = ["Todas", ...Array.from(new Set(gifts.map((g: Gift) => g.category)))];
+  const filtered = gifts.filter((g: Gift) => {
     if (q && !g.title.toLowerCase().includes(q.toLowerCase())) return false;
     if (cat !== "Todas" && g.category !== cat) return false;
     const isTaken = purchasedIds.has(g.id);
