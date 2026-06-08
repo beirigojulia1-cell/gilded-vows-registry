@@ -9,6 +9,8 @@ import { ParticleCanvas } from "@/components/ParticleHero";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { ToastProvider } from "@/components/Toast";
 import { PurchaseModal } from "@/components/PurchaseModal";
+import { AnimatedText } from "@/components/AnimatedText";
+import { ScrollProgress } from "@/components/ScrollProgress";
 import { ensureDefaultPassword, formatBRL, store, useStoreSubscribe, type Gift, type Purchase } from "@/lib/store";
 import { useToast } from "@/components/Toast";
 import heroAsset from "@/assets/sentados-banco.jpeg.asset.json";
