@@ -365,11 +365,12 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
   const saveMut = useMutation({
     mutationFn: async () => {
       const cents = Math.round(parseFloat(price.replace(",", ".")) * 100);
+      if (isNaN(cents) || cents <= 0) throw new Error("Valor inválido");
       const payload = {
         title: title.trim(),
         category: category.trim(),
         priceCents: cents,
-        icon,
+        icon: icon || "🎁",
         description: description.trim() || null,
         imageUrl: imageUrl.trim() || null,
         gradient: gift?.gradient ?? null,
@@ -390,7 +391,7 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
     onError: (e: Error) => push(e.message, "error"),
   });
 
-  const handleFile = async (file: File) => {
+  const handleFile = (file: File) => {
     if (!/image\/(png|jpeg|jpg|webp)/.test(file.type)) {
       push("Formato inválido (use PNG, JPG ou WEBP)", "error");
       return;
@@ -400,22 +401,28 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
       return;
     }
     setUploading(true);
-    try {
-      const buf = await file.arrayBuffer();
-      let bin = "";
-      const bytes = new Uint8Array(buf);
-      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      const base64 = btoa(bin);
-      const res = await uploadGiftImage({
-        data: { fileName: file.name, contentType: file.type, base64 },
-      });
-      setImageUrl(res.url);
-      push("Imagem enviada", "success");
-    } catch (e: any) {
-      push(e?.message ?? "Erro no upload", "error");
-    } finally {
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const dataUrl = ev.target?.result as string;
+        // dataUrl = "data:image/png;base64,XXXXXX"
+        const base64 = dataUrl.split(",")[1];
+        const res = await uploadGiftImage({
+          data: { fileName: file.name, contentType: file.type, base64 },
+        });
+        setImageUrl(res.url);
+        push("Imagem enviada com sucesso!", "success");
+      } catch (e: any) {
+        push(e?.message ?? "Erro no upload da imagem", "error");
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.onerror = () => {
+      push("Erro ao ler o arquivo", "error");
       setUploading(false);
-    }
+    };
+    reader.readAsDataURL(file);
   };
 
   const submit = (e: React.FormEvent) => {
@@ -462,9 +469,6 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
               />
             </Field>
           </div>
-          <Field label="Emoji / Ícone">
-            <input value={icon} onChange={(e) => setIcon(e.target.value)} className={inputCls} />
-          </Field>
           <Field label="Descrição">
             <textarea
               rows={3}

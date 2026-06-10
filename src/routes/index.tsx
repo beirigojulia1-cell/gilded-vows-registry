@@ -384,7 +384,7 @@ function Hero() {
         data-hero-scroll
         className="opacity-0 absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
       >
-        <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
+        <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Desça</span>
         <div className="w-px h-10 sm:h-12 bg-gradient-to-b from-gold/80 to-transparent overflow-hidden">
           <div className="w-px h-4 bg-gold animate-[scrollcue_2s_ease-in-out_infinite]" />
         </div>
@@ -1108,7 +1108,13 @@ function Gifts() {
           })}
         </div>
       </div>
-      {selected && <PurchaseModal gift={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <PurchaseModal
+          gift={selected}
+          alreadyPurchased={purchasedIds.has(selected.id)}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </section>
   );
 }

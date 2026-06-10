@@ -321,10 +321,8 @@ export const uploadGiftImage = createServerFn({ method: "POST" })
     await requireAdmin(context);
     const client = context.supabase as any;
 
-    // base64 -> Uint8Array (works in Workers)
-    const bin = atob(data.base64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    // Convert base64 to Buffer (reliable on Node.js / Nitro server)
+    const bytes = Buffer.from(data.base64, "base64");
 
     const ext = (data.fileName.split(".").pop() || "bin").toLowerCase();
     const safeName = `${crypto.randomUUID()}.${ext}`;
@@ -338,6 +336,7 @@ export const uploadGiftImage = createServerFn({ method: "POST" })
     const { data: pub } = client.storage.from("gift-images").getPublicUrl(path);
     return { url: pub.publicUrl };
   });
+
 
 // =========== MERCADO PAGO ===========
 

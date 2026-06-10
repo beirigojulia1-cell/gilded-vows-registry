@@ -6,11 +6,20 @@ import {
   createMercadoPagoPixPayment,
   createMercadoPagoCardPreference,
   checkMercadoPagoPaymentStatus,
+  createPurchase,
 } from "@/lib/wedding.functions";
 
 type Tab = "pix" | "card";
 
-export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => void }) {
+export function PurchaseModal({
+  gift,
+  alreadyPurchased = false,
+  onClose,
+}: {
+  gift: Gift;
+  alreadyPurchased?: boolean;
+  onClose: () => void;
+}) {
   const { push } = useToast();
   const [tab, setTab] = useState<Tab>("pix");
   const [name, setName] = useState("");
@@ -40,6 +49,21 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
     };
   }, [onClose]);
 
+  /** Persists the purchase in Supabase after payment confirmation */
+  async function persistPurchase() {
+    try {
+      await createPurchase({
+        data: {
+          giftId: gift.id,
+          guestName: name.trim() || "Convidado",
+          message: message.trim(),
+        },
+      });
+    } catch {
+      // best-effort — MP webhook or lookup will retry
+    }
+  }
+
   async function startPix(e: React.FormEvent) {
     e.preventDefault();
     if (honeypot) return;
@@ -62,7 +86,7 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
         qrCode: res.qrCode,
         expiresAt: res.expiresAt,
       });
-      // Polling
+      // Polling for payment confirmation
       pollRef.current = window.setInterval(async () => {
         try {
           const st = await checkMercadoPagoPaymentStatus({
@@ -75,7 +99,7 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
           });
           if (st.approved) {
             if (pollRef.current) window.clearInterval(pollRef.current);
-            persistPurchase();
+            await persistPurchase();
             setDone(true);
           }
         } catch {}
@@ -137,10 +161,10 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
           ×
         </button>
 
-        {/* LEFT */}
+        {/* LEFT — gift image / icon */}
         <div
           className="relative flex items-center justify-center min-h-[200px] sm:min-h-[260px] p-6 sm:p-10"
-          style={{ background: gift.gradient }}
+          style={{ background: gift.gradient ?? "linear-gradient(135deg,#1a1512,#0d0b08)" }}
         >
           {gift.imageUrl ? (
             <img
@@ -150,7 +174,7 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
             />
           ) : (
             <div className="text-[6rem] sm:text-[8rem] leading-none drop-shadow-[0_8px_30px_rgba(201,169,110,0.3)]">
-              {gift.icon}
+              {gift.icon || "🎁"}
             </div>
           )}
           <div className="absolute bottom-3 sm:bottom-4 left-4 sm:left-6 text-[0.65rem] sm:text-xs tracking-[0.3em] uppercase text-gold/80">
@@ -158,7 +182,7 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT — form / states */}
         <div className="p-5 sm:p-7 md:p-10">
           {done ? (
             <div className="text-center py-8 sm:py-10">
@@ -220,7 +244,7 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
                 </button>
               </div>
 
-              {/* Common fields */}
+              {/* Name + message fields (shown before PIX QR is generated) */}
               {!pix && (
                 <div className="space-y-4 mb-4">
                   <input
@@ -236,6 +260,7 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
                     rows={3}
                     className="w-full bg-input/60 border border-border rounded px-4 py-3 text-base sm:text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none resize-none"
                   />
+                  {/* honeypot — hidden from real users */}
                   <input
                     tabIndex={-1}
                     autoComplete="off"
