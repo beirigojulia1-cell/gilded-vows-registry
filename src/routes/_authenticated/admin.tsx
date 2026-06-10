@@ -1004,21 +1004,91 @@ function SettingsPanel() {
 
       {/* ── IMAGENS ── */}
       {tab === "imagens" && (
-        <div className="grid md:grid-cols-2 gap-4"
+        <div className="space-y-6"
           onPaste={(e) => {
             // Forward paste to active image field handled inside ImageUpload
           }}
         >
-          <Card title="Imagem do Hero (fundo principal)">
-            <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da seção principal. Recomendado: landscape, mín. 1400px.</p>
-            <ImageUpload label="Foto do Hero" fieldKey="heroImageUrl" />
-          </Card>
-          <Card title="Imagem de Encerramento">
-            <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da última seção do site.</p>
-            <ImageUpload label="Foto de Encerramento" fieldKey="closingImageUrl" />
+          {/* Site images */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card title="Imagem do Hero (fundo principal)">
+              <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da seção principal. Recomendado: landscape, mín. 1400px.</p>
+              <ImageUpload label="Foto do Hero" fieldKey="heroImageUrl" />
+            </Card>
+            <Card title="Imagem de Encerramento">
+              <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da última seção do site.</p>
+              <ImageUpload label="Foto de Encerramento" fieldKey="closingImageUrl" />
+            </Card>
+          </div>
+
+          {/* Chapter image focus controls */}
+          <Card title="📸 Foco das Fotos dos Capítulos">
+            <p className="text-champagne/40 text-xs mb-4 leading-relaxed">
+              Ajuste a posição vertical de cada foto para que o rosto do casal apareça sempre visível. Arraste o controle para cima/baixo e veja a prévia em tempo real.
+            </p>
+            <div className="grid md:grid-cols-2 gap-6">
+              {[
+                { key: "chapter1FocusY", label: "Capítulo 1 — Primeiro Encontro" },
+                { key: "chapter2FocusY", label: "Capítulo 2 — Primeira Viagem" },
+                { key: "chapter3FocusY", label: "Capítulo 3 — Momentos Especiais" },
+                { key: "chapter4FocusY", label: "Capítulo 4 — Pedido de Casamento" },
+              ].map((ch, i) => {
+                const focusVal = parseInt(c(ch.key, "15"), 10);
+                const imgKeys = ["heroImageUrl", "heroImageUrl", "heroImageUrl", "heroImageUrl"];
+                // Use the actual chapter content keys from settings (chapters override if uploaded)
+                const chapterImgKey = `chapter${i + 1}ImageUrl`;
+                const chapterImgUrl = c(chapterImgKey, "");
+
+                return (
+                  <div key={ch.key} className="space-y-3">
+                    <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block">{ch.label}</span>
+
+                    {/* Live preview */}
+                    <div className="relative w-full h-36 rounded overflow-hidden border border-gold/10 bg-black/20">
+                      {chapterImgUrl ? (
+                        <img
+                          src={chapterImgUrl}
+                          alt={ch.label}
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-300"
+                          style={{ objectPosition: `center ${focusVal}%` }}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-champagne/30 text-xs">
+                          Upload uma foto do capítulo abaixo para pré-visualizar
+                        </div>
+                      )}
+                      {/* Focus indicator line */}
+                      <div
+                        className="absolute left-0 right-0 h-px bg-gold/60 pointer-events-none transition-all duration-300"
+                        style={{ top: `${focusVal}%` }}
+                      />
+                    </div>
+
+                    {/* Y position slider */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-champagne/40 text-xs w-12">Topo</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={focusVal}
+                        onChange={(e) => setC(ch.key, e.target.value)}
+                        className="flex-1 accent-gold cursor-pointer h-1"
+                      />
+                      <span className="text-champagne/40 text-xs w-12 text-right">Base</span>
+                      <span className="text-gold text-xs font-mono w-10 text-right">{focusVal}%</span>
+                    </div>
+
+                    {/* Chapter image upload */}
+                    <ImageUpload label={`Substituir foto do ${ch.label.split("—")[1]?.trim() ?? "capítulo"}`} fieldKey={chapterImgKey} />
+                  </div>
+                );
+              })}
+            </div>
           </Card>
         </div>
       )}
+
 
       {/* ── PAGAMENTO ── */}
       {tab === "pix" && (

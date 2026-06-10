@@ -309,7 +309,7 @@ function Landing() {
       <div className="bg-background text-foreground overflow-x-hidden">
         <Hero sc={sc} />
         <Quote sc={sc} />
-        <LoveStory />
+        <LoveStory sc={sc} />
         <Gallery />
         <Proposal />
         <CountdownTimer date={weddingDate} />
@@ -434,7 +434,7 @@ function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   );
 }
 
-function LoveStory() {
+function LoveStory({ sc }: { sc: Record<string, string> }) {
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -517,6 +517,8 @@ function LoveStory() {
     <div ref={wrapRef} className="overflow-hidden">
       {CHAPTERS.map((c, i) => {
         const photoRight = i % 2 === 1;
+        const focusY = parseInt(sc[`chapter${i + 1}FocusY`] ?? "15", 10);
+        const chapterImgUrl = sc[`chapter${i + 1}ImageUrl`] || c.img;
         return (
           <section
             key={c.n}
@@ -531,10 +533,10 @@ function LoveStory() {
             >
               <img
                 data-ci="img"
-                src={c.img}
+                src={chapterImgUrl}
                 alt={c.title}
-                className="absolute inset-0 w-full h-full object-cover object-[center_15%] md:object-center"
-                style={{ transformOrigin: "center top", willChange: "transform" }}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: `center ${focusY}%`, transformOrigin: "center top", willChange: "transform" }}
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
                 fetchPriority={i === 0 ? "high" : "auto"}
