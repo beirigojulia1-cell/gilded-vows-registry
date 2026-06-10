@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Loader } from "@/components/Loader";
@@ -140,10 +140,8 @@ function Landing() {
     ].forEach((k) => url.searchParams.delete(k));
     window.history.replaceState({}, "", url.pathname + (url.search ? url.search : "") + "#gifts");
     if (status === "approved" && giftId) {
-      const exists = store.getPurchases().some((p) => p.giftId === giftId);
-      if (!exists) store.addPurchase({ giftId, guestName: guest, message: msg });
       pushToast("Pagamento aprovado · Obrigado pelo presente!", "success");
-      // Confirma no servidor e grava no banco para aparecer no /admin
+      // Grava no banco para aparecer no /admin
       lookupMercadoPagoByGift({ data: { giftId, guestName: guest, message: msg } }).catch(() => { });
     } else if (status === "pending") {
       pushToast("Pagamento pendente · Confirmaremos em instantes", "success");
@@ -300,12 +298,26 @@ function Landing() {
 }
 
 function Hero() {
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.fromTo("[data-hero-sub]",   { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 })
+        .fromTo("[data-hero-name1]", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.2 }, "-=0.4")
+        .fromTo("[data-hero-amp]",   { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.8 }, "-=0.6")
+        .fromTo("[data-hero-name2]", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.2 }, "-=0.6")
+        .fromTo("[data-hero-rule]",  { scaleX: 0, transformOrigin: "center" }, { scaleX: 1, duration: 1.2, ease: "power2.out" }, "-=0.4")
+        .fromTo("[data-hero-tag]",   { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 }, "-=0.6")
+        .fromTo("[data-hero-scroll]",{ opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.8 }, "-=0.3");
+    });
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section className="relative h-[100svh] min-h-[600px] w-full flex items-center justify-center overflow-hidden">
       <img
         src={heroImg}
         alt="Geovana e Sérgio"
-        className="absolute inset-0 w-full h-full object-cover object-[center_5%]"
+        className="absolute inset-0 w-full h-full object-cover object-[center_30%] sm:object-[center_5%]"
       />
       {/* overlay mais escuro */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
@@ -314,50 +326,43 @@ function Hero() {
         className="relative z-10 text-center px-5 sm:px-6 max-w-4xl"
         style={{ textShadow: "0 2px 18px rgba(0,0,0,0.55)" }}
       >
-        <p className="text-[9px] sm:text-[10px] md:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold mb-6 sm:mb-10 animate-fade-up">
+        <p
+          data-hero-sub
+          className="opacity-0 text-[9px] sm:text-[10px] md:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold mb-6 sm:mb-10"
+        >
           — Casamento · 2026 —
         </p>
         <h1 className="font-script font-normal text-champagne leading-[1.1]">
-          <AnimatedText
-            as="span"
-            text="Geovana Stefany"
-            split="words"
-            stagger={0.2}
-            duration={1.1}
-            clip={false}
-            className="block text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]"
-          />
           <span
-            className="block font-script text-gradient-gold text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] my-1 sm:my-2 animate-fade-up"
-            style={{ animationDelay: "0.2s" }}
+            data-hero-name1
+            className="opacity-0 block text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]"
+          >
+            Geovana Stefany
+          </span>
+          <span
+            data-hero-amp
+            className="opacity-0 block font-script text-gradient-gold text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] my-1 sm:my-2"
           >
             &amp;
           </span>
-          <AnimatedText
-            as="span"
-            text="Sérgio Vasconcelos"
-            split="words"
-            stagger={0.2}
-            duration={1.1}
-            delay={0.25}
-            clip={false}
-            className="block text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]"
-          />
+          <span
+            data-hero-name2
+            className="opacity-0 block text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]"
+          >
+            Sérgio Vasconcelos
+          </span>
         </h1>
-        <div className="gold-rule w-20 sm:w-24 mx-auto my-7 sm:my-10" data-rule-grow />
-        <AnimatedText
-          as="p"
-          text="Uma história escrita pelo destino."
-          split="words"
-          stagger={0.08}
-          delay={0.5}
-          clip={false}
-          className="font-script text-champagne/80 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem]"
-        />
+        <div data-hero-rule className="gold-rule w-20 sm:w-24 mx-auto my-7 sm:my-10" />
+        <p
+          data-hero-tag
+          className="opacity-0 font-script text-champagne/80 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem]"
+        >
+          Uma história escrita pelo destino.
+        </p>
       </div>
       <div
-        className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-fade-up"
-        style={{ animationDelay: "1s" }}
+        data-hero-scroll
+        className="opacity-0 absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
       >
         <span className="text-[9px] tracking-[0.5em] uppercase text-gold/70">Scroll</span>
         <div className="w-px h-10 sm:h-12 bg-gradient-to-b from-gold/80 to-transparent overflow-hidden">
@@ -370,6 +375,7 @@ function Hero() {
     </section>
   );
 }
+
 
 function Quote() {
   return (
