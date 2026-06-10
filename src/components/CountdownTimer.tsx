@@ -46,7 +46,7 @@ export function CountdownTimer({ date }: { date: string }) {
               key={label}
               className="bg-card/60 backdrop-blur border border-gold/15 rounded-md py-6 md:py-10"
             >
-              <div className="font-serif text-4xl md:text-7xl text-gradient-gold tabular-nums">
+              <div className="font-sans text-4xl md:text-7xl text-gradient-gold tabular-nums lining-nums font-light tracking-tight">
                 {String(val).padStart(2, "0")}
               </div>
               <div className="text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-champagne/60 mt-2">
