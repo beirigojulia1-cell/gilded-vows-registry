@@ -13,8 +13,9 @@ import { AnimatedText } from "@/components/AnimatedText";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { formatBRL } from "@/lib/store";
-import { giftsQuery, purchasedIdsQuery } from "@/lib/wedding-queries";
+import { giftsQuery, purchasedIdsQuery, settingsQuery } from "@/lib/wedding-queries";
 import type { Gift } from "@/lib/wedding-types";
+import { SITE_CONTENT_DEFAULTS } from "@/lib/wedding-types";
 import { useToast } from "@/components/Toast";
 import { lookupMercadoPagoByGift, createRsvp } from "@/lib/wedding.functions";
 import heroImg from "@/assets/sorriso-gi-local.jpeg";
@@ -296,28 +297,32 @@ function Landing() {
     };
   }, []);
 
+  const { data: settingsData } = useQuery(settingsQuery);
+  const sc = settingsData?.settings?.content ?? SITE_CONTENT_DEFAULTS;
+  const weddingDate = settingsData?.settings?.weddingDate ?? "2026-06-28T12:00:00-03:00";
+
   return (
     <>
       <Loader />
       <ScrollProgress />
 
       <div className="bg-background text-foreground overflow-x-hidden">
-        <Hero />
-        <Quote />
+        <Hero sc={sc} />
+        <Quote sc={sc} />
         <LoveStory />
         <Gallery />
         <Proposal />
-        <CountdownTimer date="2026-06-28T12:00:00-03:00" />
-        <InfoCards />
+        <CountdownTimer date={weddingDate} />
+        <InfoCards sc={sc} />
         <Gifts />
-        <RSVP />
-        <Closing onScrollToRsvp={() => scrollToId("rsvp")} />
+        <RSVP sc={sc} />
+        <Closing onScrollToRsvp={() => scrollToId("rsvp")} sc={sc} />
       </div>
     </>
   );
 }
 
-function Hero() {
+function Hero({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -332,11 +337,13 @@ function Hero() {
     return () => ctx.revert();
   }, []);
 
+  const bgSrc = sc.heroImageUrl || heroImg;
+
   return (
     <section className="relative h-[100svh] min-h-[600px] w-full flex items-center justify-center overflow-hidden">
       <img
-        src={heroImg}
-        alt="Geovana e Sérgio"
+        src={bgSrc}
+        alt={`${sc.name1} e ${sc.name2}`}
         className="absolute inset-0 w-full h-full object-cover object-[center_30%] sm:object-[center_5%]"
       />
       {/* overlay mais escuro */}
@@ -350,14 +357,14 @@ function Hero() {
           data-hero-sub
           className="opacity-0 text-[9px] sm:text-[10px] md:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold mb-6 sm:mb-10"
         >
-          — Casamento · 2026 —
+          — {sc.heroSubtitle} —
         </p>
         <h1 className="font-script font-normal text-champagne leading-[1.1]">
           <span
             data-hero-name1
             className="opacity-0 block text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]"
           >
-            Geovana Stefany
+            {sc.name1}
           </span>
           <span
             data-hero-amp
@@ -369,7 +376,7 @@ function Hero() {
             data-hero-name2
             className="opacity-0 block text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]"
           >
-            Sérgio Vasconcelos
+            {sc.name2}
           </span>
         </h1>
         <div data-hero-rule className="gold-rule w-20 sm:w-24 mx-auto my-7 sm:my-10" />
@@ -377,7 +384,7 @@ function Hero() {
           data-hero-tag
           className="opacity-0 font-script text-champagne/80 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem]"
         >
-          Uma história escrita pelo destino.
+          {sc.heroTag}
         </p>
       </div>
       <div
@@ -397,7 +404,7 @@ function Hero() {
 }
 
 
-function Quote() {
+function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   return (
     <section className="py-20 sm:py-28 md:py-40 lg:py-48 px-5 sm:px-6">
       <div className="max-w-3xl mx-auto text-center" data-pin-fade>
@@ -405,7 +412,7 @@ function Quote() {
         <blockquote className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne leading-tight font-light">
           <AnimatedText
             as="span"
-            text="Algumas histórias começam de forma simples…"
+            text={sc.quoteMain}
             split="words"
             stagger={0.06}
             duration={1.1}
@@ -413,7 +420,7 @@ function Quote() {
           />
           <AnimatedText
             as="span"
-            text="mas acabam se tornando eternas."
+            text={sc.quoteItalic}
             split="words"
             stagger={0.07}
             duration={1.2}
@@ -644,26 +651,26 @@ function Proposal() {
   );
 }
 
-function InfoCards() {
+function InfoCards({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   const cards = [
-    { label: "Data", value: "28 de Junho", sub: "2026 · Sábado", icon: <CalIcon /> },
-    { label: "Horário", value: "12h00", sub: "Cerimônia ao meio-dia", icon: <ClockIcon /> },
+    { label: "Data", value: sc.ceremonyDateLabel, sub: sc.ceremonyYearLabel, icon: <CalIcon /> },
+    { label: "Horário", value: sc.ceremonyTimeLabel, sub: sc.ceremonyTimeSub, icon: <ClockIcon /> },
     {
       label: "Local",
-      value: "Av. Marginal do CSU, 1455",
+      value: sc.locationName,
       sub: "",
       icon: <PinIcon />,
       cta: {
         label: "Ver no Mapa →",
         href:
           "https://www.google.com/maps/search/?api=1&query=" +
-          encodeURIComponent("Av. Marginal do CSU, 1455"),
+          encodeURIComponent(sc.locationName),
       },
     },
     {
       label: "Bebida",
       value: "Traga sua bebida",
-      sub: "Cerveja, Refrigerante, Suco",
+      sub: sc.drinkNote,
       icon: <DrinkIcon />,
     },
   ];
@@ -743,7 +750,7 @@ function InfoCards() {
   );
 }
 
-function RSVP() {
+function RSVP({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   const { push } = useToast();
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
@@ -775,7 +782,7 @@ function RSVP() {
             Confirme sua <span className="italic text-gradient-gold">Presença</span>
           </h2>
           <p className="text-champagne/60 mt-4 sm:mt-5 italic text-sm sm:text-base" data-reveal>
-            Sua presença é o maior presente que poderíamos receber.
+            {sc.rsvpSubtitle}
           </p>
         </div>
         {done ? (
@@ -824,11 +831,13 @@ function RSVP() {
   );
 }
 
-function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
+function Closing({ onScrollToRsvp, sc }: { onScrollToRsvp: () => void; sc: typeof SITE_CONTENT_DEFAULTS }) {
+  const bgSrc = sc.closingImageUrl || closingImg;
+  const closingNames = `${sc.name1} & ${sc.name2}`;
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       <img
-        src={closingImg}
+        src={bgSrc}
         alt="Cerimônia"
         className="absolute inset-0 w-full h-full object-cover"
         loading="lazy"
@@ -837,11 +846,11 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
       <ParticleCanvas />
       <div className="relative z-10 text-center px-5 sm:px-6 max-w-3xl py-16 sm:py-20">
         <div className="text-4xl text-gradient-gold mb-6 sm:mb-8" data-reveal>
-          ✦
+          ❖
         </div>
         <AnimatedText
           as="p"
-          text="Mal podemos esperar para viver esse momento com você."
+          text={sc.closingPhrase}
           split="words"
           stagger={0.05}
           duration={1.1}
@@ -850,7 +859,7 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
         <div className="gold-rule w-20 sm:w-24 mx-auto my-8 sm:my-10" data-rule-grow />
         <AnimatedText
           as="p"
-          text="Geovana & Sérgio"
+          text={closingNames}
           split="chars"
           stagger={0.05}
           className="font-serif text-xl sm:text-2xl md:text-3xl text-gradient-gold mb-8 sm:mb-10"
@@ -872,7 +881,7 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
         <div className="mt-14 sm:mt-20 border-t border-gold/15 pt-8 sm:pt-10">
           <p className="text-champagne/60 text-sm">Com todo o nosso amor,</p>
           <p className="font-serif italic text-lg sm:text-xl text-champagne mt-2">
-            Geovana Stefany &amp; Sérgio Vasconcelos
+            {sc.name1} &amp; {sc.name2}
           </p>
           <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold/80 mt-4">
             28 · 06 · 2026

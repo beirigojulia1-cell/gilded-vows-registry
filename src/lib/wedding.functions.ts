@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Gift, Purchase, Settings } from "./wedding-types";
+import { SITE_CONTENT_DEFAULTS } from "./wedding-types";
 
 // --- shared mappers ---
 type GiftRow = {
@@ -32,6 +33,7 @@ type SettingsRow = {
   pix_key: string;
   pix_name: string;
   pix_city: string;
+  content: Record<string, string> | null;
 };
 
 const giftFromRow = (r: GiftRow): Gift => ({
@@ -62,6 +64,7 @@ const settingsFromRow = (r: SettingsRow): Settings => ({
   pixKey: r.pix_key,
   pixName: r.pix_name,
   pixCity: r.pix_city,
+  content: { ...SITE_CONTENT_DEFAULTS, ...(r.content ?? {}) } as Settings["content"],
 });
 
 // --- helpers ---
@@ -120,7 +123,7 @@ export const getSettings = createServerFn({ method: "GET" }).handler(async () =>
   const supabase = await getAdmin();
   const { data, error } = await supabase
     .from("settings")
-    .select("couple_names,wedding_date,pix_key,pix_name,pix_city")
+    .select("couple_names,wedding_date,pix_key,pix_name,pix_city,content")
     .eq("id", 1)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -331,12 +334,15 @@ export const deleteGift = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const siteContentSchema = z.record(z.string(), z.string().max(2000)).optional();
+
 const settingsSchema = z.object({
   coupleNames: z.string().trim().min(1).max(120),
   weddingDate: z.string().min(1),
-  pixKey: z.string().trim().min(1).max(200),
-  pixName: z.string().trim().min(1).max(120),
-  pixCity: z.string().trim().min(1).max(120),
+  pixKey: z.string().trim().max(200).optional().default(""),
+  pixName: z.string().trim().max(120).optional().default(""),
+  pixCity: z.string().trim().max(120).optional().default(""),
+  content: siteContentSchema,
 });
 
 export const updateSettings = createServerFn({ method: "POST" })
@@ -350,9 +356,10 @@ export const updateSettings = createServerFn({ method: "POST" })
       .update({
         couple_names: data.coupleNames,
         wedding_date: data.weddingDate,
-        pix_key: data.pixKey,
-        pix_name: data.pixName,
-        pix_city: data.pixCity,
+        pix_key: data.pixKey ?? "",
+        pix_name: data.pixName ?? "",
+        pix_city: data.pixCity ?? "",
+        content: data.content ?? {},
       })
       .eq("id", 1);
     if (error) throw new Error(error.message);
@@ -388,8 +395,30 @@ export const uploadGiftImage = createServerFn({ method: "POST" })
     return { url: pub.publicUrl };
   });
 
+export const uploadSiteImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => uploadSchema.parse(d))
+  .handler(async ({ context, data }) => {
+    await requireAdmin(context);
+    const client = context.supabase as any;
+
+    const bytes = Buffer.from(data.base64, "base64");
+    const ext = (data.fileName.split(".").pop() || "bin").toLowerCase();
+    const safeName = `${crypto.randomUUID()}.${ext}`;
+    const path = `site/${safeName}`;
+
+    const { error: upErr } = await client.storage
+      .from("site-images")
+      .upload(path, bytes, { contentType: data.contentType, upsert: false });
+    if (upErr) throw new Error(upErr.message);
+
+    const { data: pub } = client.storage.from("site-images").getPublicUrl(path);
+    return { url: pub.publicUrl };
+  });
+
 
 // =========== MERCADO PAGO ===========
+
 
 const MP_BASE = "https://api.mercadopago.com";
 

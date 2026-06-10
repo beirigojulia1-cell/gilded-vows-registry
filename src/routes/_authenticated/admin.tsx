@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import {
   updateGift,
   updateSettings,
   uploadGiftImage,
+  uploadSiteImage,
 } from "@/lib/wedding.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -756,71 +757,311 @@ function Confirmations() {
 }
 
 function SettingsPanel() {
-
   const { push } = useToast();
   const qc = useQueryClient();
-  const settings = useQuery(settingsQuery).data?.settings;
-  const [draft, setDraft] = useState(settings);
+  const { data: settingsData, isLoading } = useQuery(settingsQuery);
+  const settings = settingsData?.settings;
 
-  if (settings && !draft) setDraft(settings);
-  if (!draft) return <p className="text-champagne/60">Carregando...</p>;
+  // Always initialize with a stable default so useState and hooks are consistent
+  const [coupleNames, setCoupleNames] = useState("");
+  const [weddingDate, setWeddingDate] = useState("");
+  const [pixKey, setPixKey] = useState("");
+  const [pixName, setPixName] = useState("");
+  const [pixCity, setPixCity] = useState("");
+  const [content, setContent] = useState<Record<string, string>>({});
+  const [tab, setTab] = useState<"evento" | "textos" | "imagens" | "pix">("evento");
+  const [synced, setSynced] = useState(false);
+  const [imgUploading, setImgUploading] = useState<string | null>(null);
 
+  // Sync from DB once on load — safe: never causes hook order issues
+  useEffect(() => {
+    if (settings && !synced) {
+      setCoupleNames(settings.coupleNames);
+      setWeddingDate(settings.weddingDate?.slice(0, 16) ?? "");
+      setPixKey(settings.pixKey ?? "");
+      setPixName(settings.pixName ?? "");
+      setPixCity(settings.pixCity ?? "");
+      setContent({ ...settings.content });
+      setSynced(true);
+    }
+  }, [settings, synced]);
+
+  // Always defined — never after a conditional return
   const saveMut = useMutation({
-    mutationFn: () => updateSettings({ data: draft }),
+    mutationFn: () =>
+      updateSettings({
+        data: {
+          coupleNames,
+          weddingDate,
+          pixKey,
+          pixName,
+          pixCity,
+          content,
+        },
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["settings"] });
-      push("Salvo", "success");
+      push("Alterações salvas com sucesso!", "success");
     },
     onError: (e: Error) => push(e.message, "error"),
   });
 
+  const setC = (key: string, val: string) => setContent((prev) => ({ ...prev, [key]: val }));
+  const c = (key: string, fallback: string) => content[key] ?? fallback;
+
+  const handleImageFile = async (file: File, key: string) => {
+    if (!/image\/(png|jpeg|jpg|webp)/.test(file.type)) {
+      push("Formato inválido (use PNG, JPG ou WEBP)", "error");
+      return;
+    }
+    if (file.size > 10_000_000) {
+      push("Imagem muito grande (máx 10MB)", "error");
+      return;
+    }
+    setImgUploading(key);
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const dataUrl = ev.target?.result as string;
+        const base64 = dataUrl.split(",")[1];
+        const res = await uploadSiteImage({
+          data: { fileName: file.name, contentType: file.type, base64 },
+        });
+        setC(key, res.url);
+        push("Imagem enviada!", "success");
+      } catch (e: any) {
+        push(e?.message ?? "Erro no upload", "error");
+      } finally {
+        setImgUploading(null);
+      }
+    };
+    reader.onerror = () => { push("Erro ao ler arquivo", "error"); setImgUploading(null); };
+    reader.readAsDataURL(file);
+  };
+
+  const ImageUpload = ({ label, fieldKey }: { label: string; fieldKey: string }) => {
+    const url = c(fieldKey, "");
+    const loading = imgUploading === fieldKey;
+    return (
+      <div className="space-y-2">
+        <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block">{label}</span>
+        <div
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleImageFile(f, fieldKey); }}
+          onPaste={(e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].type.startsWith("image/")) {
+                const f = items[i].getAsFile();
+                if (f) { e.preventDefault(); handleImageFile(f, fieldKey); break; }
+              }
+            }
+          }}
+          className="border-2 border-dashed border-border rounded p-4 text-center text-xs text-champagne/50 focus-within:border-gold/40"
+        >
+          {url ? (
+            <div>
+              <img src={url} alt="" className="max-h-28 mx-auto rounded mb-2 object-cover" />
+              <button type="button" onClick={() => setC(fieldKey, "")} className="text-destructive text-xs hover:underline">
+                Remover
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="mb-2">{loading ? "Enviando…" : "Arraste, cole (Ctrl+V) ou selecione"}</p>
+              <label className="cursor-pointer text-gold hover:underline">
+                selecionar arquivo
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageFile(f, fieldKey); }}
+                />
+              </label>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="text-champagne/50 text-sm">Carregando configurações…</div>
+      </div>
+    );
+  }
+
+  const tabs = [
+    { id: "evento" as const, label: "📅 Evento" },
+    { id: "textos" as const, label: "✏️ Textos" },
+    { id: "imagens" as const, label: "🖼️ Imagens" },
+    { id: "pix" as const, label: "💳 Pagamento" },
+  ];
+
   return (
     <div>
-      <h2 className="font-serif text-4xl text-champagne mb-2">Configurações</h2>
-      <p className="text-champagne/50 text-sm mb-8">Personalize sua lista</p>
+      <h2 className="font-serif text-4xl text-champagne mb-1">Configurações</h2>
+      <p className="text-champagne/50 text-sm mb-8">Personalize todo o conteúdo do seu site</p>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card title="Informações do Casal">
-          <Field label="Nomes">
-            <input
-              value={draft.coupleNames}
-              onChange={(e) => setDraft({ ...draft, coupleNames: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Data do casamento">
-            <input
-              type="datetime-local"
-              value={draft.weddingDate.slice(0, 16)}
-              onChange={(e) => setDraft({ ...draft, weddingDate: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-        </Card>
-
-        <Card title="Pagamento">
-          <p className="text-champagne/60 text-sm leading-relaxed">
-            Os pagamentos agora são processados pelo{" "}
-            <strong className="text-gold">Mercado Pago</strong> (PIX e Cartão de Crédito em até
-            12x).
-          </p>
-          <p className="text-champagne/40 text-xs leading-relaxed">
-            Token configurado via variável de ambiente{" "}
-            <code className="text-gold/70">MERCADO_PAGO_ACCESS_TOKEN</code>.
-          </p>
-        </Card>
+      {/* Tab bar */}
+      <div className="flex gap-2 flex-wrap mb-8 border-b border-border/60 pb-4">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`px-4 py-2 rounded text-sm transition-all ${tab === t.id ? "bg-gold/15 text-gold border border-gold/30" : "text-champagne/60 hover:text-champagne hover:bg-white/5"}`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      <button
-        onClick={() => saveMut.mutate()}
-        disabled={saveMut.isPending}
-        className="btn-gold px-8 py-3 rounded mt-6 disabled:opacity-50"
-      >
-        {saveMut.isPending ? "..." : "Salvar todas alterações"}
-      </button>
+      {/* ── EVENTO ── */}
+      {tab === "evento" && (
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card title="Nomes do Casal">
+            <Field label="Nome 1 (hero do site)">
+              <input value={c("name1", "Geovana Stefany")} onChange={(e) => setC("name1", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Nome 2 (hero do site)">
+              <input value={c("name2", "Sérgio Vasconcelos")} onChange={(e) => setC("name2", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Legenda superior do hero (ex: Casamento · 2026)">
+              <input value={c("heroSubtitle", "Casamento · 2026")} onChange={(e) => setC("heroSubtitle", e.target.value)} className={inputCls} />
+            </Field>
+          </Card>
+
+          <Card title="Data & Local">
+            <Field label="Data/Hora da cerimônia">
+              <input
+                type="datetime-local"
+                value={weddingDate}
+                onChange={(e) => setWeddingDate(e.target.value)}
+                className={inputCls}
+              />
+            </Field>
+            <Field label="Data por extenso (ex: 28 de Junho)">
+              <input value={c("ceremonyDateLabel", "28 de Junho")} onChange={(e) => setC("ceremonyDateLabel", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Ano/dia (ex: 2026 · Sábado)">
+              <input value={c("ceremonyYearLabel", "2026 · Sábado")} onChange={(e) => setC("ceremonyYearLabel", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Horário (ex: 12h00)">
+              <input value={c("ceremonyTimeLabel", "12h00")} onChange={(e) => setC("ceremonyTimeLabel", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Subtexto do horário">
+              <input value={c("ceremonyTimeSub", "Cerimônia ao meio-dia")} onChange={(e) => setC("ceremonyTimeSub", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Endereço / Local">
+              <input value={c("locationName", "Av. Marginal do CSU, 1455")} onChange={(e) => setC("locationName", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Nota sobre bebida">
+              <input value={c("drinkNote", "Cerveja, Refrigerante, Suco")} onChange={(e) => setC("drinkNote", e.target.value)} className={inputCls} />
+            </Field>
+          </Card>
+        </div>
+      )}
+
+      {/* ── TEXTOS ── */}
+      {tab === "textos" && (
+        <div className="space-y-4">
+          <Card title="Frase do Hero">
+            <Field label="Frase principal (abaixo dos nomes)">
+              <input value={c("heroTag", "Uma história escrita pelo destino.")} onChange={(e) => setC("heroTag", e.target.value)} className={inputCls} />
+            </Field>
+          </Card>
+
+          <Card title="Citação (seção entre Hero e História)">
+            <Field label="Primeira linha da citação">
+              <input value={c("quoteMain", "Algumas histórias começam de forma simples…")} onChange={(e) => setC("quoteMain", e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Segunda linha (itálica + dourada)">
+              <input value={c("quoteItalic", "mas acabam se tornando eternas.")} onChange={(e) => setC("quoteItalic", e.target.value)} className={inputCls} />
+            </Field>
+          </Card>
+
+          <Card title="Seção de Confirmação (RSVP)">
+            <Field label="Subtexto abaixo do título">
+              <input value={c("rsvpSubtitle", "Sua presença é o maior presente que poderíamos receber.")} onChange={(e) => setC("rsvpSubtitle", e.target.value)} className={inputCls} />
+            </Field>
+          </Card>
+
+          <Card title="Frase de Encerramento">
+            <Field label="Frase da última seção do site">
+              <textarea
+                rows={3}
+                value={c("closingPhrase", "Mal podemos esperar para viver esse momento com você.")}
+                onChange={(e) => setC("closingPhrase", e.target.value)}
+                className={`${inputCls} resize-none`}
+              />
+            </Field>
+          </Card>
+        </div>
+      )}
+
+      {/* ── IMAGENS ── */}
+      {tab === "imagens" && (
+        <div className="grid md:grid-cols-2 gap-4"
+          onPaste={(e) => {
+            // Forward paste to active image field handled inside ImageUpload
+          }}
+        >
+          <Card title="Imagem do Hero (fundo principal)">
+            <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da seção principal. Recomendado: landscape, mín. 1400px.</p>
+            <ImageUpload label="Foto do Hero" fieldKey="heroImageUrl" />
+          </Card>
+          <Card title="Imagem de Encerramento">
+            <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da última seção do site.</p>
+            <ImageUpload label="Foto de Encerramento" fieldKey="closingImageUrl" />
+          </Card>
+        </div>
+      )}
+
+      {/* ── PAGAMENTO ── */}
+      {tab === "pix" && (
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card title="Dados PIX (Fallback Manual)">
+            <p className="text-champagne/40 text-xs leading-relaxed mb-3">
+              Estes dados são exibidos caso o Mercado Pago não esteja configurado. Os pagamentos online são processados via <strong className="text-gold">Mercado Pago</strong>.
+            </p>
+            <Field label="Chave PIX">
+              <input value={pixKey} onChange={(e) => setPixKey(e.target.value)} className={inputCls} placeholder="email, CPF ou chave aleatória" />
+            </Field>
+            <Field label="Nome do favorecido">
+              <input value={pixName} onChange={(e) => setPixName(e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="Cidade">
+              <input value={pixCity} onChange={(e) => setPixCity(e.target.value)} className={inputCls} />
+            </Field>
+          </Card>
+          <Card title="Mercado Pago">
+            <p className="text-champagne/60 text-sm leading-relaxed">
+              Token configurado via variável de ambiente <code className="text-gold/70">MERCADO_PAGO_ACCESS_TOKEN</code>.
+            </p>
+            <p className="text-champagne/40 text-xs mt-3">Para alterar o token, edite o arquivo <code>.env</code> e faça um novo deploy.</p>
+          </Card>
+        </div>
+      )}
+
+      <div className="mt-8 pt-6 border-t border-border/40 flex items-center gap-4">
+        <button
+          onClick={() => saveMut.mutate()}
+          disabled={saveMut.isPending || !synced}
+          className="btn-gold px-8 py-3 rounded disabled:opacity-50 min-w-[180px]"
+        >
+          {saveMut.isPending ? "Salvando…" : "Salvar todas as alterações"}
+        </button>
+        {saveMut.isSuccess && (
+          <span className="text-emerald-400 text-sm">✓ Salvo com sucesso</span>
+        )}
+      </div>
     </div>
   );
 }
+
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
