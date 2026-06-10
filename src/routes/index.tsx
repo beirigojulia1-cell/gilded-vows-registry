@@ -533,8 +533,8 @@ function LoveStory() {
                 data-ci="img"
                 src={c.img}
                 alt={c.title}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ transformOrigin: "center center", willChange: "transform" }}
+                className="absolute inset-0 w-full h-full object-cover object-[center_15%] md:object-[center_20%]"
+                style={{ transformOrigin: "center top", willChange: "transform" }}
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
                 fetchPriority={i === 0 ? "high" : "auto"}
