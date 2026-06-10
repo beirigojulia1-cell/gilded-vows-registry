@@ -876,7 +876,7 @@ function Closing({ onScrollToRsvp }: { onScrollToRsvp: () => void }) {
             Geovana Stefany &amp; Sérgio Vasconcelos
           </p>
           <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gold/80 mt-4">
-            15 · 11 · 2026
+            28 · 06 · 2026
           </p>
         </div>
       </div>
@@ -943,21 +943,7 @@ function PinIcon() {
     </svg>
   );
 }
-function EnvIcon() {
-  return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-    >
-      <rect x="3" y="5" width="18" height="14" rx="1" />
-      <path d="M3 7l9 7 9-7" />
-    </svg>
-  );
-}
+
 function GiftIcon() {
   return (
     <svg

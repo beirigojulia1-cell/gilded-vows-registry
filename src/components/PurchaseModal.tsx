@@ -164,13 +164,17 @@ export function PurchaseModal({
         {/* LEFT — gift image / icon */}
         <div
           className="relative flex items-center justify-center min-h-[200px] sm:min-h-[260px] p-6 sm:p-10"
-          style={{ background: gift.gradient ?? "linear-gradient(135deg,#fdfdfd,#f4f0e6)" }}
+          style={{
+            background: gift.imageUrl
+              ? "#f9f6f0"
+              : (gift.gradient ?? "linear-gradient(135deg,#fdfdfd,#f4f0e6)")
+          }}
         >
           {gift.imageUrl ? (
             <img
               src={gift.imageUrl}
               alt={gift.title}
-              className="max-h-[180px] sm:max-h-[280px] object-contain rounded"
+              className="max-h-[180px] sm:max-h-[280px] object-contain rounded drop-shadow-md"
             />
           ) : (
             <div className="text-[6rem] sm:text-[8rem] leading-none drop-shadow-[0_8px_30px_rgba(201,169,110,0.3)]">

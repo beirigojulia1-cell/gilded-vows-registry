@@ -9,7 +9,7 @@ type GiftRow = {
   title: string;
   category: string;
   price_cents: number;
-  icon: string;
+  icon: string | null;
   description: string | null;
   image_url: string | null;
   gradient: string | null;
@@ -39,7 +39,7 @@ const giftFromRow = (r: GiftRow): Gift => ({
   title: r.title,
   category: r.category,
   priceCents: r.price_cents,
-  icon: r.icon,
+  icon: r.icon ?? "🎁",
   description: r.description,
   imageUrl: r.image_url,
   gradient: r.gradient,
@@ -208,7 +208,7 @@ const giftInputSchema = z.object({
   title: z.string().trim().min(1).max(200),
   category: z.string().trim().min(1).max(80),
   priceCents: z.number().int().min(0).max(100_000_000),
-  icon: z.string().trim().min(1).max(8),
+  icon: z.string().trim().min(1).max(16).default("🎁"),
   description: z.string().trim().max(2000).optional().nullable(),
   imageUrl: z.string().trim().max(2000).optional().nullable(),
   gradient: z.string().trim().max(500).optional().nullable(),
