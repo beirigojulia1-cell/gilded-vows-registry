@@ -521,19 +521,19 @@ function LoveStory() {
           <section
             key={c.n}
             data-cs
-            className="relative grid grid-cols-2 h-screen"
+            className="relative grid grid-rows-2 md:grid-rows-none md:grid-cols-2 h-screen"
           >
             {/* ── Photo half ── */}
             <div
-              className={`relative overflow-hidden ${
-                photoRight ? "order-2" : "order-1"
+              className={`relative overflow-hidden order-1 ${
+                photoRight ? "md:order-2" : "md:order-1"
               }`}
             >
               <img
                 data-ci="img"
                 src={c.img}
                 alt={c.title}
-                className="absolute inset-0 w-full h-full object-cover object-[center_15%] md:object-[center_20%]"
+                className="absolute inset-0 w-full h-full object-cover object-[center_15%] md:object-center"
                 style={{ transformOrigin: "center top", willChange: "transform" }}
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
@@ -543,16 +543,16 @@ function LoveStory() {
               <div
                 className={`absolute inset-0 ${
                   photoRight
-                    ? "bg-gradient-to-l from-transparent to-black/30"
-                    : "bg-gradient-to-r from-transparent to-black/30"
+                    ? "bg-gradient-to-t md:bg-gradient-to-l from-transparent to-black/30 md:to-black/30"
+                    : "bg-gradient-to-t md:bg-gradient-to-r from-transparent to-black/30 md:to-black/30"
                 }`}
               />
             </div>
 
             {/* ── Text half ── */}
             <div
-              className={`relative flex items-center bg-background overflow-hidden px-5 sm:px-10 md:px-16 lg:px-20 ${
-                photoRight ? "order-1" : "order-2"
+              className={`relative flex items-center justify-center md:justify-start bg-background overflow-hidden px-5 sm:px-10 md:px-16 lg:px-20 order-2 ${
+                photoRight ? "md:order-1" : "md:order-2"
               }`}
             >
               {/* Giant numeral watermark */}
