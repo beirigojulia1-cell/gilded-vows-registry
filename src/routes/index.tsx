@@ -154,44 +154,48 @@ function Landing() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Reveal geral — fade-up mais longo e elegante
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
         gsap.fromTo(
           el,
-          { opacity: 0, y: 40 },
+          { opacity: 0, y: 60 },
           {
             opacity: 1,
             y: 0,
-            duration: 1,
-            ease: "power2.out",
-            scrollTrigger: { trigger: el, start: "top 85%" },
+            duration: 1.6,
+            ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 88%" },
           },
         );
       });
+
+      // Stagger — itens aparecem em cascata com delay maior
       gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((parent) => {
         const items = parent.querySelectorAll<HTMLElement>("[data-stagger-item]");
         if (!items.length) return;
         gsap.fromTo(
           items,
-          { opacity: 0, y: 30 },
+          { opacity: 0, y: 50 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.9,
-            ease: "power2.out",
-            stagger: 0.12,
-            scrollTrigger: { trigger: parent, start: "top 75%" },
+            duration: 1.3,
+            ease: "power3.out",
+            stagger: 0.2,
+            scrollTrigger: { trigger: parent, start: "top 78%" },
           },
         );
       });
+
+      // Capítulos da história de amor
       gsap.utils.toArray<HTMLElement>("[data-chapter]").forEach((el) => {
         const side = (el as HTMLElement).dataset.side === "right" ? "right" : "left";
-        const img = el.querySelector<HTMLElement>("[data-chapter-img]");
         const numeral = el.querySelector<HTMLElement>("[data-chapter-numeral]");
-        // Animação de imagem removida a pedido do usuário
+        const text = el.querySelector<HTMLElement>("[data-chapter-text]");
         if (numeral) {
           gsap.fromTo(
             numeral,
-            { opacity: 0, x: side === "left" ? -60 : 60 },
+            { opacity: 0, x: side === "left" ? -80 : 80 },
             {
               opacity: 1,
               x: 0,
@@ -200,14 +204,34 @@ function Landing() {
             },
           );
         }
+        if (text) {
+          gsap.fromTo(
+            text,
+            { opacity: 0, y: 40 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1.4,
+              ease: "power3.out",
+              scrollTrigger: { trigger: text, start: "top 82%" },
+            },
+          );
+        }
       });
+
+      const isMobile = window.matchMedia("(max-width: 768px)").matches || "ontouchstart" in window;
+
+      // Parallax — apenas desktop
       gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
+        if (isMobile) return;
         gsap.to(el, {
           y: -60,
           ease: "none",
           scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
         });
       });
+
+      // Regras decorativas
       gsap.utils.toArray<HTMLElement>("[data-rule-grow]").forEach((el) => {
         gsap.fromTo(
           el,
@@ -215,29 +239,33 @@ function Landing() {
           {
             scaleX: 1,
             ease: "power2.out",
-            duration: 1.4,
+            duration: 1.8,
             scrollTrigger: { trigger: el, start: "top 90%" },
           },
         );
       });
+
+      // Pin-fade com scale — apenas desktop
       gsap.utils.toArray<HTMLElement>("[data-pin-fade]").forEach((el) => {
+        if (isMobile) return;
         gsap.fromTo(
           el,
-          { opacity: 0.4, scale: 0.95 },
+          { opacity: 0.3, scale: 0.94 },
           {
             opacity: 1,
             scale: 1,
             ease: "none",
             scrollTrigger: {
               trigger: el,
-              start: "top 80%",
-              end: "center 40%",
+              start: "top 85%",
+              end: "center 35%",
               scrub: true,
             },
           },
         );
       });
     });
+
     const refresh = () => ScrollTrigger.refresh();
     const imgs = Array.from(document.querySelectorAll("img"));
     imgs.forEach((img) => {

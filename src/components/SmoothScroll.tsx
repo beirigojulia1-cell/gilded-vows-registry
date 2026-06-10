@@ -7,6 +7,10 @@ if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 export function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
+    // Lenis causes zoom glitch on mobile due to viewport height changes — disable on touch devices
+    const isMobile = window.matchMedia("(max-width: 768px)").matches || "ontouchstart" in window;
+    if (isMobile) return;
+
     const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
     lenis.on("scroll", ScrollTrigger.update);
     const ticker = (time: number) => lenis.raf(time * 1000);
