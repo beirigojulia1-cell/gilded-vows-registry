@@ -157,7 +157,58 @@ export const createPurchase = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// =========== RSVP (public submit, admin read) ===========
+
+const rsvpSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  message: z.string().trim().max(1000).optional().default(""),
+});
+
+export const createRsvp = createServerFn({ method: "POST" })
+  .inputValidator((d) => rsvpSchema.parse(d))
+  .handler(async ({ data }) => {
+    const supabase = await getAdmin();
+    const { error } = await supabase.from("rsvp").insert({
+      name: data.name.trim(),
+      message: data.message?.trim() || null,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listRsvps = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context);
+    const client = context.supabase as any;
+    const { data, error } = await client
+      .from("rsvp")
+      .select("id,name,message,created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return {
+      rsvps: (data ?? []).map((r: any) => ({
+        id: r.id as string,
+        name: r.name as string,
+        message: r.message as string | null,
+        createdAt: r.created_at as string,
+      })),
+    };
+  });
+
+export const deleteRsvp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await requireAdmin(context);
+    const client = context.supabase as any;
+    const { error } = await client.from("rsvp").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 // =========== ADMIN ===========
+
 
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

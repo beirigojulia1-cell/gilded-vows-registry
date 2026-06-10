@@ -11,12 +11,12 @@ import { ToastProvider } from "@/components/Toast";
 import { PurchaseModal } from "@/components/PurchaseModal";
 import { AnimatedText } from "@/components/AnimatedText";
 import { ScrollProgress } from "@/components/ScrollProgress";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { formatBRL } from "@/lib/store";
 import { giftsQuery, purchasedIdsQuery } from "@/lib/wedding-queries";
 import type { Gift } from "@/lib/wedding-types";
 import { useToast } from "@/components/Toast";
-import { lookupMercadoPagoByGift } from "@/lib/wedding.functions";
+import { lookupMercadoPagoByGift, createRsvp } from "@/lib/wedding.functions";
 import heroImg from "@/assets/sorriso-gi-local.jpeg";
 import closingImg from "@/assets/closing.jpg";
 import chapter1 from "@/assets/primeiroencontro.jpeg";
@@ -749,21 +749,19 @@ function RSVP() {
   const [message, setMessage] = useState("");
   const [done, setDone] = useState(false);
 
+  const rsvpMut = useMutation({
+    mutationFn: () => createRsvp({ data: { name: name.trim(), message: message.trim() } }),
+    onSuccess: () => setDone(true),
+    onError: (e: Error) => push(e.message || "Erro ao confirmar presença", "error"),
+  });
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       push("Informe seu nome", "error");
       return;
     }
-    const list = JSON.parse(localStorage.getItem("wg_rsvp") || "[]");
-    list.push({
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      message: message.trim(),
-      at: Date.now(),
-    });
-    localStorage.setItem("wg_rsvp", JSON.stringify(list));
-    setDone(true);
+    rsvpMut.mutate();
   };
 
   return (
@@ -814,9 +812,10 @@ function RSVP() {
             </Field>
             <button
               type="submit"
-              className="shimmer w-full py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs min-h-[48px]"
+              disabled={rsvpMut.isPending}
+              className="shimmer w-full py-4 rounded bg-gradient-to-r from-[#8a6f3d] via-[#c9a96e] to-[#8a6f3d] text-ink font-medium tracking-[0.2em] uppercase text-xs min-h-[48px] disabled:opacity-60"
             >
-              Confirmar Presença
+              {rsvpMut.isPending ? "Enviando..." : "Confirmar Presença"}
             </button>
           </form>
         )}

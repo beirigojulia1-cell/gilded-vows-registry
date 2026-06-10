@@ -9,6 +9,8 @@ import {
   clearPurchases,
   createGift,
   deleteGift,
+  deleteRsvp,
+  listRsvps,
   markAllPurchasesRead,
   updateGift,
   updateSettings,
@@ -24,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   ),
 });
 
-type Section = "dashboard" | "gifts" | "messages" | "settings";
+type Section = "dashboard" | "gifts" | "messages" | "rsvp" | "settings";
 type GiftCategory = Gift["category"];
 
 function AdminApp() {
@@ -88,6 +90,7 @@ function AdminApp() {
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "gifts", label: "Presentes", icon: "🎁" },
     { id: "messages", label: "Mensagens", icon: "💌", badge: unread },
+    { id: "rsvp", label: "Confirmações", icon: "✔️" },
     { id: "settings", label: "Configurações", icon: "⚙️" },
   ];
 
@@ -142,6 +145,7 @@ function AdminApp() {
           {section === "dashboard" && <Dashboard />}
           {section === "gifts" && <GiftsAdmin />}
           {section === "messages" && <Messages />}
+          {section === "rsvp" && <Confirmations />}
           {section === "settings" && <SettingsPanel />}
         </main>
       </div>
@@ -665,7 +669,94 @@ function Messages() {
   );
 }
 
+function Confirmations() {
+  const { push } = useToast();
+  const qc = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["rsvps"],
+    queryFn: () => listRsvps(),
+  });
+
+  const rsvps = data?.rsvps ?? [];
+
+  const delMut = useMutation({
+    mutationFn: (id: string) => deleteRsvp({ data: { id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["rsvps"] });
+      push("Confirmação removida", "success");
+    },
+    onError: (e: Error) => push(e.message, "error"),
+  });
+
+  return (
+    <div>
+      <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
+        <div>
+          <h2 className="font-serif text-4xl text-champagne">Confirmações</h2>
+          <p className="text-champagne/50 text-sm">
+            {rsvps.length} convidado{rsvps.length !== 1 ? "s" : ""} confirmado{rsvps.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+      </div>
+
+      {isLoading && (
+        <p className="text-champagne/40 italic text-center py-20">Carregando...</p>
+      )}
+
+      {!isLoading && rsvps.length === 0 && (
+        <div className="text-center py-24 bg-card border border-gold/15 rounded-lg">
+          <div className="text-5xl mb-4 opacity-30">✉️</div>
+          <p className="text-champagne/40 italic">Nenhuma confirmação ainda.</p>
+          <p className="text-champagne/30 text-xs mt-2">As confirmações aparecerão aqui quando os convidados responderem.</p>
+        </div>
+      )}
+
+      {rsvps.length > 0 && (
+        <div className="space-y-4">
+          {rsvps.map((r) => (
+            <div
+              key={r.id}
+              className="bg-card border border-gold/15 rounded-lg p-6 flex gap-4 items-start"
+            >
+              {/* Avatar */}
+              <div className="shrink-0 w-10 h-10 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center text-gold font-serif text-lg select-none">
+                {r.name.charAt(0).toUpperCase()}
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start gap-3 flex-wrap">
+                  <div>
+                    <div className="font-serif text-lg text-gold leading-tight">{r.name}</div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-champagne/40 mt-0.5">
+                      ✦ Presença confirmada · {new Date(r.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => delMut.mutate(r.id)}
+                    disabled={delMut.isPending}
+                    className="text-[10px] text-destructive/70 hover:text-destructive uppercase tracking-wider shrink-0 disabled:opacity-40"
+                  >
+                    Remover
+                  </button>
+                </div>
+                {r.message && (
+                  <p className="text-champagne/75 text-sm mt-3 border-l-2 border-gold/40 pl-4 italic leading-relaxed">
+                    "{r.message}"
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SettingsPanel() {
+
   const { push } = useToast();
   const qc = useQueryClient();
   const settings = useQuery(settingsQuery).data?.settings;
