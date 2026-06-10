@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { formatBRL, store, type Gift } from "@/lib/store";
+import { formatBRL } from "@/lib/store";
+import type { Gift } from "@/lib/wedding-types";
 import { useToast } from "./Toast";
 import {
   createMercadoPagoPixPayment,
@@ -28,9 +29,6 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
   const [copied, setCopied] = useState(false);
   const pollRef = useRef<number | null>(null);
 
-  const purchases = store.getPurchases();
-  const alreadyPurchased = purchases.some((p) => p.giftId === gift.id);
-
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onEsc);
@@ -41,15 +39,6 @@ export function PurchaseModal({ gift, onClose }: { gift: Gift; onClose: () => vo
       if (pollRef.current) window.clearInterval(pollRef.current);
     };
   }, [onClose]);
-
-  function persistPurchase() {
-    if (store.getPurchases().some((p) => p.giftId === gift.id)) return;
-    store.addPurchase({
-      giftId: gift.id,
-      guestName: name.trim() || "Convidado",
-      message: message.trim(),
-    });
-  }
 
   async function startPix(e: React.FormEvent) {
     e.preventDefault();

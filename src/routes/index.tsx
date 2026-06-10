@@ -11,14 +11,10 @@ import { ToastProvider } from "@/components/Toast";
 import { PurchaseModal } from "@/components/PurchaseModal";
 import { AnimatedText } from "@/components/AnimatedText";
 import { ScrollProgress } from "@/components/ScrollProgress";
-import {
-  ensureDefaultPassword,
-  formatBRL,
-  store,
-  useStoreSubscribe,
-  type Gift,
-  type Purchase,
-} from "@/lib/store";
+import { useQuery } from "@tanstack/react-query";
+import { formatBRL } from "@/lib/store";
+import { giftsQuery, purchasedIdsQuery } from "@/lib/wedding-queries";
+import type { Gift } from "@/lib/wedding-types";
 import { useToast } from "@/components/Toast";
 import { lookupMercadoPagoByGift } from "@/lib/wedding.functions";
 import heroImg from "@/assets/sorriso-gi-local.jpeg";
@@ -940,25 +936,12 @@ function DrinkIcon() {
 }
 
 function Gifts() {
-  ensureDefaultPassword();
-  const [gifts, setGifts] = useState<Gift[]>(() => store.getGifts());
-  const [purchases, setPurchases] = useState<Purchase[]>(() => store.getPurchases());
+  const { data: giftsData, isLoading: giftsLoading } = useQuery(giftsQuery);
+  const { data: purchasedData } = useQuery(purchasedIdsQuery);
+  const gifts: Gift[] = giftsData?.gifts ?? [];
+  const purchasedIds = new Set(purchasedData?.giftIds ?? []);
   const [activeCat, setActiveCat] = useState("Todos");
   const [selected, setSelected] = useState<Gift | null>(null);
-
-  useEffect(() => {
-    const cleanup = useStoreSubscribe(() => {
-      setGifts(store.getGifts());
-      setPurchases(store.getPurchases());
-    });
-    return cleanup;
-  }, []);
-
-  const purchasedMap = useMemo(() => {
-    const m = new Map<string, Purchase>();
-    for (const p of purchases) if (!m.has(p.giftId)) m.set(p.giftId, p);
-    return m;
-  }, [purchases]);
 
   const categories = useMemo(
     () => ["Todos", ...Array.from(new Set(gifts.map((g) => g.category)))],
@@ -1006,9 +989,11 @@ function Gifts() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {giftsLoading && (
+            <p className="col-span-full text-center text-ink/50 italic py-10">Carregando presentes...</p>
+          )}
           {filtered.map((gift) => {
-            const purchase = purchasedMap.get(gift.id);
-            const taken = !!purchase;
+            const taken = purchasedIds.has(gift.id);
             return (
               <article
                 key={gift.id}
@@ -1046,11 +1031,6 @@ function Gifts() {
                   <p className="text-ink/60 text-xs leading-relaxed mb-4 line-clamp-2">
                     {gift.description}
                   </p>
-                  {taken && (
-                    <p className="text-[10px] tracking-wider uppercase text-gold-soft italic mb-3">
-                      Presenteado por {purchase!.guestName}
-                    </p>
-                  )}
                   <div className="mt-auto pt-4 border-t border-gold/20 flex items-end justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-[9px] tracking-[0.3em] uppercase text-ink/45">
