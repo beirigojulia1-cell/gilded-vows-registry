@@ -451,6 +451,20 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={submit}
+        onPaste={(e) => {
+          const items = e.clipboardData?.items;
+          if (!items) return;
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") !== -1) {
+              const file = items[i].getAsFile();
+              if (file) {
+                e.preventDefault();
+                handleFile(file);
+              }
+              break;
+            }
+          }
+        }}
         className="bg-card border border-gold/30 rounded-lg p-8 w-full max-w-lg max-h-[92vh] overflow-y-auto"
       >
         <h3 className="font-serif text-2xl text-champagne mb-6">
@@ -514,7 +528,7 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
                 </div>
               ) : (
                 <>
-                  {uploading ? "Enviando..." : "Arraste uma imagem (PNG/JPG/WEBP, máx 5MB) ou"}
+                  {uploading ? "Enviando..." : "Arraste, cole (Ctrl+V) ou selecione uma imagem (PNG/JPG/WEBP, máx 5MB)"}
                   <label className="block mt-2 cursor-pointer text-gold">
                     selecionar arquivo
                     <input
@@ -530,12 +544,6 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
                 </>
               )}
             </div>
-            <input
-              value={imageUrl.startsWith("blob:") ? "" : imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="ou cole uma URL de imagem"
-              className={`${inputCls} mt-2`}
-            />
           </Field>
         </div>
         <div className="flex gap-3 mt-8">
