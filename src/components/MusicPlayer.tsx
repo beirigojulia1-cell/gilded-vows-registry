@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
-import audioAsset from "@/assets/photograph.mp3.asset.json";
 
 const STORAGE_KEY = "wg_music_pref";
 
@@ -77,7 +76,7 @@ export function MusicPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} src={audioAsset.url} loop preload="auto" />
+      <audio ref={audioRef} src="/audio/bg-music.mp3" loop preload="auto" />
       <button
         type="button"
         onClick={toggle}
