@@ -370,7 +370,7 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
         title: title.trim(),
         category: category.trim(),
         priceCents: cents,
-        icon: icon || "🎁",
+        icon: icon?.trim() || "🎁",
         description: description.trim() || null,
         imageUrl: imageUrl.trim() || null,
         gradient: gift?.gradient ?? null,
@@ -388,7 +388,16 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
       push(gift ? "Presente atualizado" : "Presente adicionado", "success");
       onClose();
     },
-    onError: (e: Error) => push(e.message, "error"),
+    onError: (e: Error) => {
+      let msg = e.message;
+      try {
+        const parsed = JSON.parse(e.message);
+        if (Array.isArray(parsed) && parsed[0]?.message) {
+          msg = parsed[0].message;
+        }
+      } catch {}
+      push(msg, "error");
+    },
   });
 
   const handleFile = (file: File) => {
