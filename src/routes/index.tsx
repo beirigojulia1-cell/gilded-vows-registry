@@ -162,7 +162,12 @@ function Landing() {
             y: 0,
             duration: 1.6,
             ease: "power3.out",
-            scrollTrigger: { trigger: el, start: "top 88%" },
+            scrollTrigger: {
+              trigger: el,
+              start: "top 88%",
+              end: "top 20%",
+              toggleActions: "play none none reverse",
+            },
           },
         );
       });
@@ -180,7 +185,12 @@ function Landing() {
             duration: 1.3,
             ease: "power3.out",
             stagger: 0.2,
-            scrollTrigger: { trigger: parent, start: "top 78%" },
+            scrollTrigger: {
+              trigger: parent,
+              start: "top 78%",
+              end: "top 10%",
+              toggleActions: "play none none reverse",
+            },
           },
         );
       });
@@ -211,7 +221,12 @@ function Landing() {
               y: 0,
               duration: 1.4,
               ease: "power3.out",
-              scrollTrigger: { trigger: text, start: "top 82%" },
+              scrollTrigger: {
+                trigger: text,
+                start: "top 82%",
+                end: "top 10%",
+                toggleActions: "play none none reverse",
+              },
             },
           );
         }
@@ -238,7 +253,12 @@ function Landing() {
             scaleX: 1,
             ease: "power2.out",
             duration: 1.8,
-            scrollTrigger: { trigger: el, start: "top 90%" },
+            scrollTrigger: {
+              trigger: el,
+              start: "top 90%",
+              end: "top 20%",
+              toggleActions: "play none none reverse",
+            },
           },
         );
       });
