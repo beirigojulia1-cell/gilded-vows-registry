@@ -9,7 +9,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const mode = "login";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -63,7 +63,7 @@ function AuthPage() {
         <div className="text-center mb-6">
           <div className="font-serif text-5xl text-gradient-gold mb-2">G &amp; S</div>
           <p className="text-[0.65rem] tracking-[0.4em] uppercase text-champagne/60">
-            {mode === "login" ? "Acesso ao Painel" : "Criar Conta Admin"}
+              Acesso ao Painel
           </p>
         </div>
         <label className="block mb-3">
@@ -102,17 +102,7 @@ function AuthPage() {
           disabled={loading}
           className="btn-gold w-full py-3 rounded disabled:opacity-50"
         >
-          {loading ? "..." : mode === "login" ? "Entrar" : "Criar Conta"}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "login" ? "signup" : "login");
-            setMsg(null);
-          }}
-          className="block mt-4 mx-auto text-[11px] text-champagne/60 hover:text-gold"
-        >
-          {mode === "login" ? "Não tem conta? Criar conta admin" : "Já tem conta? Entrar"}
+          {loading ? "..." : "Entrar"}
         </button>
         <Link
           to="/"
