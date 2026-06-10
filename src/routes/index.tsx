@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Loader } from "@/components/Loader";
@@ -435,75 +435,164 @@ function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
 }
 
 function LoveStory() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!wrapRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const sections = wrapRef.current!.querySelectorAll<HTMLElement>("[data-cs]");
+
+      sections.forEach((section, i) => {
+        const isPhotoRight = i % 2 === 1;
+
+        // ── Photo: subtle parallax zoom tied to scroll ──
+        const img = section.querySelector<HTMLElement>("[data-ci='img']");
+        if (img) {
+          gsap.fromTo(
+            img,
+            { scale: 1.12 },
+            {
+              scale: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.6,
+              },
+            },
+          );
+        }
+
+        // ── Numeral watermark: slow parallax ──
+        const numeral = section.querySelector<HTMLElement>("[data-chapter-numeral]");
+        if (numeral) {
+          gsap.fromTo(
+            numeral,
+            { x: isPhotoRight ? -80 : 80, opacity: 0 },
+            {
+              x: 0,
+              opacity: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            },
+          );
+        }
+
+        // ── Text items: staggered slide + fade — bidirectional ──
+        const items = section.querySelectorAll<HTMLElement>("[data-ci='text']");
+        if (items.length) {
+          // Set initial hidden state immediately (no flash)
+          gsap.set(items, { opacity: 0, x: isPhotoRight ? -60 : 60, y: 15 });
+
+          gsap.to(items, {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            duration: 0.9,
+            ease: "power3.out",
+            stagger: 0.14,
+            scrollTrigger: {
+              trigger: section,
+              start: "top 78%",
+              end: "top 15%",
+              // play forward when entering, reverse when leaving upward
+              toggleActions: "play none none reverse",
+            },
+          });
+        }
+      });
+    }, wrapRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="overflow-hidden">
+    <div ref={wrapRef} className="overflow-hidden">
       {CHAPTERS.map((c, i) => {
         const photoRight = i % 2 === 1;
         return (
           <section
             key={c.n}
-            data-chapter
-            data-side={photoRight ? "right" : "left"}
-            className="relative grid grid-cols-2 min-h-[70vh] sm:min-h-[80vh] md:min-h-screen"
+            data-cs
+            className="relative grid grid-cols-2 h-screen"
           >
-            {/* Photo half — always 50% */}
+            {/* ── Photo half ── */}
             <div
-              className={`relative overflow-hidden ${photoRight ? "order-2" : "order-1"}`}
+              className={`relative overflow-hidden ${
+                photoRight ? "order-2" : "order-1"
+              }`}
             >
               <img
+                data-ci="img"
                 src={c.img}
                 alt={c.title}
                 className="absolute inset-0 w-full h-full object-cover"
+                style={{ transformOrigin: "center center", willChange: "transform" }}
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
                 fetchPriority={i === 0 ? "high" : "auto"}
               />
+              {/* subtle vignette toward text side */}
+              <div
+                className={`absolute inset-0 ${
+                  photoRight
+                    ? "bg-gradient-to-l from-transparent to-black/30"
+                    : "bg-gradient-to-r from-transparent to-black/30"
+                }`}
+              />
             </div>
 
-            {/* Text half — always 50% */}
+            {/* ── Text half ── */}
             <div
-              data-stagger
-              className={`relative flex items-center bg-background px-4 sm:px-8 md:px-16 lg:px-20 py-8 sm:py-12 md:py-0 ${photoRight ? "order-1" : "order-2"}`}
+              className={`relative flex items-center bg-background overflow-hidden px-5 sm:px-10 md:px-16 lg:px-20 ${
+                photoRight ? "order-1" : "order-2"
+              }`}
             >
               {/* Giant numeral watermark */}
               <span
                 data-chapter-numeral
-                className={`pointer-events-none select-none absolute font-serif font-light text-[6rem] sm:text-[10rem] md:text-[22rem] lg:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-1 sm:left-4" : "right-1 sm:right-4"}`}
+                className={`pointer-events-none select-none absolute font-serif font-light
+                  text-[5rem] sm:text-[8rem] md:text-[20rem] lg:text-[24rem]
+                  leading-none text-gold/[0.06] bottom-0 ${
+                    photoRight ? "left-1 sm:left-3" : "right-1 sm:right-3"
+                  }`}
               >
                 {c.n}
               </span>
-              <div className="relative max-w-md">
-                <AnimatedText
-                  as="p"
-                  text={c.tag.toUpperCase()}
-                  split="words"
-                  stagger={0.04}
-                  className="text-[9px] sm:text-[10px] tracking-[0.35em] sm:tracking-[0.45em] uppercase text-gold/80 mb-3 sm:mb-6"
-                />
-                <AnimatedText
-                  as="h3"
-                  text={c.title}
-                  split="words"
-                  stagger={0.08}
-                  duration={1}
-                  className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne mb-3 sm:mb-6 leading-[1.05] font-light"
-                />
-                <AnimatedText
-                  as="p"
-                  text={c.year}
-                  split="chars"
-                  stagger={0.04}
-                  className="text-[9px] sm:text-[11px] tracking-[0.32em] sm:tracking-[0.4em] text-gold/80 mb-4 sm:mb-8"
-                />
-                <AnimatedText
-                  as="p"
-                  text={c.text}
-                  split="words"
-                  stagger={0.025}
-                  duration={0.9}
-                  className="text-champagne/70 leading-relaxed text-[0.72rem] sm:text-sm md:text-lg font-light mb-4 sm:mb-8"
-                />
-                <div className="gold-rule w-10 sm:w-16" data-rule-grow />
+
+              <div className="relative max-w-sm w-full">
+                <p
+                  data-ci="text"
+                  className="text-[9px] sm:text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3 sm:mb-5"
+                >
+                  {c.tag}
+                </p>
+                <h3
+                  data-ci="text"
+                  className="font-serif text-2xl sm:text-4xl md:text-5xl text-champagne mb-3 sm:mb-5 leading-[1.05] font-light"
+                >
+                  {c.title}
+                </h3>
+                <p
+                  data-ci="text"
+                  className="text-[9px] sm:text-[11px] tracking-[0.35em] text-gold/80 mb-4 sm:mb-7"
+                >
+                  {c.year}
+                </p>
+                <p
+                  data-ci="text"
+                  className="text-champagne/70 leading-relaxed text-[0.72rem] sm:text-sm md:text-base font-light mb-5 sm:mb-8"
+                >
+                  {c.text}
+                </p>
+                <div data-ci="text" className="gold-rule w-10 sm:w-16" />
               </div>
             </div>
           </section>
