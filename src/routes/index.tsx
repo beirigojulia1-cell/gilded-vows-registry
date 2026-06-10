@@ -444,11 +444,11 @@ function LoveStory() {
             key={c.n}
             data-chapter
             data-side={photoRight ? "right" : "left"}
-            className="relative grid md:grid-cols-2 md:min-h-screen"
+            className="relative grid grid-cols-2 min-h-[56vw] sm:min-h-[52vw] md:min-h-screen"
           >
-            {/* Photo half */}
+            {/* Photo half — always 50% */}
             <div
-              className={`relative overflow-hidden h-[50vh] sm:h-[60vh] md:h-screen ${photoRight ? "md:order-2" : ""}`}
+              className={`relative overflow-hidden ${photoRight ? "order-2" : "order-1"}`}
             >
               <img
                 src={c.img}
@@ -460,14 +460,15 @@ function LoveStory() {
               />
             </div>
 
-            {/* Text half */}
+            {/* Text half — always 50% */}
             <div
               data-stagger
-              className={`relative flex items-center bg-background px-6 sm:px-8 md:px-16 lg:px-20 py-16 sm:py-20 md:py-0 ${photoRight ? "md:order-1" : ""}`}
+              className={`relative flex items-center bg-background px-4 sm:px-8 md:px-16 lg:px-20 py-8 sm:py-12 md:py-0 ${photoRight ? "order-1" : "order-2"}`}
             >
+              {/* Giant numeral watermark */}
               <span
                 data-chapter-numeral
-                className={`pointer-events-none select-none absolute font-serif font-light text-[10rem] sm:text-[14rem] md:text-[22rem] lg:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-2 sm:left-4" : "right-2 sm:right-4"}`}
+                className={`pointer-events-none select-none absolute font-serif font-light text-[6rem] sm:text-[10rem] md:text-[22rem] lg:text-[26rem] leading-none text-gold/[0.05] bottom-0 ${photoRight ? "left-1 sm:left-4" : "right-1 sm:right-4"}`}
               >
                 {c.n}
               </span>
@@ -477,7 +478,7 @@ function LoveStory() {
                   text={c.tag.toUpperCase()}
                   split="words"
                   stagger={0.04}
-                  className="text-[10px] tracking-[0.4em] sm:tracking-[0.45em] uppercase text-gold/80 mb-4 sm:mb-6"
+                  className="text-[8px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.45em] uppercase text-gold/80 mb-2 sm:mb-6"
                 />
                 <AnimatedText
                   as="h3"
@@ -485,14 +486,14 @@ function LoveStory() {
                   split="words"
                   stagger={0.08}
                   duration={1}
-                  className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-5xl text-champagne mb-4 sm:mb-6 leading-[1.05] font-light"
+                  className="font-serif text-xl sm:text-3xl md:text-5xl text-champagne mb-2 sm:mb-6 leading-[1.05] font-light"
                 />
                 <AnimatedText
                   as="p"
                   text={c.year}
                   split="chars"
                   stagger={0.04}
-                  className="text-[10px] sm:text-[11px] tracking-[0.35em] sm:tracking-[0.4em] text-gold/80 mb-6 sm:mb-8"
+                  className="text-[8px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] text-gold/80 mb-3 sm:mb-8"
                 />
                 <AnimatedText
                   as="p"
@@ -500,9 +501,9 @@ function LoveStory() {
                   split="words"
                   stagger={0.025}
                   duration={0.9}
-                  className="text-champagne/70 leading-relaxed text-sm sm:text-base md:text-lg font-light mb-6 sm:mb-8"
+                  className="text-champagne/70 leading-relaxed text-[0.65rem] sm:text-sm md:text-lg font-light mb-3 sm:mb-8"
                 />
-                <div className="gold-rule w-16" data-rule-grow />
+                <div className="gold-rule w-10 sm:w-16" data-rule-grow />
               </div>
             </div>
           </section>
