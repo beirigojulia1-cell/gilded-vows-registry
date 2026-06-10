@@ -444,7 +444,7 @@ function LoveStory() {
             key={c.n}
             data-chapter
             data-side={photoRight ? "right" : "left"}
-            className="relative grid grid-cols-2 min-h-[56vw] sm:min-h-[52vw] md:min-h-screen"
+            className="relative grid grid-cols-2 min-h-[70vh] sm:min-h-[80vh] md:min-h-screen"
           >
             {/* Photo half — always 50% */}
             <div
@@ -478,7 +478,7 @@ function LoveStory() {
                   text={c.tag.toUpperCase()}
                   split="words"
                   stagger={0.04}
-                  className="text-[8px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.45em] uppercase text-gold/80 mb-2 sm:mb-6"
+                  className="text-[9px] sm:text-[10px] tracking-[0.35em] sm:tracking-[0.45em] uppercase text-gold/80 mb-3 sm:mb-6"
                 />
                 <AnimatedText
                   as="h3"
@@ -486,14 +486,14 @@ function LoveStory() {
                   split="words"
                   stagger={0.08}
                   duration={1}
-                  className="font-serif text-xl sm:text-3xl md:text-5xl text-champagne mb-2 sm:mb-6 leading-[1.05] font-light"
+                  className="font-serif text-2xl sm:text-3xl md:text-5xl text-champagne mb-3 sm:mb-6 leading-[1.05] font-light"
                 />
                 <AnimatedText
                   as="p"
                   text={c.year}
                   split="chars"
                   stagger={0.04}
-                  className="text-[8px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] text-gold/80 mb-3 sm:mb-8"
+                  className="text-[9px] sm:text-[11px] tracking-[0.32em] sm:tracking-[0.4em] text-gold/80 mb-4 sm:mb-8"
                 />
                 <AnimatedText
                   as="p"
@@ -501,7 +501,7 @@ function LoveStory() {
                   split="words"
                   stagger={0.025}
                   duration={0.9}
-                  className="text-champagne/70 leading-relaxed text-[0.65rem] sm:text-sm md:text-lg font-light mb-3 sm:mb-8"
+                  className="text-champagne/70 leading-relaxed text-[0.72rem] sm:text-sm md:text-lg font-light mb-4 sm:mb-8"
                 />
                 <div className="gold-rule w-10 sm:w-16" data-rule-grow />
               </div>
