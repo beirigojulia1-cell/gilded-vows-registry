@@ -150,13 +150,13 @@ export function PurchaseModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl bg-card border border-gold/30 rounded-lg overflow-hidden grid md:grid-cols-2 max-h-[95vh] overflow-y-auto"
+        className="relative w-full max-w-4xl bg-cream border border-gold/30 rounded-lg overflow-hidden grid md:grid-cols-2 max-h-[95vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/60 text-champagne hover:text-gold border border-gold/30 text-xl leading-none"
+          className="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/5 text-ink hover:text-gold border border-ink/10 text-xl leading-none"
         >
           ×
         </button>
@@ -164,7 +164,7 @@ export function PurchaseModal({
         {/* LEFT — gift image / icon */}
         <div
           className="relative flex items-center justify-center min-h-[200px] sm:min-h-[260px] p-6 sm:p-10"
-          style={{ background: gift.gradient ?? "linear-gradient(135deg,#1a1512,#0d0b08)" }}
+          style={{ background: gift.gradient ?? "linear-gradient(135deg,#fdfdfd,#f4f0e6)" }}
         >
           {gift.imageUrl ? (
             <img
@@ -190,7 +190,7 @@ export function PurchaseModal({
               <h3 className="font-serif text-2xl sm:text-3xl text-gradient-gold mb-2">
                 Pagamento confirmado!
               </h3>
-              <p className="text-champagne/70 text-sm">
+              <p className="text-ink/70 text-sm">
                 Obrigado por fazer parte da nossa história.
               </p>
               <button
@@ -202,10 +202,10 @@ export function PurchaseModal({
             </div>
           ) : alreadyPurchased ? (
             <div className="text-center py-8 sm:py-10">
-              <h3 className="font-serif text-xl sm:text-2xl text-champagne mb-2">
+              <h3 className="font-serif text-xl sm:text-2xl text-ink mb-2">
                 Este presente já foi dado ✦
               </h3>
-              <p className="text-champagne/60 text-sm">Mas há outros esperando por você.</p>
+              <p className="text-ink/60 text-sm">Mas há outros esperando por você.</p>
               <button
                 onClick={onClose}
                 className="btn-gold px-8 py-3 rounded mt-6 sm:mt-8 min-h-[48px]"
@@ -218,9 +218,9 @@ export function PurchaseModal({
               <p className="text-[0.65rem] tracking-[0.3em] uppercase text-gold/70 mb-2">
                 {gift.category}
               </p>
-              <h3 className="font-serif text-2xl sm:text-3xl text-champagne mb-2">{gift.title}</h3>
+              <h3 className="font-serif text-2xl sm:text-3xl text-ink mb-2">{gift.title}</h3>
               {gift.description && (
-                <p className="text-champagne/60 text-sm leading-relaxed mb-4">{gift.description}</p>
+                <p className="text-ink/60 text-sm leading-relaxed mb-4">{gift.description}</p>
               )}
               <div className="text-gradient-gold font-serif text-xl sm:text-2xl mb-5 sm:mb-6">
                 {formatBRL(gift.priceCents)}
@@ -231,14 +231,14 @@ export function PurchaseModal({
                 <button
                   type="button"
                   onClick={() => setTab("pix")}
-                  className={`flex-1 py-3 text-[0.7rem] tracking-[0.2em] uppercase transition-colors min-h-[44px] ${tab === "pix" ? "bg-gold text-ink" : "text-champagne/70 hover:text-gold"}`}
+                  className={`flex-1 py-3 text-[0.7rem] tracking-[0.2em] uppercase transition-colors min-h-[44px] ${tab === "pix" ? "bg-gold text-ink" : "text-ink/70 hover:text-gold"}`}
                 >
                   PIX
                 </button>
                 <button
                   type="button"
                   onClick={() => setTab("card")}
-                  className={`flex-1 py-3 text-[0.7rem] tracking-[0.2em] uppercase transition-colors min-h-[44px] ${tab === "card" ? "bg-gold text-ink" : "text-champagne/70 hover:text-gold"}`}
+                  className={`flex-1 py-3 text-[0.7rem] tracking-[0.2em] uppercase transition-colors min-h-[44px] ${tab === "card" ? "bg-gold text-ink" : "text-ink/70 hover:text-gold"}`}
                 >
                   Cartão
                 </button>
@@ -251,14 +251,14 @@ export function PurchaseModal({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Seu nome"
-                    className="w-full bg-input/60 border border-border rounded px-4 py-3 text-base sm:text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none min-h-[48px]"
+                    className="w-full bg-white/60 border border-ink/20 rounded px-4 py-3 text-base sm:text-sm text-ink placeholder:text-ink/40 focus:border-gold/60 focus:outline-none min-h-[48px]"
                   />
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Mensagem para o casal (opcional)"
                     rows={3}
-                    className="w-full bg-input/60 border border-border rounded px-4 py-3 text-base sm:text-sm text-champagne placeholder:text-champagne/40 focus:border-gold/60 focus:outline-none resize-none"
+                    className="w-full bg-white/60 border border-ink/20 rounded px-4 py-3 text-base sm:text-sm text-ink placeholder:text-ink/40 focus:border-gold/60 focus:outline-none resize-none"
                   />
                   {/* honeypot — hidden from real users */}
                   <input
@@ -274,7 +274,7 @@ export function PurchaseModal({
 
               {tab === "pix" ? (
                 pix ? (
-                  <div className="border border-gold/20 rounded-lg p-4 sm:p-5 bg-black/30 space-y-4">
+                  <div className="border border-gold/20 rounded-lg p-4 sm:p-5 bg-white/50 space-y-4">
                     <p className="text-[0.65rem] tracking-[0.25em] uppercase text-gold/70 text-center">
                       Escaneie o QR Code ou copie o código
                     </p>
@@ -286,18 +286,18 @@ export function PurchaseModal({
                       />
                     ) : null}
                     <div className="flex flex-col sm:flex-row gap-2">
-                      <code className="flex-1 px-3 py-2 bg-black/40 border border-border rounded text-champagne/80 text-[0.7rem] sm:text-xs break-all">
+                      <code className="flex-1 px-3 py-2 bg-white/80 border border-ink/20 rounded text-ink/90 text-[0.7rem] sm:text-xs break-all">
                         {pix.qrCode}
                       </code>
                       <button
                         type="button"
                         onClick={copyPix}
-                        className={`px-4 py-3 rounded text-xs tracking-wider uppercase border transition-all min-h-[44px] ${copied ? "bg-emerald-600/30 border-emerald-500/60 text-emerald-300" : "border-gold/50 text-gold hover:bg-gold/10"}`}
+                        className={`px-4 py-3 rounded text-xs tracking-wider uppercase border transition-all min-h-[44px] ${copied ? "bg-emerald-600/10 border-emerald-500/60 text-emerald-600" : "border-gold/50 text-gold hover:bg-gold/10"}`}
                       >
                         {copied ? "Copiado ✓" : "Copiar"}
                       </button>
                     </div>
-                    <p className="text-center text-champagne/60 text-xs italic">
+                    <p className="text-center text-ink/60 text-xs italic">
                       Aguardando confirmação do pagamento…
                     </p>
                     <div className="flex justify-center">
@@ -313,7 +313,7 @@ export function PurchaseModal({
                     >
                       {loading ? "Gerando QR Code…" : "Gerar QR Code PIX"}
                     </button>
-                    <p className="text-center text-champagne/50 text-[0.65rem] mt-3">
+                    <p className="text-center text-ink/50 text-[0.65rem] mt-3">
                       Pagamento processado por Mercado Pago
                     </p>
                   </form>
@@ -327,7 +327,7 @@ export function PurchaseModal({
                   >
                     {loading ? "Redirecionando…" : "Pagar com cartão"}
                   </button>
-                  <p className="text-center text-champagne/50 text-[0.65rem] mt-3">
+                  <p className="text-center text-ink/50 text-[0.65rem] mt-3">
                     Checkout seguro do Mercado Pago · Parcele em até 12x
                   </p>
                 </form>
