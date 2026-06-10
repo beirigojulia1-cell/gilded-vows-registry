@@ -18,6 +18,7 @@ interface Props {
   start?: string;
   blur?: boolean;
   y?: number;
+  clip?: boolean;
 }
 
 export function AnimatedText({
@@ -32,6 +33,7 @@ export function AnimatedText({
   start = "top 85%",
   blur = true,
   y = 100,
+  clip = true,
 }: Props) {
   const ref = useRef<HTMLElement | null>(null);
 
@@ -93,12 +95,20 @@ export function AnimatedText({
             aria-hidden
             style={{
               display: "inline-block",
-              overflow: "hidden",
-              verticalAlign: "top",
+              overflow: clip ? "hidden" : "visible",
+              verticalAlign: "baseline",
               ...(split === "lines" ? { display: "block" } : null),
             }}
           >
-            <span data-anim-item style={{ display: "inline-block", willChange: "transform,opacity,filter" }}>
+            <span
+              data-anim-item
+              style={{ 
+                display: "inline-block", 
+                willChange: clip ? "transform,opacity,filter" : "auto",
+                padding: !clip ? "0 0.8em" : undefined,
+                margin: !clip ? "0 -0.8em" : undefined,
+              }}
+            >
               {tok === "" ? "\u00A0" : tok}
             </span>
           </span>

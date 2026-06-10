@@ -22,11 +22,18 @@ export function Loader() {
     <div
       className={`fixed inset-0 z-[400] flex flex-col items-center justify-center bg-background transition-opacity duration-700 ${done ? "opacity-0 pointer-events-none" : "opacity-100"}`}
     >
-      <div className="font-serif text-6xl md:text-7xl text-gradient-gold mb-12 tracking-wider">G &amp; S</div>
-      <div className="w-56 h-px bg-gold/20 mb-6 overflow-hidden">
-        <div className="h-full bg-gold transition-[width] duration-200" style={{ width: `${progress}%` }} />
+      <div className="font-serif text-6xl md:text-7xl text-gradient-gold mb-12 tracking-wider">
+        G &amp; S
       </div>
-      <p className="text-[10px] tracking-[0.4em] uppercase text-champagne/50 italic">Uma história escrita pelo destino…</p>
+      <div className="w-56 h-px bg-gold/20 mb-6 overflow-hidden">
+        <div
+          className="h-full bg-gold transition-[width] duration-200"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <p className="text-[10px] tracking-[0.4em] uppercase text-champagne/50 italic">
+        Uma história escrita pelo destino…
+      </p>
     </div>
   );
 }

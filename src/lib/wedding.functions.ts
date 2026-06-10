@@ -76,7 +76,6 @@ async function getAdmin(): Promise<any> {
   });
 }
 
-
 async function requireAdmin(ctx: { supabase: any; userId: string }) {
   const client = ctx.supabase as any;
   const { data, error } = await client.rpc("has_role", {
@@ -108,7 +107,11 @@ export const listPurchasedGiftIds = createServerFn({ method: "GET" }).handler(as
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as Array<{ gift_id: string | null }>;
   const giftIds = Array.from(
-    new Set(rows.map((row) => row.gift_id).filter((giftId): giftId is string => typeof giftId === "string")),
+    new Set(
+      rows
+        .map((row) => row.gift_id)
+        .filter((giftId): giftId is string => typeof giftId === "string"),
+    ),
   );
   return { giftIds };
 });
@@ -186,10 +189,7 @@ export const markAllPurchasesRead = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await requireAdmin(context);
     const client = context.supabase as any;
-    const { error } = await client
-      .from("purchases")
-      .update({ read: true })
-      .eq("read", false);
+    const { error } = await client.from("purchases").update({ read: true }).eq("read", false);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -199,10 +199,7 @@ export const clearPurchases = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await requireAdmin(context);
     const client = context.supabase as any;
-    const { error } = await client
-      .from("purchases")
-      .delete()
-      .not("id", "is", null);
+    const { error } = await client.from("purchases").delete().not("id", "is", null);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -234,7 +231,9 @@ export const createGift = createServerFn({ method: "POST" })
         icon: data.icon,
         description: data.description ?? null,
         image_url: data.imageUrl ?? null,
-        gradient: data.gradient ?? `linear-gradient(135deg, hsl(${Math.floor(Math.random() * 360)} 20% 15%) 0%, #0d0b08 100%)`,
+        gradient:
+          data.gradient ??
+          `linear-gradient(135deg, hsl(${Math.floor(Math.random() * 360)} 20% 15%) 0%, #0d0b08 100%)`,
         accent: data.accent ?? null,
         sort_order: data.sortOrder ?? 100,
       })
@@ -340,7 +339,6 @@ export const uploadGiftImage = createServerFn({ method: "POST" })
     return { url: pub.publicUrl };
   });
 
-
 // =========== MERCADO PAGO ===========
 
 const MP_BASE = "https://api.mercadopago.com";
@@ -371,7 +369,11 @@ export const createMercadoPagoPixPayment = createServerFn({ method: "POST" })
       description: `Presente · ${data.giftTitle}`,
       external_reference: data.giftId,
       payer: { email: payerEmail, first_name: data.guestName.slice(0, 60) },
-      metadata: { gift_id: data.giftId, guest_name: data.guestName, guest_message: data.message ?? "" },
+      metadata: {
+        gift_id: data.giftId,
+        guest_name: data.guestName,
+        guest_message: data.message ?? "",
+      },
     };
     const res = await fetch(`${MP_BASE}/v1/payments`, {
       method: "POST",
@@ -398,7 +400,11 @@ export const createMercadoPagoPixPayment = createServerFn({ method: "POST" })
     };
   });
 
-async function persistPurchaseIfMissing(opts: { giftId: string; guestName: string; message: string }) {
+async function persistPurchaseIfMissing(opts: {
+  giftId: string;
+  guestName: string;
+  message: string;
+}) {
   try {
     const supabase = await getAdmin();
     const { data: existing } = await supabase
@@ -445,7 +451,10 @@ export const checkMercadoPagoPaymentStatus = createServerFn({ method: "POST" })
       status: String(json.status ?? "pending"),
       approved,
       externalReference: json.external_reference ?? null,
-      payer: { name: json?.metadata?.guest_name ?? null, message: json?.metadata?.guest_message ?? null },
+      payer: {
+        name: json?.metadata?.guest_name ?? null,
+        message: json?.metadata?.guest_message ?? null,
+      },
     };
   });
 
@@ -474,13 +483,13 @@ export const createMercadoPagoCardPreference = createServerFn({ method: "POST" }
         },
       ],
       external_reference: data.giftId,
-      metadata: { gift_id: data.giftId, guest_name: data.guestName, guest_message: data.message ?? "" },
+      metadata: {
+        gift_id: data.giftId,
+        guest_name: data.guestName,
+        guest_message: data.message ?? "",
+      },
       payment_methods: {
-        excluded_payment_types: [
-          { id: "ticket" },
-          { id: "atm" },
-          { id: "bank_transfer" },
-        ],
+        excluded_payment_types: [{ id: "ticket" }, { id: "atm" }, { id: "bank_transfer" }],
         installments: 12,
       },
       back_urls: {
@@ -488,7 +497,8 @@ export const createMercadoPagoCardPreference = createServerFn({ method: "POST" }
         pending: `${backBase}&status=pending`,
         failure: `${backBase}&status=failure`,
       },
-      auto_return: "approved",
+      // auto_return only works with publicly accessible URLs (not localhost)
+      ...(data.origin.startsWith("http://localhost") ? {} : { auto_return: "approved" }),
     };
     const res = await fetch(`${MP_BASE}/checkout/preferences`, {
       method: "POST",
@@ -531,4 +541,3 @@ export const lookupMercadoPagoByGift = createServerFn({ method: "POST" })
     }
     return { approved: !!approved, status: approved?.status ?? results[0]?.status ?? "not_found" };
   });
-

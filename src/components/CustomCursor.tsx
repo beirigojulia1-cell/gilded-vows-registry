@@ -42,8 +42,14 @@ export function CustomCursor() {
 
   return (
     <>
-      <div ref={dot} className="hidden md:block fixed top-0 left-0 w-1.5 h-1.5 -ml-[3px] -mt-[3px] rounded-full bg-gold pointer-events-none z-[300] mix-blend-difference" />
-      <div ref={ring} className="hidden md:block fixed top-0 left-0 w-9 h-9 -ml-[18px] -mt-[18px] rounded-full border border-gold/60 pointer-events-none z-[300] transition-transform duration-200" />
+      <div
+        ref={dot}
+        className="hidden md:block fixed top-0 left-0 w-1.5 h-1.5 -ml-[3px] -mt-[3px] rounded-full bg-gold pointer-events-none z-[300] mix-blend-difference"
+      />
+      <div
+        ref={ring}
+        className="hidden md:block fixed top-0 left-0 w-9 h-9 -ml-[18px] -mt-[18px] rounded-full border border-gold/60 pointer-events-none z-[300] transition-transform duration-200"
+      />
     </>
   );
 }

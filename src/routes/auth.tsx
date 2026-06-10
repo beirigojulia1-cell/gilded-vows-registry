@@ -41,7 +41,10 @@ function AuthPage() {
           options: { emailRedirectTo: `${window.location.origin}/admin` },
         });
         if (error) throw error;
-        setMsg({ kind: "info", text: "Conta criada! Se a confirmação de email estiver desabilitada, faça login agora. Caso contrário, confirme pelo email." });
+        setMsg({
+          kind: "info",
+          text: "Conta criada! Se a confirmação de email estiver desabilitada, faça login agora. Caso contrário, confirme pelo email.",
+        });
         setMode("login");
       }
     } catch (err: any) {
@@ -53,7 +56,10 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background bg-[radial-gradient(ellipse_at_top,rgba(201,169,110,0.1),transparent_60%)]">
-      <form onSubmit={submit} className="w-full max-w-sm bg-card border border-gold/20 rounded-lg p-10">
+      <form
+        onSubmit={submit}
+        className="w-full max-w-sm bg-card border border-gold/20 rounded-lg p-10"
+      >
         <div className="text-center mb-6">
           <div className="font-serif text-5xl text-gradient-gold mb-2">G &amp; S</div>
           <p className="text-[0.65rem] tracking-[0.4em] uppercase text-champagne/60">
@@ -61,7 +67,9 @@ function AuthPage() {
           </p>
         </div>
         <label className="block mb-3">
-          <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block mb-1.5">Email</span>
+          <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block mb-1.5">
+            Email
+          </span>
           <input
             type="email"
             value={email}
@@ -71,7 +79,9 @@ function AuthPage() {
           />
         </label>
         <label className="block mb-4">
-          <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block mb-1.5">Senha</span>
+          <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block mb-1.5">
+            Senha
+          </span>
           <input
             type="password"
             value={password}
@@ -81,19 +91,33 @@ function AuthPage() {
           />
         </label>
         {msg && (
-          <p className={`text-xs mb-4 ${msg.kind === "error" ? "text-destructive" : "text-emerald-400"}`}>{msg.text}</p>
+          <p
+            className={`text-xs mb-4 ${msg.kind === "error" ? "text-destructive" : "text-emerald-400"}`}
+          >
+            {msg.text}
+          </p>
         )}
-        <button type="submit" disabled={loading} className="btn-gold w-full py-3 rounded disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn-gold w-full py-3 rounded disabled:opacity-50"
+        >
           {loading ? "..." : mode === "login" ? "Entrar" : "Criar Conta"}
         </button>
         <button
           type="button"
-          onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMsg(null); }}
+          onClick={() => {
+            setMode(mode === "login" ? "signup" : "login");
+            setMsg(null);
+          }}
           className="block mt-4 mx-auto text-[11px] text-champagne/60 hover:text-gold"
         >
           {mode === "login" ? "Não tem conta? Criar conta admin" : "Já tem conta? Entrar"}
         </button>
-        <Link to="/" className="block mt-6 text-center text-[10px] tracking-widest uppercase text-champagne/40 hover:text-gold">
+        <Link
+          to="/"
+          className="block mt-6 text-center text-[10px] tracking-widest uppercase text-champagne/40 hover:text-gold"
+        >
           ← Voltar ao site
         </Link>
       </form>

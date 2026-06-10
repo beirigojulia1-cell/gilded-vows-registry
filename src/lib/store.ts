@@ -60,7 +60,8 @@ const DEFAULT_GIFTS: Gift[] = [
   {
     id: "g02",
     title: "Fuê Profissional 25 e 30cm",
-    description: "Par de fuês profissionais para as receitas que vamos preparar juntos no nosso novo lar.",
+    description:
+      "Par de fuês profissionais para as receitas que vamos preparar juntos no nosso novo lar.",
     priceCents: 6000,
     category: "Lar",
     icon: "🥄",
@@ -93,7 +94,8 @@ const DEFAULT_GIFTS: Gift[] = [
   {
     id: "g05",
     title: "Kit Organizador com Tampa (3 un.)",
-    description: "Trio de cestos organizadores com tampa de bambu para manter o nosso lar sempre em ordem.",
+    description:
+      "Trio de cestos organizadores com tampa de bambu para manter o nosso lar sempre em ordem.",
     priceCents: 7431,
     category: "Lar",
     icon: "🧺",
@@ -140,10 +142,14 @@ export const store = {
     write(K.purchases, arr);
   },
 
-  getSettings: (): Settings => ({ ...DEFAULT_SETTINGS, ...read(K.settings, {} as Partial<Settings>) }),
+  getSettings: (): Settings => ({
+    ...DEFAULT_SETTINGS,
+    ...read(K.settings, {} as Partial<Settings>),
+  }),
   setSettings: (s: Settings) => write(K.settings, s),
 
-  getPassHash: (): string | null => (typeof window !== "undefined" ? localStorage.getItem(K.pass) : null),
+  getPassHash: (): string | null =>
+    typeof window !== "undefined" ? localStorage.getItem(K.pass) : null,
   setPassHash: (h: string) => localStorage.setItem(K.pass, h),
 
   isLockedOut: (): number => {
@@ -163,13 +169,17 @@ export const store = {
     sessionStorage.removeItem(K.attempts);
     sessionStorage.removeItem(K.lockout);
   },
-  isLoggedIn: (): boolean => (typeof window !== "undefined" ? sessionStorage.getItem(K.session) === "1" : false),
-  setLoggedIn: (v: boolean) => (v ? sessionStorage.setItem(K.session, "1") : sessionStorage.removeItem(K.session)),
+  isLoggedIn: (): boolean =>
+    typeof window !== "undefined" ? sessionStorage.getItem(K.session) === "1" : false,
+  setLoggedIn: (v: boolean) =>
+    v ? sessionStorage.setItem(K.session, "1") : sessionStorage.removeItem(K.session),
 };
 
 export async function sha256(s: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export function ensureDefaultPassword() {

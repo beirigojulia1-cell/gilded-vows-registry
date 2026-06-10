@@ -13,7 +13,8 @@ export function ScrollProgress() {
     const st = ScrollTrigger.create({
       start: 0,
       end: "max",
-      onUpdate: (self) => gsap.to(el, { scaleX: self.progress, duration: 0.15, ease: "none", overwrite: true }),
+      onUpdate: (self) =>
+        gsap.to(el, { scaleX: self.progress, duration: 0.15, ease: "none", overwrite: true }),
     });
     return () => st.kill();
   }, []);

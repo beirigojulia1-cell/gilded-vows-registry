@@ -4,12 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, type Gift, type Purchase, type Settings } from "@/lib/wedding-types";
-import {
-  giftsQuery,
-  purchasesQuery,
-  settingsQuery,
-  isAdminQuery,
-} from "@/lib/wedding-queries";
+import { giftsQuery, purchasesQuery, settingsQuery, isAdminQuery } from "@/lib/wedding-queries";
 import {
   clearPurchases,
   createGift,
@@ -34,18 +29,15 @@ type GiftCategory = Gift["category"];
 
 function AdminApp() {
   const navigate = useNavigate();
-  const {
-    data: adminData,
-    isLoading,
-    error: adminError,
-  } = useQuery(isAdminQuery);
+  const { data: adminData, isLoading, error: adminError } = useQuery(isAdminQuery);
   const [section, setSection] = useState<Section>("dashboard");
   const [open, setOpen] = useState(false);
 
-  const purchases: Purchase[] = useQuery({
-    ...purchasesQuery,
-    enabled: adminData?.isAdmin === true,
-  }).data?.purchases ?? [];
+  const purchases: Purchase[] =
+    useQuery({
+      ...purchasesQuery,
+      enabled: adminData?.isAdmin === true,
+    }).data?.purchases ?? [];
   const unread = purchases.filter((p: Purchase) => !p.read).length;
 
   const logout = async () => {
@@ -54,7 +46,11 @@ function AdminApp() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-champagne/60 text-sm">Carregando...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-champagne/60 text-sm">
+        Carregando...
+      </div>
+    );
   }
   if (adminError) {
     return (
@@ -64,7 +60,9 @@ function AdminApp() {
           <p className="text-champagne/70 text-sm mb-6">
             Não foi possível validar seu acesso agora. Atualize a página ou entre novamente.
           </p>
-          <button onClick={logout} className="btn-gold px-6 py-2.5 rounded">Sair</button>
+          <button onClick={logout} className="btn-gold px-6 py-2.5 rounded">
+            Sair
+          </button>
         </div>
       </div>
     );
@@ -75,9 +73,12 @@ function AdminApp() {
         <div className="max-w-md text-center bg-card border border-destructive/30 rounded-lg p-10">
           <h1 className="font-serif text-3xl text-destructive mb-3">Sem permissão</h1>
           <p className="text-champagne/70 text-sm mb-6">
-            Sua conta está autenticada, mas ainda não tem o papel de admin. Peça pro responsável adicionar seu email à lista de administradores.
+            Sua conta está autenticada, mas ainda não tem o papel de admin. Peça pro responsável
+            adicionar seu email à lista de administradores.
           </p>
-          <button onClick={logout} className="btn-gold px-6 py-2.5 rounded">Sair</button>
+          <button onClick={logout} className="btn-gold px-6 py-2.5 rounded">
+            Sair
+          </button>
         </div>
       </div>
     );
@@ -92,33 +93,48 @@ function AdminApp() {
 
   return (
     <div className="min-h-screen flex bg-background admin-light">
-      <aside className={`fixed md:static z-40 inset-y-0 left-0 w-64 bg-card border-r border-border/60 transform transition-transform ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+      <aside
+        className={`fixed md:static z-40 inset-y-0 left-0 w-64 bg-card border-r border-border/60 transform transition-transform ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+      >
         <div className="p-6 border-b border-border/60">
           <div className="font-serif text-2xl text-gradient-gold">G &amp; S Admin</div>
-          <p className="text-[10px] tracking-[0.3em] uppercase text-champagne/50 mt-1">Painel de Casamento</p>
+          <p className="text-[10px] tracking-[0.3em] uppercase text-champagne/50 mt-1">
+            Painel de Casamento
+          </p>
         </div>
         <nav className="p-3 space-y-1">
           {nav.map((n) => (
             <button
               key={n.id}
-              onClick={() => { setSection(n.id); setOpen(false); }}
+              onClick={() => {
+                setSection(n.id);
+                setOpen(false);
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded text-sm transition-all ${section === n.id ? "bg-gold/10 text-gold border-l-2 border-gold" : "text-champagne/70 hover:bg-muted/40"}`}
             >
               <span>{n.icon}</span>
               <span className="flex-1 text-left">{n.label}</span>
-              {!!n.badge && <span className="text-[10px] bg-gold text-ink rounded-full px-2">{n.badge}</span>}
+              {!!n.badge && (
+                <span className="text-[10px] bg-gold text-ink rounded-full px-2">{n.badge}</span>
+              )}
             </button>
           ))}
         </nav>
         <div className="absolute bottom-0 inset-x-0 p-4 border-t border-border/60 space-y-2">
-          <Link to="/" className="block text-xs text-champagne/60 hover:text-gold">← Ver lista de presentes</Link>
-          <button onClick={logout} className="block text-xs text-champagne/60 hover:text-gold">Sair</button>
+          <Link to="/" className="block text-xs text-champagne/60 hover:text-gold">
+            ← Ver lista de presentes
+          </Link>
+          <button onClick={logout} className="block text-xs text-champagne/60 hover:text-gold">
+            Sair
+          </button>
         </div>
       </aside>
 
       <div className="flex-1 md:ml-0">
         <header className="md:hidden flex items-center justify-between p-4 border-b border-border/60">
-          <button onClick={() => setOpen(!open)} className="text-gold">☰</button>
+          <button onClick={() => setOpen(!open)} className="text-gold">
+            ☰
+          </button>
           <span className="font-serif text-gold">G &amp; S Admin</span>
           <span />
         </header>
@@ -175,8 +191,12 @@ function Dashboard() {
               const g = gifts.find((x: Gift) => x.id === p.giftId);
               return (
                 <li key={p.id} className="py-3 flex justify-between text-sm">
-                  <span className="text-champagne"><b className="text-gold">{p.guestName}</b> presenteou <i>{g?.title ?? "—"}</i></span>
-                  <span className="text-champagne/40 text-xs">{new Date(p.createdAt).toLocaleString("pt-BR")}</span>
+                  <span className="text-champagne">
+                    <b className="text-gold">{p.guestName}</b> presenteou <i>{g?.title ?? "—"}</i>
+                  </span>
+                  <span className="text-champagne/40 text-xs">
+                    {new Date(p.createdAt).toLocaleString("pt-BR")}
+                  </span>
                 </li>
               );
             })}
@@ -201,7 +221,10 @@ function GiftsAdmin() {
   const [showForm, setShowForm] = useState(false);
   const [confirmDel, setConfirmDel] = useState<Gift | null>(null);
 
-  const cats: Array<GiftCategory | "Todas"> = ["Todas", ...Array.from(new Set(gifts.map((g: Gift) => g.category)))];
+  const cats: Array<GiftCategory | "Todas"> = [
+    "Todas",
+    ...Array.from(new Set(gifts.map((g: Gift) => g.category))),
+  ];
   const filtered = gifts.filter((g: Gift) => {
     if (q && !g.title.toLowerCase().includes(q.toLowerCase())) return false;
     if (cat !== "Todas" && g.category !== cat) return false;
@@ -229,15 +252,38 @@ function GiftsAdmin() {
           <h2 className="font-serif text-4xl text-champagne">Presentes</h2>
           <p className="text-champagne/50 text-sm">Gerencie sua lista</p>
         </div>
-        <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-gold px-6 py-3 rounded">+ Adicionar Presente</button>
+        <button
+          onClick={() => {
+            setEditing(null);
+            setShowForm(true);
+          }}
+          className="btn-gold px-6 py-3 rounded"
+        >
+          + Adicionar Presente
+        </button>
       </div>
 
       <div className="flex gap-3 mb-6 flex-wrap">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar..." className="flex-1 min-w-[200px] bg-input/60 border border-border rounded px-4 py-2 text-sm text-champagne focus:border-gold/60 focus:outline-none" />
-        <select value={cat} onChange={(e) => setCat(e.target.value)} className="bg-input/60 border border-border rounded px-3 py-2 text-sm text-champagne">
-          {cats.map((c) => <option key={c}>{c}</option>)}
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Buscar..."
+          className="flex-1 min-w-[200px] bg-input/60 border border-border rounded px-4 py-2 text-sm text-champagne focus:border-gold/60 focus:outline-none"
+        />
+        <select
+          value={cat}
+          onChange={(e) => setCat(e.target.value)}
+          className="bg-input/60 border border-border rounded px-3 py-2 text-sm text-champagne"
+        >
+          {cats.map((c) => (
+            <option key={c}>{c}</option>
+          ))}
         </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value as "all" | "available" | "purchased")} className="bg-input/60 border border-border rounded px-3 py-2 text-sm text-champagne">
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as "all" | "available" | "purchased")}
+          className="bg-input/60 border border-border rounded px-3 py-2 text-sm text-champagne"
+        >
           <option value="all">Todos</option>
           <option value="available">Disponíveis</option>
           <option value="purchased">Presenteados</option>
@@ -249,17 +295,41 @@ function GiftsAdmin() {
           const taken = purchasedIds.has(g.id);
           return (
             <div key={g.id} className="bg-card border border-gold/15 rounded-lg overflow-hidden">
-              <div className="h-32 flex items-center justify-center text-5xl" style={{ background: g.gradient ?? undefined }}>
-                {g.imageUrl ? <img src={g.imageUrl} alt="" className="w-full h-full object-cover" /> : g.icon}
+              <div
+                className="h-32 flex items-center justify-center text-5xl"
+                style={{ background: g.gradient ?? undefined }}
+              >
+                {g.imageUrl ? (
+                  <img src={g.imageUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  g.icon
+                )}
               </div>
               <div className="p-4">
-                <div className="text-[10px] tracking-[0.25em] uppercase text-gold/70 mb-1">{g.category}</div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-gold/70 mb-1">
+                  {g.category}
+                </div>
                 <h3 className="font-serif text-lg text-champagne">{g.title}</h3>
-                <div className="text-gradient-gold font-serif text-lg mb-3">{formatBRL(g.priceCents)}</div>
+                <div className="text-gradient-gold font-serif text-lg mb-3">
+                  {formatBRL(g.priceCents)}
+                </div>
                 {taken && <div className="text-[10px] text-emerald-400 mb-2">✓ Presenteado</div>}
                 <div className="flex gap-2">
-                  <button onClick={() => { setEditing(g); setShowForm(true); }} className="flex-1 text-xs px-3 py-2 rounded border border-gold/30 text-champagne hover:bg-gold/10">Editar</button>
-                  <button onClick={() => setConfirmDel(g)} className="flex-1 text-xs px-3 py-2 rounded border border-destructive/40 text-destructive hover:bg-destructive/10">Excluir</button>
+                  <button
+                    onClick={() => {
+                      setEditing(g);
+                      setShowForm(true);
+                    }}
+                    className="flex-1 text-xs px-3 py-2 rounded border border-gold/30 text-champagne hover:bg-gold/10"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => setConfirmDel(g)}
+                    className="flex-1 text-xs px-3 py-2 rounded border border-destructive/40 text-destructive hover:bg-destructive/10"
+                  >
+                    Excluir
+                  </button>
                 </div>
               </div>
             </div>
@@ -336,7 +406,9 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
       const bytes = new Uint8Array(buf);
       for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
       const base64 = btoa(bin);
-      const res = await uploadGiftImage({ data: { fileName: file.name, contentType: file.type, base64 } });
+      const res = await uploadGiftImage({
+        data: { fileName: file.name, contentType: file.type, base64 },
+      });
       setImageUrl(res.url);
       push("Imagem enviada", "success");
     } catch (e: any) {
@@ -356,57 +428,133 @@ function GiftForm({ gift, onClose }: { gift: Gift | null; onClose: () => void })
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-      <form onClick={(e) => e.stopPropagation()} onSubmit={submit} className="bg-card border border-gold/30 rounded-lg p-8 w-full max-w-lg max-h-[92vh] overflow-y-auto">
-        <h3 className="font-serif text-2xl text-champagne mb-6">{gift ? "Editar Presente" : "Novo Presente"}</h3>
+    <div
+      className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <form
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+        className="bg-card border border-gold/30 rounded-lg p-8 w-full max-w-lg max-h-[92vh] overflow-y-auto"
+      >
+        <h3 className="font-serif text-2xl text-champagne mb-6">
+          {gift ? "Editar Presente" : "Novo Presente"}
+        </h3>
         <div className="space-y-4">
-          <Field label="Nome do presente *"><input value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} /></Field>
+          <Field label="Nome do presente *">
+            <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} />
+          </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Categoria *"><input value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls} /></Field>
-            <Field label="Valor (R$) *"><input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className={inputCls} /></Field>
+            <Field label="Categoria *">
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={inputCls}
+              />
+            </Field>
+            <Field label="Valor (R$) *">
+              <input
+                type="number"
+                step="0.01"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className={inputCls}
+              />
+            </Field>
           </div>
-          <Field label="Emoji / Ícone"><input value={icon} onChange={(e) => setIcon(e.target.value)} className={inputCls} /></Field>
-          <Field label="Descrição"><textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} className={`${inputCls} resize-none`} /></Field>
+          <Field label="Emoji / Ícone">
+            <input value={icon} onChange={(e) => setIcon(e.target.value)} className={inputCls} />
+          </Field>
+          <Field label="Descrição">
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className={`${inputCls} resize-none`}
+            />
+          </Field>
           <Field label="Imagem">
             <div
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
               onDragLeave={() => setDragOver(false)}
-              onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                const f = e.dataTransfer.files[0];
+                if (f) handleFile(f);
+              }}
               className={`border-2 border-dashed rounded p-4 text-center text-xs text-champagne/60 ${dragOver ? "border-gold bg-gold/5" : "border-border"}`}
             >
               {imageUrl ? (
                 <div>
                   <img src={imageUrl} alt="" className="max-h-32 mx-auto rounded mb-2" />
-                  <button type="button" onClick={() => setImageUrl("")} className="text-destructive text-xs">Remover</button>
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="text-destructive text-xs"
+                  >
+                    Remover
+                  </button>
                 </div>
               ) : (
                 <>
                   {uploading ? "Enviando..." : "Arraste uma imagem (PNG/JPG/WEBP, máx 5MB) ou"}
                   <label className="block mt-2 cursor-pointer text-gold">
                     selecionar arquivo
-                    <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleFile(f);
+                      }}
+                    />
                   </label>
                 </>
               )}
             </div>
-            <input value={imageUrl.startsWith("blob:") ? "" : imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="ou cole uma URL de imagem" className={`${inputCls} mt-2`} />
+            <input
+              value={imageUrl.startsWith("blob:") ? "" : imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="ou cole uma URL de imagem"
+              className={`${inputCls} mt-2`}
+            />
           </Field>
         </div>
         <div className="flex gap-3 mt-8">
-          <button type="button" onClick={onClose} className="flex-1 py-3 rounded border border-border text-champagne/70 text-xs uppercase tracking-wider">Cancelar</button>
-          <button type="submit" disabled={saveMut.isPending || uploading} className="flex-1 btn-gold py-3 rounded disabled:opacity-50">{saveMut.isPending ? "..." : "Salvar"}</button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-3 rounded border border-border text-champagne/70 text-xs uppercase tracking-wider"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={saveMut.isPending || uploading}
+            className="flex-1 btn-gold py-3 rounded disabled:opacity-50"
+          >
+            {saveMut.isPending ? "..." : "Salvar"}
+          </button>
         </div>
       </form>
     </div>
   );
 }
 
-const inputCls = "w-full bg-input/60 border border-border rounded px-3 py-2 text-sm text-champagne focus:border-gold/60 focus:outline-none";
+const inputCls =
+  "w-full bg-input/60 border border-border rounded px-3 py-2 text-sm text-champagne focus:border-gold/60 focus:outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block mb-1.5">{label}</span>
+      <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block mb-1.5">
+        {label}
+      </span>
       {children}
     </label>
   );
@@ -446,7 +594,14 @@ function Messages() {
           <h2 className="font-serif text-4xl text-champagne">Mensagens</h2>
           <p className="text-champagne/50 text-sm">Recados dos convidados</p>
         </div>
-        {purchases.length > 0 && <button onClick={() => setConfirmClear(true)} className="px-5 py-2 rounded border border-destructive/40 text-destructive text-xs uppercase tracking-wider hover:bg-destructive/10">Limpar tudo</button>}
+        {purchases.length > 0 && (
+          <button
+            onClick={() => setConfirmClear(true)}
+            className="px-5 py-2 rounded border border-destructive/40 text-destructive text-xs uppercase tracking-wider hover:bg-destructive/10"
+          >
+            Limpar tudo
+          </button>
+        )}
       </div>
       {purchases.length === 0 ? (
         <p className="text-champagne/40 italic text-center py-20">Nenhuma mensagem ainda.</p>
@@ -459,17 +614,32 @@ function Messages() {
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <div className="font-serif text-lg text-gold">{p.guestName}</div>
-                    <div className="text-xs text-champagne/60 italic">presenteou: {g?.title ?? "—"}</div>
+                    <div className="text-xs text-champagne/60 italic">
+                      presenteou: {g?.title ?? "—"}
+                    </div>
                   </div>
-                  <div className="text-[10px] text-champagne/40">{new Date(p.createdAt).toLocaleString("pt-BR")}</div>
+                  <div className="text-[10px] text-champagne/40">
+                    {new Date(p.createdAt).toLocaleString("pt-BR")}
+                  </div>
                 </div>
-                {p.message && <p className="text-champagne/80 text-sm mt-3 border-l-2 border-gold/40 pl-4 italic">"{p.message}"</p>}
+                {p.message && (
+                  <p className="text-champagne/80 text-sm mt-3 border-l-2 border-gold/40 pl-4 italic">
+                    "{p.message}"
+                  </p>
+                )}
               </div>
             );
           })}
         </div>
       )}
-      {confirmClear && <ConfirmDialog title="Limpar mensagens?" message="Esta ação não pode ser desfeita." onConfirm={() => clearMut.mutate()} onCancel={() => setConfirmClear(false)} />}
+      {confirmClear && (
+        <ConfirmDialog
+          title="Limpar mensagens?"
+          message="Esta ação não pode ser desfeita."
+          onConfirm={() => clearMut.mutate()}
+          onCancel={() => setConfirmClear(false)}
+        />
+      )}
     </div>
   );
 }
@@ -499,22 +669,41 @@ function SettingsPanel() {
 
       <div className="grid md:grid-cols-2 gap-4">
         <Card title="Informações do Casal">
-          <Field label="Nomes"><input value={draft.coupleNames} onChange={(e) => setDraft({ ...draft, coupleNames: e.target.value })} className={inputCls} /></Field>
-          <Field label="Data do casamento"><input type="datetime-local" value={draft.weddingDate.slice(0, 16)} onChange={(e) => setDraft({ ...draft, weddingDate: e.target.value })} className={inputCls} /></Field>
+          <Field label="Nomes">
+            <input
+              value={draft.coupleNames}
+              onChange={(e) => setDraft({ ...draft, coupleNames: e.target.value })}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Data do casamento">
+            <input
+              type="datetime-local"
+              value={draft.weddingDate.slice(0, 16)}
+              onChange={(e) => setDraft({ ...draft, weddingDate: e.target.value })}
+              className={inputCls}
+            />
+          </Field>
         </Card>
 
         <Card title="Pagamento">
           <p className="text-champagne/60 text-sm leading-relaxed">
-            Os pagamentos agora são processados pelo <strong className="text-gold">Mercado Pago</strong> (PIX e Cartão de Crédito em até 12x).
+            Os pagamentos agora são processados pelo{" "}
+            <strong className="text-gold">Mercado Pago</strong> (PIX e Cartão de Crédito em até
+            12x).
           </p>
           <p className="text-champagne/40 text-xs leading-relaxed">
-            Token configurado via variável de ambiente <code className="text-gold/70">MERCADO_PAGO_ACCESS_TOKEN</code>.
+            Token configurado via variável de ambiente{" "}
+            <code className="text-gold/70">MERCADO_PAGO_ACCESS_TOKEN</code>.
           </p>
         </Card>
       </div>
 
-
-      <button onClick={() => saveMut.mutate()} disabled={saveMut.isPending} className="btn-gold px-8 py-3 rounded mt-6 disabled:opacity-50">
+      <button
+        onClick={() => saveMut.mutate()}
+        disabled={saveMut.isPending}
+        className="btn-gold px-8 py-3 rounded mt-6 disabled:opacity-50"
+      >
         {saveMut.isPending ? "..." : "Salvar todas alterações"}
       </button>
     </div>
@@ -530,15 +719,41 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-function ConfirmDialog({ title, message, onConfirm, onCancel }: { title: string; message: string; onConfirm: () => void; onCancel: () => void }) {
+function ConfirmDialog({
+  title,
+  message,
+  onConfirm,
+  onCancel,
+}: {
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
   return (
-    <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onCancel}>
-      <div onClick={(e) => e.stopPropagation()} className="bg-card border border-destructive/30 rounded-lg p-8 max-w-sm w-full text-center">
+    <div
+      className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onCancel}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-card border border-destructive/30 rounded-lg p-8 max-w-sm w-full text-center"
+      >
         <h3 className="font-serif text-2xl text-champagne mb-3">{title}</h3>
         <p className="text-champagne/60 text-sm mb-8">{message}</p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-2.5 rounded border border-border text-champagne/70 text-xs uppercase tracking-wider">Cancelar</button>
-          <button onClick={onConfirm} className="flex-1 py-2.5 rounded bg-destructive text-destructive-foreground text-xs uppercase tracking-wider">Confirmar</button>
+          <button
+            onClick={onCancel}
+            className="flex-1 py-2.5 rounded border border-border text-champagne/70 text-xs uppercase tracking-wider"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-2.5 rounded bg-destructive text-destructive-foreground text-xs uppercase tracking-wider"
+          >
+            Confirmar
+          </button>
         </div>
       </div>
     </div>
