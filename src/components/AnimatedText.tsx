@@ -66,7 +66,11 @@ export function AnimatedText({
           ease: "power3.out",
           stagger,
           delay,
-          scrollTrigger: { trigger: el, start },
+          scrollTrigger: { 
+            trigger: el, 
+            start,
+            toggleActions: "play none none reverse" 
+          },
         },
       );
     }, el);
