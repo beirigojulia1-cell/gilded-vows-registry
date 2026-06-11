@@ -334,6 +334,24 @@ export const deleteGift = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const reorderGiftsSchema = z.object({
+  order: z.array(z.object({ id: z.string().uuid(), sortOrder: z.number().int() })),
+});
+
+export const reorderGifts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => reorderGiftsSchema.parse(d))
+  .handler(async ({ context, data }) => {
+    await requireAdmin(context);
+    const client = context.supabase as any;
+    await Promise.all(
+      data.order.map(({ id, sortOrder }) =>
+        client.from("gifts").update({ sort_order: sortOrder }).eq("id", id),
+      ),
+    );
+    return { ok: true };
+  });
+
 const siteContentSchema = z.record(z.string(), z.string().max(2000)).optional();
 
 const settingsSchema = z.object({

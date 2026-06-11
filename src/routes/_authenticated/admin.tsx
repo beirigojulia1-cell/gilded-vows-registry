@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,7 @@ import {
   deleteRsvp,
   listRsvps,
   markAllPurchasesRead,
+  reorderGifts,
   updateGift,
   updateSettings,
   uploadGiftImage,
@@ -215,7 +216,7 @@ function Dashboard() {
 function GiftsAdmin() {
   const { push } = useToast();
   const qc = useQueryClient();
-  const gifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
+  const rawGifts: Gift[] = useQuery(giftsQuery).data?.gifts ?? [];
   const purchasesQueryResult = useQuery(purchasesQuery);
   const purchases: Purchase[] = purchasesQueryResult.data?.purchases ?? [];
   const purchasedIds = new Set(purchases.map((p: Purchase) => p.giftId));
@@ -225,19 +226,36 @@ function GiftsAdmin() {
   const [editing, setEditing] = useState<Gift | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [confirmDel, setConfirmDel] = useState<Gift | null>(null);
+  // Local ordered list for drag-and-drop (only used when no filter is active)
+  const [localOrder, setLocalOrder] = useState<Gift[]>([]);
+  const [reordering, setReordering] = useState(false);
+  const dragItem = useRef<number | null>(null);
+  const dragOver = useRef<number | null>(null);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dropIdx, setDropIdx] = useState<number | null>(null);
+
+  // Sync localOrder when gifts load or change
+  useEffect(() => {
+    setLocalOrder([...rawGifts]);
+  }, [rawGifts]);
+
+  const isFiltering = q !== "" || cat !== "Todas" || status !== "all";
+  const gifts = isFiltering ? rawGifts : localOrder;
 
   const cats: Array<GiftCategory | "Todas"> = [
     "Todas",
-    ...Array.from(new Set(gifts.map((g: Gift) => g.category))),
+    ...Array.from(new Set(rawGifts.map((g: Gift) => g.category))),
   ];
-  const filtered = gifts.filter((g: Gift) => {
-    if (q && !g.title.toLowerCase().includes(q.toLowerCase())) return false;
-    if (cat !== "Todas" && g.category !== cat) return false;
-    const isTaken = purchasedIds.has(g.id);
-    if (status === "available" && isTaken) return false;
-    if (status === "purchased" && !isTaken) return false;
-    return true;
-  });
+  const filtered = isFiltering
+    ? rawGifts.filter((g: Gift) => {
+        if (q && !g.title.toLowerCase().includes(q.toLowerCase())) return false;
+        if (cat !== "Todas" && g.category !== cat) return false;
+        const isTaken = purchasedIds.has(g.id);
+        if (status === "available" && isTaken) return false;
+        if (status === "purchased" && !isTaken) return false;
+        return true;
+      })
+    : localOrder;
 
   const delMut = useMutation({
     mutationFn: (id: string) => deleteGift({ data: { id } }),
@@ -250,6 +268,48 @@ function GiftsAdmin() {
     onError: (e: Error) => push(e.message, "error"),
   });
 
+  const reorderMut = useMutation({
+    mutationFn: (order: { id: string; sortOrder: number }[]) =>
+      reorderGifts({ data: { order } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["gifts"] });
+      push("Ordem salva!", "success");
+      setReordering(false);
+    },
+    onError: (e: Error) => push(e.message, "error"),
+  });
+
+  function moveGift(fromIdx: number, toIdx: number) {
+    const next = [...localOrder];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    setLocalOrder(next);
+    setReordering(true);
+  }
+
+  function saveOrder() {
+    const order = localOrder.map((g, i) => ({ id: g.id, sortOrder: i + 1 }));
+    reorderMut.mutate(order);
+  }
+
+  function handleDragStart(idx: number) {
+    dragItem.current = idx;
+    setDragIdx(idx);
+  }
+  function handleDragEnter(idx: number) {
+    dragOver.current = idx;
+    setDropIdx(idx);
+  }
+  function handleDragEnd() {
+    if (dragItem.current !== null && dragOver.current !== null && dragItem.current !== dragOver.current) {
+      moveGift(dragItem.current, dragOver.current);
+    }
+    dragItem.current = null;
+    dragOver.current = null;
+    setDragIdx(null);
+    setDropIdx(null);
+  }
+
   return (
     <div>
       <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
@@ -257,15 +317,26 @@ function GiftsAdmin() {
           <h2 className="font-serif text-4xl text-champagne">Presentes</h2>
           <p className="text-champagne/50 text-sm">Gerencie sua lista</p>
         </div>
-        <button
-          onClick={() => {
-            setEditing(null);
-            setShowForm(true);
-          }}
-          className="btn-gold px-6 py-3 rounded"
-        >
-          + Adicionar Presente
-        </button>
+        <div className="flex gap-3 flex-wrap">
+          {reordering && (
+            <button
+              onClick={saveOrder}
+              disabled={reorderMut.isPending}
+              className="btn-gold px-5 py-3 rounded text-sm"
+            >
+              {reorderMut.isPending ? "Salvando…" : "💾 Salvar Ordem"}
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setEditing(null);
+              setShowForm(true);
+            }}
+            className="btn-gold px-6 py-3 rounded"
+          >
+            + Adicionar Presente
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-3 mb-6 flex-wrap">
@@ -295,19 +366,64 @@ function GiftsAdmin() {
         </select>
       </div>
 
+      {!isFiltering && (
+        <p className="text-champagne/40 text-xs mb-4 flex items-center gap-2">
+          <span>⠿</span> Arraste os cards para reordenar ou use os botões ↑↓
+        </p>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((g) => {
+        {filtered.map((g, idx) => {
           const taken = purchasedIds.has(g.id);
+          const isDragging = dragIdx === idx;
+          const isDropTarget = dropIdx === idx && dragIdx !== idx;
           return (
-            <div key={g.id} className="bg-card border border-gold/15 rounded-lg overflow-hidden">
+            <div
+              key={g.id}
+              draggable={!isFiltering}
+              onDragStart={() => handleDragStart(idx)}
+              onDragEnter={() => handleDragEnter(idx)}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnd={handleDragEnd}
+              className={`bg-card border rounded-lg overflow-hidden transition-all duration-200
+                ${isDragging ? "opacity-40 scale-95 border-gold/50" : ""}
+                ${isDropTarget ? "border-gold ring-2 ring-gold/40" : "border-gold/15"}
+                ${!isFiltering ? "cursor-grab active:cursor-grabbing" : ""}
+              `}
+            >
               <div
-                className="h-32 flex items-center justify-center text-5xl"
+                className="h-32 flex items-center justify-center text-5xl relative group"
                 style={{ background: g.gradient ?? undefined }}
               >
                 {g.imageUrl ? (
                   <img src={g.imageUrl} alt="" className="w-full h-full object-contain" />
                 ) : (
                   g.icon
+                )}
+                {!isFiltering && (
+                  <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+                    <button
+                      onClick={() => idx > 0 && moveGift(idx, idx - 1)}
+                      disabled={idx === 0}
+                      title="Mover para cima"
+                      className="w-7 h-7 rounded bg-black/60 border border-gold/30 text-gold text-sm hover:bg-gold/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => idx < filtered.length - 1 && moveGift(idx, idx + 1)}
+                      disabled={idx === filtered.length - 1}
+                      title="Mover para baixo"
+                      className="w-7 h-7 rounded bg-black/60 border border-gold/30 text-gold text-sm hover:bg-gold/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                )}
+                {!isFiltering && (
+                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[10px] bg-black/60 text-champagne/60 px-2 py-1 rounded tracking-wider">#{idx + 1}</span>
+                  </div>
                 )}
               </div>
               <div className="p-4">
