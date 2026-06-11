@@ -104,7 +104,6 @@ const GALLERY = [
   { src: g5, word: "Alegria", h: "h-[380px]" },
   { src: g2, word: "Eternidade", h: "h-[340px]" },
   { src: g4, word: "Para Sempre", h: "h-[440px]" },
-  { src: g1, word: "Aventura", h: "h-[300px]" },
 ];
 
 function scrollToId(id: string) {
