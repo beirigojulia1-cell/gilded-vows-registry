@@ -434,7 +434,7 @@ function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   );
 }
 
-function LoveStory({ sc }: { sc: Record<string, string> }) {
+function LoveStory({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -517,8 +517,20 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
     <div ref={wrapRef} className="overflow-hidden">
       {CHAPTERS.map((c, i) => {
         const photoRight = i % 2 === 1;
-        const focusY = parseInt(sc[`chapter${i + 1}FocusY`] ?? "15", 10);
-        const chapterImgUrl = sc[`chapter${i + 1}ImageUrl`] || c.img;
+        const n = i + 1 as 1 | 2 | 3 | 4;
+        const focusYKey  = `chapter${n}FocusY`  as keyof typeof SITE_CONTENT_DEFAULTS;
+        const imgKey     = `chapter${n}ImageUrl` as keyof typeof SITE_CONTENT_DEFAULTS;
+        const tagKey     = `chapter${n}Tag`      as keyof typeof SITE_CONTENT_DEFAULTS;
+        const titleKey   = `chapter${n}Title`    as keyof typeof SITE_CONTENT_DEFAULTS;
+        const yearKey    = `chapter${n}Year`     as keyof typeof SITE_CONTENT_DEFAULTS;
+        const textKey    = `chapter${n}Text`     as keyof typeof SITE_CONTENT_DEFAULTS;
+        const focusY = parseInt((sc[focusYKey] as string) ?? "15", 10);
+        const chapterImgUrl = (sc[imgKey] as string) || c.img;
+        // Text overrides from admin
+        const tag   = (sc[tagKey]   as string) || c.tag;
+        const title = (sc[titleKey] as string) || c.title;
+        const year  = (sc[yearKey]  as string) || c.year;
+        const text  = (sc[textKey]  as string) || c.text;
         return (
           <section
             key={c.n}
@@ -534,7 +546,7 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
               <img
                 data-ci="img"
                 src={chapterImgUrl}
-                alt={c.title}
+                alt={title}
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: `center ${focusY}%`, transformOrigin: "center top", willChange: "transform" }}
                 loading={i === 0 ? "eager" : "lazy"}
@@ -574,30 +586,31 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
                   data-ci="text"
                   className="text-[7px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-gold/80 mb-1 sm:mb-5"
                 >
-                  {c.tag}
+                  {tag}
                 </p>
                 <h3
                   data-ci="text"
                   className="font-serif text-base sm:text-4xl md:text-5xl text-champagne mb-1 sm:mb-5 leading-[1.1] font-light"
                 >
-                  {c.title}
+                  {title}
                 </h3>
                 <p
                   data-ci="text"
                   className="text-[7px] sm:text-[11px] tracking-[0.25em] sm:tracking-[0.35em] text-gold/80 mb-2 sm:mb-7"
                 >
-                  {c.year}
+                  {year}
                 </p>
                 <p
                   data-ci="text"
                   className="text-champagne/70 leading-relaxed text-[0.6rem] sm:text-sm md:text-base font-light mb-3 sm:mb-8"
                 >
-                  {c.text}
+                  {text}
                 </p>
                 <div data-ci="text" className="gold-rule w-8 sm:w-16" />
               </div>
             </div>
           </section>
+
         );
 
 

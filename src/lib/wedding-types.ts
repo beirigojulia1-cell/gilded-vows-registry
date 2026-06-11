@@ -38,6 +38,34 @@ export type SiteContent = {
   closingPhrase: string;
   heroImageUrl: string;
   closingImageUrl: string;
+  // Chapter 1
+  chapter1Tag: string;
+  chapter1Title: string;
+  chapter1Year: string;
+  chapter1Text: string;
+  chapter1ImageUrl: string;
+  chapter1FocusY: string;
+  // Chapter 2
+  chapter2Tag: string;
+  chapter2Title: string;
+  chapter2Year: string;
+  chapter2Text: string;
+  chapter2ImageUrl: string;
+  chapter2FocusY: string;
+  // Chapter 3
+  chapter3Tag: string;
+  chapter3Title: string;
+  chapter3Year: string;
+  chapter3Text: string;
+  chapter3ImageUrl: string;
+  chapter3FocusY: string;
+  // Chapter 4
+  chapter4Tag: string;
+  chapter4Title: string;
+  chapter4Year: string;
+  chapter4Text: string;
+  chapter4ImageUrl: string;
+  chapter4FocusY: string;
 };
 
 export const SITE_CONTENT_DEFAULTS: SiteContent = {
@@ -57,6 +85,34 @@ export const SITE_CONTENT_DEFAULTS: SiteContent = {
   closingPhrase: "Mal podemos esperar para viver esse momento com você.",
   heroImageUrl: "",
   closingImageUrl: "",
+  // Chapter 1
+  chapter1Tag: "Primeiro Capítulo",
+  chapter1Title: "Primeiro Encontro",
+  chapter1Year: "2019",
+  chapter1Text: "Naquele dia, o universo conspirou para que dois caminhos se cruzassem. Um olhar que durou apenas um instante — mas que mudaria tudo para sempre.",
+  chapter1ImageUrl: "",
+  chapter1FocusY: "15",
+  // Chapter 2
+  chapter2Tag: "Segundo Capítulo",
+  chapter2Title: "Primeira Viagem",
+  chapter2Year: "2020",
+  chapter2Text: "Descobrir o mundo juntos revelou que o melhor destino nunca é um lugar — é a pessoa ao seu lado.",
+  chapter2ImageUrl: "",
+  chapter2FocusY: "15",
+  // Chapter 3
+  chapter3Tag: "Terceiro Capítulo",
+  chapter3Title: "Momentos Especiais",
+  chapter3Year: "2021 — 2023",
+  chapter3Text: "Cada risada compartilhada, cada silêncio confortável, cada momento ordinário transformado em memória preciosa e eterna.",
+  chapter3ImageUrl: "",
+  chapter3FocusY: "15",
+  // Chapter 4
+  chapter4Tag: "Quarto Capítulo",
+  chapter4Title: "Pedido de Casamento",
+  chapter4Year: "2024",
+  chapter4Text: "\"Você quer casar comigo?\" — e o tempo parou. O coração respondeu antes mesmo das palavras. Sim. Para sempre. Sim.",
+  chapter4ImageUrl: "",
+  chapter4FocusY: "15",
 };
 
 export type Settings = {

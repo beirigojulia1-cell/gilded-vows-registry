@@ -762,42 +762,26 @@ function SettingsPanel() {
   const { data: settingsData, isLoading } = useQuery(settingsQuery);
   const settings = settingsData?.settings;
 
-  // Always initialize with a stable default so useState and hooks are consistent
   const [coupleNames, setCoupleNames] = useState("");
   const [weddingDate, setWeddingDate] = useState("");
-  const [pixKey, setPixKey] = useState("");
-  const [pixName, setPixName] = useState("");
-  const [pixCity, setPixCity] = useState("");
   const [content, setContent] = useState<Record<string, string>>({});
-  const [tab, setTab] = useState<"evento" | "textos" | "imagens" | "pix">("evento");
+  const [tab, setTab] = useState<"evento" | "textos" | "imagens">("evento");
   const [synced, setSynced] = useState(false);
   const [imgUploading, setImgUploading] = useState<string | null>(null);
 
-  // Sync from DB once on load — safe: never causes hook order issues
   useEffect(() => {
     if (settings && !synced) {
       setCoupleNames(settings.coupleNames);
       setWeddingDate(settings.weddingDate?.slice(0, 16) ?? "");
-      setPixKey(settings.pixKey ?? "");
-      setPixName(settings.pixName ?? "");
-      setPixCity(settings.pixCity ?? "");
       setContent({ ...settings.content });
       setSynced(true);
     }
   }, [settings, synced]);
 
-  // Always defined — never after a conditional return
   const saveMut = useMutation({
     mutationFn: () =>
       updateSettings({
-        data: {
-          coupleNames,
-          weddingDate,
-          pixKey,
-          pixName,
-          pixCity,
-          content,
-        },
+        data: { coupleNames, weddingDate, pixKey: "", pixName: "", pixCity: "", content },
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["settings"] });
@@ -807,7 +791,7 @@ function SettingsPanel() {
   });
 
   const setC = (key: string, val: string) => setContent((prev) => ({ ...prev, [key]: val }));
-  const c = (key: string, fallback: string) => content[key] ?? fallback;
+  const c = (key: string, fallback = "") => content[key] ?? fallback;
 
   const handleImageFile = async (file: File, key: string) => {
     if (!/image\/(png|jpeg|jpg|webp)/.test(file.type)) {
@@ -824,11 +808,9 @@ function SettingsPanel() {
       try {
         const dataUrl = ev.target?.result as string;
         const base64 = dataUrl.split(",")[1];
-        const res = await uploadSiteImage({
-          data: { fileName: file.name, contentType: file.type, base64 },
-        });
+        const res = await uploadSiteImage({ data: { fileName: file.name, contentType: file.type, base64 } });
         setC(key, res.url);
-        push("Imagem enviada!", "success");
+        push("Imagem enviada com sucesso!", "success");
       } catch (e: any) {
         push(e?.message ?? "Erro no upload", "error");
       } finally {
@@ -839,12 +821,34 @@ function SettingsPanel() {
     reader.readAsDataURL(file);
   };
 
-  const ImageUpload = ({ label, fieldKey }: { label: string; fieldKey: string }) => {
-    const url = c(fieldKey, "");
+  // Reusable image upload widget
+  const ImageUpload = ({ label, fieldKey, hint, aspect = "landscape" }: {
+    label: string; fieldKey: string; hint?: string; aspect?: "landscape" | "portrait" | "square";
+  }) => {
+    const url = c(fieldKey);
     const loading = imgUploading === fieldKey;
+    const aspectClass = aspect === "portrait" ? "aspect-[3/4]" : aspect === "square" ? "aspect-square" : "aspect-video";
     return (
       <div className="space-y-2">
-        <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block">{label}</span>
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] tracking-[0.2em] uppercase text-champagne/60 font-medium">{label}</span>
+          {url && (
+            <button type="button" onClick={() => setC(fieldKey, "")}
+              className="text-[10px] text-destructive/70 hover:text-destructive transition-colors">
+              ✕ Remover
+            </button>
+          )}
+        </div>
+        {hint && <p className="text-champagne/30 text-[11px]">{hint}</p>}
+
+        {/* Preview */}
+        {url && (
+          <div className={`relative w-full ${aspectClass} rounded overflow-hidden border border-gold/20 bg-black/30`}>
+            <img src={url} alt={label} className="absolute inset-0 w-full h-full object-cover" />
+          </div>
+        )}
+
+        {/* Drop zone */}
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleImageFile(f, fieldKey); }}
@@ -858,29 +862,50 @@ function SettingsPanel() {
               }
             }
           }}
-          className="border-2 border-dashed border-border rounded p-4 text-center text-xs text-champagne/50 focus-within:border-gold/40"
+          className={`border-2 border-dashed rounded-lg p-4 text-center text-xs text-champagne/40 transition-colors cursor-pointer focus-within:border-gold/40
+            ${loading ? "border-gold/40 bg-gold/5" : "border-border/50 hover:border-gold/30 hover:bg-white/[0.02]"}`}
         >
-          {url ? (
-            <div>
-              <img src={url} alt="" className="max-h-28 mx-auto rounded mb-2 object-cover" />
-              <button type="button" onClick={() => setC(fieldKey, "")} className="text-destructive text-xs hover:underline">
-                Remover
-              </button>
-            </div>
+          {loading ? (
+            <span className="text-gold">Enviando… aguarde</span>
           ) : (
             <>
-              <p className="mb-2">{loading ? "Enviando…" : "Arraste, cole (Ctrl+V) ou selecione"}</p>
-              <label className="cursor-pointer text-gold hover:underline">
+              <p className="mb-1">Arraste a foto aqui, ou cole com <kbd className="bg-white/10 px-1 rounded">Ctrl+V</kbd></p>
+              <label className="cursor-pointer text-gold/80 hover:text-gold underline-offset-2 hover:underline">
                 selecionar arquivo
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageFile(f, fieldKey); }}
-                />
+                <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageFile(f, fieldKey); }} />
               </label>
             </>
           )}
+        </div>
+      </div>
+    );
+  };
+
+  // Focus slider with live preview
+  const FocusSlider = ({ chapterNum, imgKey, focusKey }: { chapterNum: number; imgKey: string; focusKey: string }) => {
+    const imgUrl = c(imgKey);
+    const focusVal = parseInt(c(focusKey, "15"), 10);
+    return (
+      <div className="space-y-2 mt-3 pt-3 border-t border-border/30">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-champagne/50">Enquadramento vertical</span>
+          <span className="text-gold text-xs font-mono">{focusVal}%</span>
+        </div>
+        {imgUrl && (
+          <div className="relative w-full h-24 rounded overflow-hidden border border-gold/10 bg-black/20">
+            <img src={imgUrl} alt="" className="absolute inset-0 w-full h-full object-cover transition-all duration-150"
+              style={{ objectPosition: `center ${focusVal}%` }} />
+            <div className="absolute left-0 right-0 h-px bg-gold/50 pointer-events-none"
+              style={{ top: `${focusVal}%` }} />
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <span className="text-champagne/30 text-[10px]">Topo</span>
+          <input type="range" min={0} max={100} value={focusVal}
+            onChange={(e) => setC(focusKey, e.target.value)}
+            className="flex-1 accent-gold cursor-pointer" />
+          <span className="text-champagne/30 text-[10px]">Base</span>
         </div>
       </div>
     );
@@ -898,7 +923,13 @@ function SettingsPanel() {
     { id: "evento" as const, label: "📅 Evento" },
     { id: "textos" as const, label: "✏️ Textos" },
     { id: "imagens" as const, label: "🖼️ Imagens" },
-    { id: "pix" as const, label: "💳 Pagamento" },
+  ];
+
+  const CHAPTER_DEFAULTS = [
+    { n: 1, tag: "Primeiro Capítulo", title: "Primeiro Encontro", year: "2019", text: "Naquele dia, o universo conspirou para que dois caminhos se cruzassem. Um olhar que durou apenas um instante — mas que mudaria tudo para sempre." },
+    { n: 2, tag: "Segundo Capítulo",  title: "Primeira Viagem",   year: "2020", text: "Descobrir o mundo juntos revelou que o melhor destino nunca é um lugar — é a pessoa ao seu lado." },
+    { n: 3, tag: "Terceiro Capítulo", title: "Momentos Especiais", year: "2021 — 2023", text: "Cada risada compartilhada, cada silêncio confortável, cada momento ordinário transformado em memória preciosa e eterna." },
+    { n: 4, tag: "Quarto Capítulo",  title: "Pedido de Casamento", year: "2024", text: "\"Você quer casar comigo?\" — e o tempo parou. O coração respondeu antes mesmo das palavras. Sim. Para sempre. Sim." },
   ];
 
   return (
@@ -909,11 +940,8 @@ function SettingsPanel() {
       {/* Tab bar */}
       <div className="flex gap-2 flex-wrap mb-8 border-b border-border/60 pb-4">
         {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded text-sm transition-all ${tab === t.id ? "bg-gold/15 text-gold border border-gold/30" : "text-champagne/60 hover:text-champagne hover:bg-white/5"}`}
-          >
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`px-4 py-2 rounded text-sm transition-all ${tab === t.id ? "bg-gold/15 text-gold border border-gold/30" : "text-champagne/60 hover:text-champagne hover:bg-white/5"}`}>
             {t.label}
           </button>
         ))}
@@ -929,19 +957,14 @@ function SettingsPanel() {
             <Field label="Nome 2 (hero do site)">
               <input value={c("name2", "Sérgio Vasconcelos")} onChange={(e) => setC("name2", e.target.value)} className={inputCls} />
             </Field>
-            <Field label="Legenda superior do hero (ex: Casamento · 2026)">
+            <Field label="Legenda superior do hero">
               <input value={c("heroSubtitle", "Casamento · 2026")} onChange={(e) => setC("heroSubtitle", e.target.value)} className={inputCls} />
             </Field>
           </Card>
 
           <Card title="Data & Local">
             <Field label="Data/Hora da cerimônia">
-              <input
-                type="datetime-local"
-                value={weddingDate}
-                onChange={(e) => setWeddingDate(e.target.value)}
-                className={inputCls}
-              />
+              <input type="datetime-local" value={weddingDate} onChange={(e) => setWeddingDate(e.target.value)} className={inputCls} />
             </Field>
             <Field label="Data por extenso (ex: 28 de Junho)">
               <input value={c("ceremonyDateLabel", "28 de Junho")} onChange={(e) => setC("ceremonyDateLabel", e.target.value)} className={inputCls} />
@@ -983,6 +1006,36 @@ function SettingsPanel() {
             </Field>
           </Card>
 
+          <Card title="Capítulos da História do Casal">
+            <p className="text-champagne/40 text-xs mb-4">Edite o título, tag, ano e texto de cada capítulo da história.</p>
+            <div className="space-y-6">
+              {CHAPTER_DEFAULTS.map((ch) => (
+                <div key={ch.n} className="border border-border/40 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-serif text-gold/60 text-lg">{String(ch.n).padStart(2, "0")}</span>
+                    <span className="text-champagne/60 text-sm font-medium">{c(`chapter${ch.n}Title`, ch.title)}</span>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <Field label="Etiqueta do capítulo">
+                      <input value={c(`chapter${ch.n}Tag`, ch.tag)} onChange={(e) => setC(`chapter${ch.n}Tag`, e.target.value)} className={inputCls} />
+                    </Field>
+                    <Field label="Título">
+                      <input value={c(`chapter${ch.n}Title`, ch.title)} onChange={(e) => setC(`chapter${ch.n}Title`, e.target.value)} className={inputCls} />
+                    </Field>
+                    <Field label="Ano / Período">
+                      <input value={c(`chapter${ch.n}Year`, ch.year)} onChange={(e) => setC(`chapter${ch.n}Year`, e.target.value)} className={inputCls} />
+                    </Field>
+                  </div>
+                  <Field label="Texto do capítulo">
+                    <textarea rows={3} value={c(`chapter${ch.n}Text`, ch.text)}
+                      onChange={(e) => setC(`chapter${ch.n}Text`, e.target.value)}
+                      className={`${inputCls} resize-none`} />
+                  </Field>
+                </div>
+              ))}
+            </div>
+          </Card>
+
           <Card title="Seção de Confirmação (RSVP)">
             <Field label="Subtexto abaixo do título">
               <input value={c("rsvpSubtitle", "Sua presença é o maior presente que poderíamos receber.")} onChange={(e) => setC("rsvpSubtitle", e.target.value)} className={inputCls} />
@@ -991,12 +1044,8 @@ function SettingsPanel() {
 
           <Card title="Frase de Encerramento">
             <Field label="Frase da última seção do site">
-              <textarea
-                rows={3}
-                value={c("closingPhrase", "Mal podemos esperar para viver esse momento com você.")}
-                onChange={(e) => setC("closingPhrase", e.target.value)}
-                className={`${inputCls} resize-none`}
-              />
+              <textarea rows={3} value={c("closingPhrase", "Mal podemos esperar para viver esse momento com você.")}
+                onChange={(e) => setC("closingPhrase", e.target.value)} className={`${inputCls} resize-none`} />
             </Field>
           </Card>
         </div>
@@ -1004,134 +1053,60 @@ function SettingsPanel() {
 
       {/* ── IMAGENS ── */}
       {tab === "imagens" && (
-        <div className="space-y-6"
-          onPaste={(e) => {
-            // Forward paste to active image field handled inside ImageUpload
-          }}
-        >
-          {/* Site images */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card title="Imagem do Hero (fundo principal)">
-              <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da seção principal. Recomendado: landscape, mín. 1400px.</p>
-              <ImageUpload label="Foto do Hero" fieldKey="heroImageUrl" />
-            </Card>
-            <Card title="Imagem de Encerramento">
-              <p className="text-champagne/40 text-xs mb-3">Substitui a foto de fundo da última seção do site.</p>
-              <ImageUpload label="Foto de Encerramento" fieldKey="closingImageUrl" />
-            </Card>
-          </div>
-
-          {/* Chapter image focus controls */}
-          <Card title="📸 Foco das Fotos dos Capítulos">
-            <p className="text-champagne/40 text-xs mb-4 leading-relaxed">
-              Ajuste a posição vertical de cada foto para que o rosto do casal apareça sempre visível. Arraste o controle para cima/baixo e veja a prévia em tempo real.
-            </p>
+        <div className="space-y-6">
+          {/* Principal images */}
+          <Card title="Imagens Principais do Site">
             <div className="grid md:grid-cols-2 gap-6">
-              {[
-                { key: "chapter1FocusY", label: "Capítulo 1 — Primeiro Encontro" },
-                { key: "chapter2FocusY", label: "Capítulo 2 — Primeira Viagem" },
-                { key: "chapter3FocusY", label: "Capítulo 3 — Momentos Especiais" },
-                { key: "chapter4FocusY", label: "Capítulo 4 — Pedido de Casamento" },
-              ].map((ch, i) => {
-                const focusVal = parseInt(c(ch.key, "15"), 10);
-                const imgKeys = ["heroImageUrl", "heroImageUrl", "heroImageUrl", "heroImageUrl"];
-                // Use the actual chapter content keys from settings (chapters override if uploaded)
-                const chapterImgKey = `chapter${i + 1}ImageUrl`;
-                const chapterImgUrl = c(chapterImgKey, "");
+              <ImageUpload label="Foto do Hero (fundo principal)"
+                fieldKey="heroImageUrl"
+                hint="Aparece como fundo da primeira seção. Recomendado: landscape, mín. 1400px."
+                aspect="landscape" />
+              <ImageUpload label="Foto de Encerramento"
+                fieldKey="closingImageUrl"
+                hint="Aparece como fundo da última seção do site."
+                aspect="landscape" />
+            </div>
+          </Card>
 
-                return (
-                  <div key={ch.key} className="space-y-3">
-                    <span className="text-[10px] tracking-[0.25em] uppercase text-champagne/60 block">{ch.label}</span>
-
-                    {/* Live preview */}
-                    <div className="relative w-full h-36 rounded overflow-hidden border border-gold/10 bg-black/20">
-                      {chapterImgUrl ? (
-                        <img
-                          src={chapterImgUrl}
-                          alt={ch.label}
-                          className="absolute inset-0 w-full h-full object-cover transition-all duration-300"
-                          style={{ objectPosition: `center ${focusVal}%` }}
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-champagne/30 text-xs">
-                          Upload uma foto do capítulo abaixo para pré-visualizar
-                        </div>
-                      )}
-                      {/* Focus indicator line */}
-                      <div
-                        className="absolute left-0 right-0 h-px bg-gold/60 pointer-events-none transition-all duration-300"
-                        style={{ top: `${focusVal}%` }}
-                      />
-                    </div>
-
-                    {/* Y position slider */}
-                    <div className="flex items-center gap-3">
-                      <span className="text-champagne/40 text-xs w-12">Topo</span>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        value={focusVal}
-                        onChange={(e) => setC(ch.key, e.target.value)}
-                        className="flex-1 accent-gold cursor-pointer h-1"
-                      />
-                      <span className="text-champagne/40 text-xs w-12 text-right">Base</span>
-                      <span className="text-gold text-xs font-mono w-10 text-right">{focusVal}%</span>
-                    </div>
-
-                    {/* Chapter image upload */}
-                    <ImageUpload label={`Substituir foto do ${ch.label.split("—")[1]?.trim() ?? "capítulo"}`} fieldKey={chapterImgKey} />
+          {/* Chapter images */}
+          <Card title="Fotos dos Capítulos da História">
+            <p className="text-champagne/40 text-xs mb-6 leading-relaxed">
+              Faça upload das fotos de cada capítulo. Use o controle de enquadramento para ajustar qual parte da foto aparece em destaque.
+            </p>
+            <div className="grid md:grid-cols-2 gap-8">
+              {CHAPTER_DEFAULTS.map((ch) => (
+                <div key={ch.n} className="space-y-1">
+                  <div className="text-[11px] tracking-[0.25em] uppercase text-gold/70 mb-3 font-medium">
+                    Capítulo {ch.n} — {c(`chapter${ch.n}Title`, ch.title)}
                   </div>
-                );
-              })}
+                  <ImageUpload
+                    label={`Foto do capítulo ${ch.n}`}
+                    fieldKey={`chapter${ch.n}ImageUrl`}
+                    hint="Recomendado: retrato (3:4), mín. 800px altura."
+                    aspect="portrait"
+                  />
+                  <FocusSlider
+                    chapterNum={ch.n}
+                    imgKey={`chapter${ch.n}ImageUrl`}
+                    focusKey={`chapter${ch.n}FocusY`}
+                  />
+                </div>
+              ))}
             </div>
           </Card>
         </div>
       )}
 
-
-      {/* ── PAGAMENTO ── */}
-      {tab === "pix" && (
-        <div className="grid md:grid-cols-2 gap-4">
-          <Card title="Dados PIX (Fallback Manual)">
-            <p className="text-champagne/40 text-xs leading-relaxed mb-3">
-              Estes dados são exibidos caso o Mercado Pago não esteja configurado. Os pagamentos online são processados via <strong className="text-gold">Mercado Pago</strong>.
-            </p>
-            <Field label="Chave PIX">
-              <input value={pixKey} onChange={(e) => setPixKey(e.target.value)} className={inputCls} placeholder="email, CPF ou chave aleatória" />
-            </Field>
-            <Field label="Nome do favorecido">
-              <input value={pixName} onChange={(e) => setPixName(e.target.value)} className={inputCls} />
-            </Field>
-            <Field label="Cidade">
-              <input value={pixCity} onChange={(e) => setPixCity(e.target.value)} className={inputCls} />
-            </Field>
-          </Card>
-          <Card title="Mercado Pago">
-            <p className="text-champagne/60 text-sm leading-relaxed">
-              Token configurado via variável de ambiente <code className="text-gold/70">MERCADO_PAGO_ACCESS_TOKEN</code>.
-            </p>
-            <p className="text-champagne/40 text-xs mt-3">Para alterar o token, edite o arquivo <code>.env</code> e faça um novo deploy.</p>
-          </Card>
-        </div>
-      )}
-
       <div className="mt-8 pt-6 border-t border-border/40 flex items-center gap-4">
-        <button
-          onClick={() => saveMut.mutate()}
-          disabled={saveMut.isPending || !synced}
-          className="btn-gold px-8 py-3 rounded disabled:opacity-50 min-w-[180px]"
-        >
+        <button onClick={() => saveMut.mutate()} disabled={saveMut.isPending || !synced}
+          className="btn-gold px-8 py-3 rounded disabled:opacity-50 min-w-[180px]">
           {saveMut.isPending ? "Salvando…" : "Salvar todas as alterações"}
         </button>
-        {saveMut.isSuccess && (
-          <span className="text-emerald-400 text-sm">✓ Salvo com sucesso</span>
-        )}
+        {saveMut.isSuccess && <span className="text-emerald-400 text-sm">✓ Salvo com sucesso</span>}
       </div>
     </div>
   );
 }
-
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
