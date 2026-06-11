@@ -27,7 +27,7 @@ export function CountdownTimer({ date }: { date: string }) {
   ];
 
   return (
-    <div className="relative py-32 overflow-hidden">
+    <div className="relative py-16 md:py-32 overflow-hidden bg-[#060606]">
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
         <span className="font-serif text-[24rem] md:text-[32rem] leading-none text-gold/[0.04] font-light">
           2026

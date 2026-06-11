@@ -671,7 +671,7 @@ function Gallery() {
 
 function Proposal() {
   return (
-    <section className="relative min-h-screen flex flex-col md:flex-row overflow-hidden bg-[#060606]">
+    <section className="relative md:min-h-screen flex flex-col md:flex-row overflow-hidden bg-[#060606]">
       {/* ── top fade: blends with cream Gallery section above ── */}
       <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[oklch(0.96_0.012_85)] to-transparent z-20 pointer-events-none" />
 
