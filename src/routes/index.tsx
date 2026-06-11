@@ -523,11 +523,11 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
           <section
             key={c.n}
             data-cs
-            className="relative grid grid-cols-2 h-screen"
+            className="relative grid grid-cols-2 min-h-[60vh] md:h-screen"
           >
             {/* ── Photo half ── */}
             <div
-              className={`relative overflow-hidden ${
+              className={`relative overflow-hidden bg-[#0a0a0a] ${
                 photoRight ? "order-2" : "order-1"
               }`}
             >
@@ -535,15 +535,15 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
                 data-ci="img"
                 src={chapterImgUrl}
                 alt={c.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-contain md:object-cover"
                 style={{ objectPosition: `center ${focusY}%`, transformOrigin: "center top", willChange: "transform" }}
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
                 fetchPriority={i === 0 ? "high" : "auto"}
               />
-              {/* subtle vignette toward text side */}
+              {/* subtle vignette toward text side — desktop only */}
               <div
-                className={`absolute inset-0 ${
+                className={`absolute inset-0 hidden md:block ${
                   photoRight
                     ? "bg-gradient-to-l from-transparent to-black/30"
                     : "bg-gradient-to-r from-transparent to-black/30"
