@@ -523,11 +523,11 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
           <section
             key={c.n}
             data-cs
-            className="relative grid grid-cols-2 min-h-[60vh] md:h-screen"
+            className="relative grid grid-cols-2 items-stretch md:h-screen"
           >
             {/* ── Photo half ── */}
             <div
-              className={`relative overflow-hidden bg-[#0a0a0a] ${
+              className={`relative overflow-hidden aspect-[3/4] md:aspect-auto ${
                 photoRight ? "order-2" : "order-1"
               }`}
             >
@@ -535,25 +535,25 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
                 data-ci="img"
                 src={chapterImgUrl}
                 alt={c.title}
-                className="absolute inset-0 w-full h-full object-contain md:object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: `center ${focusY}%`, transformOrigin: "center top", willChange: "transform" }}
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
                 fetchPriority={i === 0 ? "high" : "auto"}
               />
-              {/* subtle vignette toward text side — desktop only */}
+              {/* vignette toward text side */}
               <div
-                className={`absolute inset-0 hidden md:block ${
+                className={`absolute inset-0 ${
                   photoRight
-                    ? "bg-gradient-to-l from-transparent to-black/30"
-                    : "bg-gradient-to-r from-transparent to-black/30"
+                    ? "bg-gradient-to-l from-transparent to-black/20"
+                    : "bg-gradient-to-r from-transparent to-black/20"
                 }`}
               />
             </div>
 
             {/* ── Text half ── */}
             <div
-              className={`relative flex items-center bg-background overflow-hidden px-5 sm:px-10 md:px-16 lg:px-20 ${
+              className={`relative flex items-center bg-background overflow-hidden px-4 sm:px-10 md:px-16 lg:px-20 py-6 md:py-0 ${
                 photoRight ? "order-1" : "order-2"
               }`}
             >
@@ -578,19 +578,19 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
                 </p>
                 <h3
                   data-ci="text"
-                  className="font-serif text-2xl sm:text-4xl md:text-5xl text-champagne mb-3 sm:mb-5 leading-[1.05] font-light"
+                  className="font-serif text-xl sm:text-4xl md:text-5xl text-champagne mb-2 sm:mb-5 leading-[1.05] font-light"
                 >
                   {c.title}
                 </h3>
                 <p
                   data-ci="text"
-                  className="text-[9px] sm:text-[11px] tracking-[0.35em] text-gold/80 mb-4 sm:mb-7"
+                  className="text-[9px] sm:text-[11px] tracking-[0.35em] text-gold/80 mb-3 sm:mb-7"
                 >
                   {c.year}
                 </p>
                 <p
                   data-ci="text"
-                  className="text-champagne/70 leading-relaxed text-[0.72rem] sm:text-sm md:text-base font-light mb-5 sm:mb-8"
+                  className="text-champagne/70 leading-relaxed text-[0.7rem] sm:text-sm md:text-base font-light mb-4 sm:mb-8"
                 >
                   {c.text}
                 </p>
@@ -599,6 +599,7 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
             </div>
           </section>
         );
+
       })}
     </div>
   );
