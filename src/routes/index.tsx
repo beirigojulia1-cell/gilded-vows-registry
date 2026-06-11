@@ -523,11 +523,11 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
           <section
             key={c.n}
             data-cs
-            className="relative grid grid-cols-2 items-stretch md:h-screen"
+            className="relative grid grid-cols-2 h-[67vw] overflow-hidden md:h-screen"
           >
             {/* ── Photo half ── */}
             <div
-              className={`relative overflow-hidden aspect-[3/4] md:aspect-auto ${
+              className={`relative overflow-hidden ${
                 photoRight ? "order-2" : "order-1"
               }`}
             >
@@ -553,7 +553,7 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
 
             {/* ── Text half ── */}
             <div
-              className={`relative flex items-center bg-background overflow-hidden px-4 sm:px-10 md:px-16 lg:px-20 py-6 md:py-0 ${
+              className={`relative flex items-center bg-background overflow-hidden px-3 sm:px-10 md:px-16 lg:px-20 ${
                 photoRight ? "order-1" : "order-2"
               }`}
             >
@@ -569,36 +569,37 @@ function LoveStory({ sc }: { sc: Record<string, string> }) {
                 {c.n}
               </span>
 
-              <div className="relative max-w-sm w-full">
+              <div className="relative w-full">
                 <p
                   data-ci="text"
-                  className="text-[9px] sm:text-[10px] tracking-[0.4em] uppercase text-gold/80 mb-3 sm:mb-5"
+                  className="text-[7px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-gold/80 mb-1 sm:mb-5"
                 >
                   {c.tag}
                 </p>
                 <h3
                   data-ci="text"
-                  className="font-serif text-xl sm:text-4xl md:text-5xl text-champagne mb-2 sm:mb-5 leading-[1.05] font-light"
+                  className="font-serif text-base sm:text-4xl md:text-5xl text-champagne mb-1 sm:mb-5 leading-[1.1] font-light"
                 >
                   {c.title}
                 </h3>
                 <p
                   data-ci="text"
-                  className="text-[9px] sm:text-[11px] tracking-[0.35em] text-gold/80 mb-3 sm:mb-7"
+                  className="text-[7px] sm:text-[11px] tracking-[0.25em] sm:tracking-[0.35em] text-gold/80 mb-2 sm:mb-7"
                 >
                   {c.year}
                 </p>
                 <p
                   data-ci="text"
-                  className="text-champagne/70 leading-relaxed text-[0.7rem] sm:text-sm md:text-base font-light mb-4 sm:mb-8"
+                  className="text-champagne/70 leading-relaxed text-[0.6rem] sm:text-sm md:text-base font-light mb-3 sm:mb-8"
                 >
                   {c.text}
                 </p>
-                <div data-ci="text" className="gold-rule w-10 sm:w-16" />
+                <div data-ci="text" className="gold-rule w-8 sm:w-16" />
               </div>
             </div>
           </section>
         );
+
 
       })}
     </div>
