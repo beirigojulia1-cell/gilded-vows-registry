@@ -305,7 +305,7 @@ function GiftsAdmin() {
                 style={{ background: g.gradient ?? undefined }}
               >
                 {g.imageUrl ? (
-                  <img src={g.imageUrl} alt="" className="w-full h-full object-cover" />
+                  <img src={g.imageUrl} alt="" className="w-full h-full object-contain" />
                 ) : (
                   g.icon
                 )}
