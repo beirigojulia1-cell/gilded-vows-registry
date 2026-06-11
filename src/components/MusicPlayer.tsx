@@ -76,7 +76,7 @@ export function MusicPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} src="/audio/bg-music.mp3" loop preload="auto" />
+      <audio ref={audioRef} src="/audio/perfect-duet.mp3" loop preload="auto" />
       <button
         type="button"
         onClick={toggle}
