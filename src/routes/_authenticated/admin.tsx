@@ -998,8 +998,8 @@ function SettingsPanel() {
           </Card>
 
           <Card title="Citação (seção entre Hero e História)">
-            <Field label="Primeira linha da citação">
-              <input value={c("quoteMain", "Algumas histórias começam de forma simples…")} onChange={(e) => setC("quoteMain", e.target.value)} className={inputCls} />
+            <Field label="Texto da citação/história principal">
+              <textarea rows={8} value={c("quoteMain", SITE_CONTENT_DEFAULTS.quoteMain)} onChange={(e) => setC("quoteMain", e.target.value)} className={`${inputCls} resize-none`} />
             </Field>
             <Field label="Segunda linha (itálica + dourada)">
               <input value={c("quoteItalic", "mas acabam se tornando eternas.")} onChange={(e) => setC("quoteItalic", e.target.value)} className={inputCls} />
