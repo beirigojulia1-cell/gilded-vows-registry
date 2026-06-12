@@ -234,10 +234,12 @@ function GiftsAdmin() {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropIdx, setDropIdx] = useState<number | null>(null);
 
-  // Sync localOrder when gifts load or change
+  // Sync localOrder when gifts load or change, but only if not actively reordering
   useEffect(() => {
-    setLocalOrder([...rawGifts]);
-  }, [rawGifts]);
+    if (!reordering) {
+      setLocalOrder([...rawGifts]);
+    }
+  }, [rawGifts, reordering]);
 
   const isFiltering = q !== "" || cat !== "Todas" || status !== "all";
   const gifts = isFiltering ? rawGifts : localOrder;
@@ -406,9 +408,10 @@ function GiftsAdmin() {
                   g.icon
                 )}
                 {!isFiltering && (
-                  <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+                  <div className="absolute top-1 left-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex flex-col gap-1 z-10">
                     <button
-                      onClick={() => idx > 0 && moveGift(idx, idx - 1)}
+                      onClick={(e) => { e.stopPropagation(); idx > 0 && moveGift(idx, idx - 1); }}
+                      onPointerDown={(e) => e.stopPropagation()}
                       disabled={idx === 0}
                       title="Mover para cima"
                       className="w-7 h-7 rounded bg-black/60 border border-gold/30 text-gold text-sm hover:bg-gold/20 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -416,7 +419,8 @@ function GiftsAdmin() {
                       ↑
                     </button>
                     <button
-                      onClick={() => idx < localOrder.length - 1 && moveGift(idx, idx + 1)}
+                      onClick={(e) => { e.stopPropagation(); idx < localOrder.length - 1 && moveGift(idx, idx + 1); }}
+                      onPointerDown={(e) => e.stopPropagation()}
                       disabled={idx === localOrder.length - 1}
                       title="Mover para baixo"
                       className="w-7 h-7 rounded bg-black/60 border border-gold/30 text-gold text-sm hover:bg-gold/20 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -426,7 +430,7 @@ function GiftsAdmin() {
                   </div>
                 )}
                 {!isFiltering && (
-                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-1 right-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
                     <span className="text-[10px] bg-black/60 text-champagne/60 px-2 py-1 rounded tracking-wider">#{idx + 1}</span>
                   </div>
                 )}

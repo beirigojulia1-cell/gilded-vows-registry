@@ -380,12 +380,14 @@ function Hero({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
           </span>
         </h1>
         <div data-hero-rule className="gold-rule w-20 sm:w-24 mx-auto my-7 sm:my-10" />
-        <p
-          data-hero-tag
-          className="opacity-0 font-script text-champagne/80 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem]"
-        >
-          {sc.heroTag}
-        </p>
+        <div data-hero-tag className="opacity-0 min-h-[3rem] sm:min-h-[4rem]">
+          <TypewriterText
+            paragraphs={[sc.heroTag]}
+            charDelay={60}
+            startDelay={2800}
+            className="font-script text-champagne/80 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem]"
+          />
+        </div>
       </div>
       <div
         data-hero-scroll
@@ -413,7 +415,7 @@ function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
         <div className="gold-rule w-28 sm:w-40 mx-auto mb-8 sm:mb-12" data-rule-grow />
         <TypewriterText
           paragraphs={paragraphs}
-          charDelay={18}
+          charDelay={65}
           paragraphPause={600}
           className="font-serif text-lg sm:text-xl md:text-2xl text-champagne leading-relaxed font-light space-y-6 text-left sm:text-center"
         />
