@@ -406,31 +406,44 @@ function Hero({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
 function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
   const paragraphs = sc.quoteMain.split('\n').filter(p => p.trim() !== '');
 
+  let currentDelay = 0;
+
   return (
     <section className="py-20 sm:py-28 md:py-40 lg:py-48 px-5 sm:px-6">
       <div className="max-w-3xl mx-auto text-center" data-pin-fade>
         <div className="gold-rule w-28 sm:w-40 mx-auto mb-8 sm:mb-12" data-rule-grow />
         <div className="font-serif text-lg sm:text-xl md:text-2xl text-champagne leading-relaxed font-light space-y-6">
-          {paragraphs.map((p, i) => (
-            <AnimatedText
-              key={i}
-              as="p"
-              text={p}
-              split="lines"
-              stagger={0.06}
-              duration={1.1}
-              delay={i * 0.1}
-              className="block"
-            />
-          ))}
+          {paragraphs.map((p, i) => {
+            const delay = currentDelay;
+            // Add typing time for this paragraph: ~20ms per character + 0.5s pause between paragraphs
+            currentDelay += p.length * 0.02 + 0.5;
+            return (
+              <AnimatedText
+                key={i}
+                as="p"
+                text={p}
+                split="chars"
+                stagger={0.02}
+                duration={0.01}
+                delay={delay}
+                blur={false}
+                y={0}
+                clip={false}
+                className="block"
+              />
+            );
+          })}
           {sc.quoteItalic && (
             <AnimatedText
               as="p"
               text={sc.quoteItalic}
-              split="lines"
-              stagger={0.07}
-              duration={1.2}
-              delay={paragraphs.length * 0.1 + 0.2}
+              split="chars"
+              stagger={0.02}
+              duration={0.01}
+              delay={currentDelay + 0.2}
+              blur={false}
+              y={0}
+              clip={false}
               className="block italic text-gradient-gold mt-6 sm:mt-8 text-xl sm:text-2xl"
             />
           )}
