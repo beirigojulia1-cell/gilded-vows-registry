@@ -79,7 +79,7 @@ export function AnimatedText({
 
   const tokens =
     split === "chars"
-      ? Array.from(text)
+      ? Array.from(text).map((c) => (c === " " ? "\u00A0" : c))
       : split === "lines"
         ? text.split("\n")
         : text.split(/(\s+)/);
@@ -93,7 +93,6 @@ export function AnimatedText({
     >
       {tokens.map((tok, i) => {
         if (split === "words" && /^\s+$/.test(tok)) return <span key={i}>{tok}</span>;
-        if (split === "chars" && tok === " ") return <span key={i}> </span>;
         return (
           <span
             key={i}
