@@ -58,14 +58,21 @@ const purchaseFromRow = (r: PurchaseRow): Purchase => ({
   createdAt: r.created_at,
 });
 
-const settingsFromRow = (r: SettingsRow): Settings => ({
-  coupleNames: r.couple_names,
-  weddingDate: r.wedding_date,
-  pixKey: r.pix_key,
-  pixName: r.pix_name,
-  pixCity: r.pix_city,
-  content: { ...SITE_CONTENT_DEFAULTS, ...(r.content ?? {}) } as Settings["content"],
-});
+const settingsFromRow = (r: SettingsRow): Settings => {
+  const content = r.content ?? {};
+  // If the database still has the old default placeholder, ignore it to use the new code defaults
+  if (content.quoteMain && content.quoteMain.includes("Algumas histórias começam de forma simples")) {
+    delete content.quoteMain;
+  }
+  return {
+    coupleNames: r.couple_names,
+    weddingDate: r.wedding_date,
+    pixKey: r.pix_key,
+    pixName: r.pix_name,
+    pixCity: r.pix_city,
+    content: { ...SITE_CONTENT_DEFAULTS, ...content } as Settings["content"],
+  };
+};
 
 // --- helpers ---
 // Server-side anon client for public reads/writes (uses RLS).
