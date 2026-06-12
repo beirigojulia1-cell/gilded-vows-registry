@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { supabase } from "@/integrations/supabase/client";
-import { formatBRL, type Gift, type Purchase, type Settings } from "@/lib/wedding-types";
+import { formatBRL, type Gift, type Purchase, type Settings, SITE_CONTENT_DEFAULTS } from "@/lib/wedding-types";
 import { giftsQuery, purchasesQuery, settingsQuery, isAdminQuery } from "@/lib/wedding-queries";
 import {
   clearPurchases,
