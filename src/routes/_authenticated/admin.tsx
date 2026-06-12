@@ -276,7 +276,12 @@ function GiftsAdmin() {
       push("Ordem salva!", "success");
       setReordering(false);
     },
-    onError: (e: Error) => push(e.message, "error"),
+    onError: (e: Error) => {
+      // Restore localOrder from server on failure
+      qc.invalidateQueries({ queryKey: ["gifts"] });
+      push(e.message, "error");
+      setReordering(false);
+    },
   });
 
   function moveGift(fromIdx: number, toIdx: number) {
@@ -411,8 +416,8 @@ function GiftsAdmin() {
                       ↑
                     </button>
                     <button
-                      onClick={() => idx < filtered.length - 1 && moveGift(idx, idx + 1)}
-                      disabled={idx === filtered.length - 1}
+                      onClick={() => idx < localOrder.length - 1 && moveGift(idx, idx + 1)}
+                      disabled={idx === localOrder.length - 1}
                       title="Mover para baixo"
                       className="w-7 h-7 rounded bg-black/60 border border-gold/30 text-gold text-sm hover:bg-gold/20 disabled:opacity-30 disabled:cursor-not-allowed"
                     >

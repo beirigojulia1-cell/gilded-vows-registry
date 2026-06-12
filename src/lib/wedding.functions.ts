@@ -344,11 +344,13 @@ export const reorderGifts = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await requireAdmin(context);
     const client = context.supabase as any;
-    await Promise.all(
+    const results = await Promise.all(
       data.order.map(({ id, sortOrder }) =>
         client.from("gifts").update({ sort_order: sortOrder }).eq("id", id),
       ),
     );
+    const errors = results.filter((r: any) => r.error).map((r: any) => r.error.message);
+    if (errors.length > 0) throw new Error(`Falha ao salvar ordem: ${errors[0]}`);
     return { ok: true };
   });
 
