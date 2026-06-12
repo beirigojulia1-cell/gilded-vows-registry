@@ -10,6 +10,7 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { ToastProvider } from "@/components/Toast";
 import { PurchaseModal } from "@/components/PurchaseModal";
 import { AnimatedText } from "@/components/AnimatedText";
+import { TypewriterText } from "@/components/TypewriterText";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { formatBRL } from "@/lib/store";
@@ -410,31 +411,23 @@ function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
     <section className="py-20 sm:py-28 md:py-40 lg:py-48 px-5 sm:px-6">
       <div className="max-w-3xl mx-auto text-center" data-pin-fade>
         <div className="gold-rule w-28 sm:w-40 mx-auto mb-8 sm:mb-12" data-rule-grow />
-        <div className="font-serif text-lg sm:text-xl md:text-2xl text-champagne leading-relaxed font-light space-y-6">
-          {paragraphs.map((p, i) => (
-            <AnimatedText
-              key={i}
-              as="p"
-              text={p}
-              split="lines"
-              stagger={0.06}
-              duration={1.1}
-              delay={i * 0.1}
-              className="block"
-            />
-          ))}
-          {sc.quoteItalic && (
-            <AnimatedText
-              as="p"
-              text={sc.quoteItalic}
-              split="lines"
-              stagger={0.07}
-              duration={1.2}
-              delay={paragraphs.length * 0.1 + 0.2}
-              className="block italic text-gradient-gold mt-6 sm:mt-8 text-xl sm:text-2xl"
-            />
-          )}
-        </div>
+        <TypewriterText
+          paragraphs={paragraphs}
+          charDelay={18}
+          paragraphPause={600}
+          className="font-serif text-lg sm:text-xl md:text-2xl text-champagne leading-relaxed font-light space-y-6 text-left sm:text-center"
+        />
+        {sc.quoteItalic && (
+          <AnimatedText
+            as="p"
+            text={sc.quoteItalic}
+            split="lines"
+            stagger={0.07}
+            duration={1.2}
+            delay={0.3}
+            className="block italic text-gradient-gold mt-6 sm:mt-8 text-xl sm:text-2xl"
+          />
+        )}
         <div className="gold-rule w-28 sm:w-40 mx-auto mt-8 sm:mt-12" data-rule-grow />
       </div>
     </section>
