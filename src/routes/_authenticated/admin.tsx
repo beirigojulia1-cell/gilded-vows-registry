@@ -1119,8 +1119,17 @@ function SettingsPanel() {
           </Card>
 
           <Card title="Citação (seção entre Hero e História)">
-            <Field label="Texto da citação/história principal">
-              <textarea rows={8} value={c("quoteMain", SITE_CONTENT_DEFAULTS.quoteMain)} onChange={(e) => setC("quoteMain", e.target.value)} className={`${inputCls} resize-none`} />
+            <Field label="Texto da história do casal">
+              <p className="text-champagne/35 text-[11px] mb-2 leading-relaxed">
+                Separe os parágrafos com uma linha em branco (Enter duas vezes). Esse texto aparece com efeito de digitação no site.
+              </p>
+              <textarea
+                rows={16}
+                value={c("quoteMain", SITE_CONTENT_DEFAULTS.quoteMain)}
+                onChange={(e) => setC("quoteMain", e.target.value)}
+                className={`${inputCls} resize-y font-mono text-xs leading-relaxed`}
+                placeholder={SITE_CONTENT_DEFAULTS.quoteMain}
+              />
             </Field>
             <Field label="Segunda linha (itálica + dourada)">
               <input value={c("quoteItalic", "mas acabam se tornando eternas.")} onChange={(e) => setC("quoteItalic", e.target.value)} className={inputCls} />
