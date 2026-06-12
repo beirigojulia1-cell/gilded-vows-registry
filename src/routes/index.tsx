@@ -383,7 +383,7 @@ function Hero({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
         <div data-hero-tag className="opacity-0 min-h-[3rem] sm:min-h-[4rem]">
           <TypewriterText
             paragraphs={[sc.heroTag]}
-            charDelay={25}
+            charDelay={40}
             startDelay={2800}
             className="font-script text-champagne/80 text-[1.5rem] sm:text-[2rem] md:text-[2.5rem]"
           />
@@ -415,7 +415,7 @@ function Quote({ sc }: { sc: typeof SITE_CONTENT_DEFAULTS }) {
         <div className="gold-rule w-28 sm:w-40 mx-auto mb-8 sm:mb-12" data-rule-grow />
         <TypewriterText
           paragraphs={paragraphs}
-          charDelay={25}
+          charDelay={40}
           paragraphPause={600}
           className="font-serif text-lg sm:text-xl md:text-2xl text-champagne leading-relaxed font-light space-y-6 text-left sm:text-center"
         />
